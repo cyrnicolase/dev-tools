@@ -11,10 +11,17 @@ import (
 	"github.com/cyrnicolase/dev-tools/internal/logger"
 )
 
+// Version 应用版本号
+// 可以通过构建时注入: go build -ldflags "-X github.com/cyrnicolase/dev-tools/cmd/app.Version=1.0.6"
+var Version = "1.0.6"
+
+// GetVersion 获取应用版本号（包级别函数）
+func GetVersion() string {
+	return Version
+}
+
 // App 应用主结构体，负责应用级别的功能
 type App struct {
-	ctx context.Context
-
 	// 工具处理器
 	JSON      *handlers.JSONHandler
 	Base64    *handlers.Base64Handler
@@ -37,9 +44,7 @@ func NewApp() *App {
 }
 
 // Startup 应用启动时的回调
-func (a *App) Startup(ctx context.Context) {
-	a.ctx = ctx
-
+func (a *App) Startup(_ context.Context) {
 	// 初始化日志记录器
 	// 日志文件保存在用户目录下的 .dev-tools/logs 文件夹
 	homeDir, err := os.UserHomeDir()
@@ -54,9 +59,9 @@ func (a *App) Startup(ctx context.Context) {
 	}
 }
 
-// GetVersion 获取应用版本号
+// GetVersion 获取应用版本号（实例方法）
 func (a *App) GetVersion() string {
-	return "1.0.6"
+	return GetVersion()
 }
 
 // SetInitialTool 设置启动时的工具名称

@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"os"
 	"strings"
 
@@ -16,6 +17,11 @@ import (
 var assets embed.FS
 
 func main() {
+	// 检查版本号参数
+	if checkVersionFlag() {
+		return
+	}
+
 	appInstance := app.NewApp()
 
 	// 解析命令行参数
@@ -79,4 +85,18 @@ func parseCommandLineArgs() string {
 	}
 
 	return ""
+}
+
+// checkVersionFlag 检查是否请求显示版本号
+// 支持 --version, -v, version 参数
+func checkVersionFlag() bool {
+	args := os.Args[1:]
+	for _, arg := range args {
+		arg = strings.ToLower(strings.TrimSpace(arg))
+		if arg == "--version" || arg == "-v" || arg == "version" {
+			fmt.Printf("Dev Tools %s\n", app.GetVersion())
+			return true
+		}
+	}
+	return false
 }
