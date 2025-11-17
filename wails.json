@@ -19,11 +19,16 @@
     "productName": "Dev Tools",
     "productVersion": "1.0.6",
     "copyright": "Copyright...",
-    "comments": "开发工具集"
+    "comments": "开发工具集",
+    "protocols": [
+      {
+        "scheme": "devtools",
+        "role": "Editor"
+      }
+    ]
   },
   "nsisType": "multiple",
   "obfuscated": false,
-  "garbleargs": "",
-  "urlscheme": "devtools"
+  "garbleargs": ""
 }
 

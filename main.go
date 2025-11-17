@@ -9,6 +9,7 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 
 	"github.com/cyrnicolase/dev-tools/cmd/app"
 )
@@ -39,12 +40,23 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        appInstance.Startup,
+		Mac: &mac.Options{
+			OnUrlOpen: func(url string) {
+				// 处理 URL Scheme 调用（应用已运行时）
+				fmt.Fprintf(os.Stderr, "DEBUG: OnUrlOpen 接收到 URL: %s\n", url)
+				toolName := parseURLScheme(url)
+				if toolName != "" {
+					fmt.Fprintf(os.Stderr, "DEBUG: OnUrlOpen 解析到工具: %s\n", toolName)
+					appInstance.SetInitialTool(toolName)
+				}
+			},
+		},
 		Bind: []interface{}{
 			appInstance,           // 应用级别功能（版本号、导航）
 			appInstance.JSON,      // JSON 工具处理器
 			appInstance.Base64,    // Base64 工具处理器
 			appInstance.Timestamp, // Timestamp 工具处理器
-			appInstance.UUID,       // UUID 工具处理器
+			appInstance.UUID,      // UUID 工具处理器
 		},
 	})
 
@@ -57,6 +69,7 @@ func main() {
 // 支持格式：
 // - --tool <toolName>
 // - <toolName> (直接作为第一个参数)
+// - devtools://tool/<toolName> (URL Scheme)
 func parseCommandLineArgs() string {
 	args := os.Args[1:]
 	if len(args) == 0 {
@@ -66,7 +79,8 @@ func parseCommandLineArgs() string {
 	// 检查 --tool 参数
 	for i, arg := range args {
 		if arg == "--tool" && i+1 < len(args) {
-			return args[i+1]
+			toolName := args[i+1]
+			return toolName
 		}
 	}
 
@@ -74,14 +88,45 @@ func parseCommandLineArgs() string {
 	if len(args) > 0 {
 		arg := args[0]
 		if strings.HasPrefix(arg, "devtools://") {
-			// 解析 URL Scheme: devtools://tool/<toolName>
-			parts := strings.Split(strings.TrimPrefix(arg, "devtools://"), "/")
-			if len(parts) >= 2 && parts[0] == "tool" {
-				return parts[1]
+			toolName := parseURLScheme(arg)
+			if toolName != "" {
+				return toolName
 			}
 		}
-		// 直接作为工具名称（简单情况）
 		return arg
+	}
+
+	return ""
+}
+
+// parseURLScheme 解析 URL Scheme，提取工具名称
+// 支持格式: devtools://tool/<toolName>
+func parseURLScheme(url string) string {
+	if !strings.HasPrefix(url, "devtools://") {
+		return ""
+	}
+
+	// 移除协议前缀
+	urlPath := strings.TrimPrefix(url, "devtools://")
+	// 移除开头的斜杠（如果有）
+	urlPath = strings.TrimPrefix(urlPath, "/")
+	// 分割路径
+	parts := strings.Split(urlPath, "/")
+
+	// 解析格式: tool/<toolName>
+	if len(parts) >= 2 && parts[0] == "tool" {
+		toolName := strings.TrimSpace(parts[1])
+		if toolName != "" {
+			return toolName
+		}
+	}
+
+	// 如果格式不对，尝试直接使用最后一个部分作为工具名称
+	if len(parts) > 0 {
+		lastPart := strings.TrimSpace(parts[len(parts)-1])
+		if lastPart != "" && lastPart != "tool" {
+			return lastPart
+		}
 	}
 
 	return ""
