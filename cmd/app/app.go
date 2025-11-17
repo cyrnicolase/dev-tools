@@ -2,10 +2,13 @@ package app
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
 	"github.com/cyrnicolase/dev-tools/cmd/app/handlers"
+	"github.com/cyrnicolase/dev-tools/internal/logger"
 )
 
 // App 应用主结构体，负责应用级别的功能
@@ -36,6 +39,19 @@ func NewApp() *App {
 // Startup 应用启动时的回调
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+
+	// 初始化日志记录器
+	// 日志文件保存在用户目录下的 .dev-tools/logs 文件夹
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		// 如果获取用户目录失败，使用当前目录
+		homeDir = "."
+	}
+	logDir := filepath.Join(homeDir, ".dev-tools", "logs")
+	if err := logger.InitLogger(logDir); err != nil {
+		// 日志初始化失败不影响应用运行，只输出到控制台
+		println("警告: 日志初始化失败:", err.Error())
+	}
 }
 
 // GetVersion 获取应用版本号

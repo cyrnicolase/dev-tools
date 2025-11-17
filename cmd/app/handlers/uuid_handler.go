@@ -1,6 +1,11 @@
 package handlers
 
 import (
+	"fmt"
+	"path/filepath"
+	"runtime"
+
+	"github.com/cyrnicolase/dev-tools/internal/logger"
 	uuidapi "github.com/cyrnicolase/dev-tools/internal/uuid/interfaces"
 )
 
@@ -23,7 +28,11 @@ func (h *UUIDHandler) GenerateV1() string {
 
 // GenerateV3 生成 UUID v3
 func (h *UUIDHandler) GenerateV3(namespace, name string) (string, error) {
-	return h.api.GenerateV3(namespace, name)
+	result, err := h.api.GenerateV3(namespace, name)
+	if err != nil {
+		h.logError("GenerateV3", err)
+	}
+	return result, err
 }
 
 // GenerateV4 生成 UUID v4
@@ -33,10 +42,33 @@ func (h *UUIDHandler) GenerateV4() string {
 
 // GenerateV5 生成 UUID v5
 func (h *UUIDHandler) GenerateV5(namespace, name string) (string, error) {
-	return h.api.GenerateV5(namespace, name)
+	result, err := h.api.GenerateV5(namespace, name)
+	if err != nil {
+		h.logError("GenerateV5", err)
+	}
+	return result, err
 }
 
 // GenerateBatch 批量生成 UUID
 func (h *UUIDHandler) GenerateBatch(version string, count int, namespace, name string) ([]string, error) {
-	return h.api.GenerateBatch(version, count, namespace, name)
+	result, err := h.api.GenerateBatch(version, count, namespace, name)
+	if err != nil {
+		h.logError("GenerateBatch", err)
+	}
+	return result, err
+}
+
+// logError 记录错误日志
+func (h *UUIDHandler) logError(method string, err error) {
+	if err == nil {
+		return
+	}
+	pc, file, line, ok := runtime.Caller(2)
+	if ok {
+		funcName := runtime.FuncForPC(pc).Name()
+		enhancedErr := fmt.Errorf("%s [%s:%d] %w", funcName, filepath.Base(file), line, err)
+		logger.GetLogger().LogError("UUIDHandler", method, enhancedErr)
+	} else {
+		logger.GetLogger().LogError("UUIDHandler", method, err)
+	}
 }
