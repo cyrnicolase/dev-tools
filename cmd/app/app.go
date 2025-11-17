@@ -78,6 +78,13 @@ func (a *App) GetInitialTool() string {
 	return a.initialTool
 }
 
+// ClearInitialTool 清除初始工具设置（用于防止重复切换）
+func (a *App) ClearInitialTool() {
+	a.toolMu.Lock()
+	defer a.toolMu.Unlock()
+	a.initialTool = ""
+}
+
 // NavigateToTool 导航到指定工具（供前端调用）
 func (a *App) NavigateToTool(toolName string) bool {
 	// 验证工具名称

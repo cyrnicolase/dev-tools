@@ -78,6 +78,7 @@ export function waitForWailsAPI(timeout = 5000) {
           GetVersion: appAPI.GetVersion?.bind(appAPI),
           GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
           NavigateToTool: appAPI.NavigateToTool?.bind(appAPI),
+          ClearInitialTool: appAPI.ClearInitialTool?.bind(appAPI),
         }
         
         // 检查至少有一个方法可用
@@ -162,6 +163,7 @@ export function getWailsAPI() {
       GetVersion: appAPI.GetVersion?.bind(appAPI),
       GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
       NavigateToTool: appAPI.NavigateToTool?.bind(appAPI),
+      ClearInitialTool: appAPI.ClearInitialTool?.bind(appAPI),
     }
   }
   

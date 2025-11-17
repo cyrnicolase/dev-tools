@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import JsonTool from './tools/json/JsonTool'
 import Base64Tool from './tools/base64/Base64Tool'
 import TimestampTool from './tools/timestamp/TimestampTool'
@@ -9,6 +9,8 @@ function App() {
   const [activeTool, setActiveTool] = useState('json')
   const [version, setVersion] = useState('1.0.6')
   const [apiReady, setApiReady] = useState(false)
+  const [initialToolHandled, setInitialToolHandled] = useState(false)
+  const lastCheckedToolRef = useRef('')
 
   useEffect(() => {
     // 等待 Wails API 初始化
@@ -26,8 +28,8 @@ function App() {
             })
         }
         
-        // 获取启动时指定的工具名称
-        if (api.GetInitialTool) {
+        // 获取启动时指定的工具名称（只在启动时检查一次）
+        if (api.GetInitialTool && !initialToolHandled) {
           api.GetInitialTool()
             .then((toolName) => {
               if (toolName && toolName.trim() !== '') {
@@ -36,22 +38,49 @@ function App() {
                 const normalizedTool = toolName.toLowerCase().trim()
                 if (validTools.includes(normalizedTool)) {
                   setActiveTool(normalizedTool)
+                  lastCheckedToolRef.current = normalizedTool
+                  // 立即清除初始工具设置，防止轮询时重复切换
+                  // 使用 setTimeout 确保清除操作在状态更新后执行
+                  setTimeout(() => {
+                    if (api.ClearInitialTool) {
+                      api.ClearInitialTool().catch(() => {
+                        // 忽略错误
+                      })
+                    }
+                  }, 100)
+                } else {
+                  // 即使工具名称无效，也要清除并标记为已处理
+                  if (api.ClearInitialTool) {
+                    api.ClearInitialTool().catch(() => {})
+                  }
                 }
               }
+              setInitialToolHandled(true)
             })
             .catch((e) => {
               console.error('获取初始工具失败:', e)
+              setInitialToolHandled(true)
             })
+        } else {
+          // 如果没有初始工具，也标记为已处理
+          setInitialToolHandled(true)
         }
       })
       .catch((err) => {
         console.error('Wails API 初始化失败:', err)
       })
-  }, [])
+  }, [initialToolHandled])
 
-  // 监听工具变化（用于处理应用已运行时的 URL Scheme 调用）
+  // 当用户手动切换工具时，更新 lastCheckedToolRef
   useEffect(() => {
-    if (!apiReady) return
+    if (initialToolHandled) {
+      lastCheckedToolRef.current = activeTool
+    }
+  }, [activeTool, initialToolHandled])
+
+  // 监听工具变化（用于处理应用已运行时的外部调用，如 Alfred）
+  useEffect(() => {
+    if (!apiReady || !initialToolHandled) return
 
     const checkToolChange = async () => {
       const api = getWailsAPI()
@@ -61,10 +90,22 @@ function App() {
           if (toolName && toolName.trim() !== '') {
             const normalizedTool = toolName.toLowerCase().trim()
             const validTools = ['json', 'base64', 'timestamp', 'uuid']
-            if (validTools.includes(normalizedTool) && normalizedTool !== activeTool) {
+            // 只有当工具名称与上次检查的不同时才切换（检测外部新请求）
+            // 如果与 lastCheckedToolRef 相同，说明已经处理过了，不再切换
+            if (validTools.includes(normalizedTool) && 
+                normalizedTool !== lastCheckedToolRef.current &&
+                normalizedTool !== activeTool) {
               setActiveTool(normalizedTool)
+              lastCheckedToolRef.current = normalizedTool
+              // 清除初始工具设置，防止下次轮询时再次切换
+              if (api.ClearInitialTool) {
+                api.ClearInitialTool().catch(() => {
+                  // 忽略错误
+                })
+              }
             }
           }
+          // 如果 initialTool 为空，说明已经清除，不需要做任何操作
         } catch (e) {
           // 忽略错误
         }
@@ -74,7 +115,7 @@ function App() {
     // 定期检查工具变化（每 500ms 检查一次）
     const interval = setInterval(checkToolChange, 500)
     return () => clearInterval(interval)
-  }, [apiReady, activeTool])
+  }, [apiReady, initialToolHandled, activeTool])
 
   const tools = [
     { id: 'json', name: 'JSON', icon: '📄' },
