@@ -1,0 +1,29 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "DevTools",
+  "outputfilename": "DevTools",
+  "frontend": {
+    "dir": "./frontend",
+    "install": "npm install",
+    "build": "npm run build",
+    "dev": "npm run dev",
+    "bridge": "src/index.jsx",
+    "serve": "npm run dev"
+  },
+  "author": {
+    "name": "cyrnicolase",
+    "email": "nicolase@gmail.com"
+  },
+  "info": {
+    "companyName": "Dev Tools",
+    "productName": "Dev Tools",
+    "productVersion": "1.0.6",
+    "copyright": "Copyright...",
+    "comments": "开发工具集"
+  },
+  "nsisType": "multiple",
+  "obfuscated": false,
+  "garbleargs": "",
+  "urlscheme": "devtools"
+}
+
