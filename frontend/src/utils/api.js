@@ -40,6 +40,7 @@ export function waitForWailsAPI(timeout = 5000) {
       const base64Handler = window.go?.handlers?.Base64Handler
       const timestampHandler = window.go?.handlers?.TimestampHandler
       const uuidHandler = window.go?.handlers?.UUIDHandler
+      const urlHandler = window.go?.handlers?.URLHandler
       
       if (appAPI) {
         const result = {
@@ -75,6 +76,10 @@ export function waitForWailsAPI(timeout = 5000) {
             GenerateV5: uuidHandler.GenerateV5?.bind(uuidHandler),
             GenerateBatch: uuidHandler.GenerateBatch?.bind(uuidHandler),
           } : null,
+          URL: urlHandler ? {
+            Encode: urlHandler.Encode?.bind(urlHandler),
+            Decode: urlHandler.Decode?.bind(urlHandler),
+          } : null,
           GetVersion: appAPI.GetVersion?.bind(appAPI),
           GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
           NavigateToTool: appAPI.NavigateToTool?.bind(appAPI),
@@ -82,7 +87,7 @@ export function waitForWailsAPI(timeout = 5000) {
         }
         
         // 检查至少有一个方法可用
-        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4) {
+        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode) {
           resolve(result)
           return
         }
@@ -125,6 +130,7 @@ export function getWailsAPI() {
   const base64Handler = window.go?.handlers?.Base64Handler
   const timestampHandler = window.go?.handlers?.TimestampHandler
   const uuidHandler = window.go?.handlers?.UUIDHandler
+  const urlHandler = window.go?.handlers?.URLHandler
   
   if (appAPI) {
     return {
@@ -159,6 +165,10 @@ export function getWailsAPI() {
         GenerateV4: uuidHandler.GenerateV4?.bind(uuidHandler),
         GenerateV5: uuidHandler.GenerateV5?.bind(uuidHandler),
         GenerateBatch: uuidHandler.GenerateBatch?.bind(uuidHandler),
+      } : null,
+      URL: urlHandler ? {
+        Encode: urlHandler.Encode?.bind(urlHandler),
+        Decode: urlHandler.Decode?.bind(urlHandler),
       } : null,
       GetVersion: appAPI.GetVersion?.bind(appAPI),
       GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),

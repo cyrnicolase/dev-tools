@@ -27,6 +27,7 @@ type App struct {
 	Base64    *handlers.Base64Handler
 	Timestamp *handlers.TimestampHandler
 	UUID      *handlers.UUIDHandler
+	URL       *handlers.URLHandler
 
 	// 工具导航
 	initialTool string
@@ -40,6 +41,7 @@ func NewApp() *App {
 		Base64:    handlers.NewBase64Handler(),
 		Timestamp: handlers.NewTimestampHandler(),
 		UUID:      handlers.NewUUIDHandler(),
+		URL:       handlers.NewURLHandler(),
 	}
 }
 
@@ -93,6 +95,7 @@ func (a *App) NavigateToTool(toolName string) bool {
 		"base64":    true,
 		"timestamp": true,
 		"uuid":      true,
+		"url":       true,
 	}
 
 	toolName = strings.ToLower(strings.TrimSpace(toolName))

@@ -57,6 +57,7 @@ func main() {
 			appInstance.Base64,    // Base64 工具处理器
 			appInstance.Timestamp, // Timestamp 工具处理器
 			appInstance.UUID,      // UUID 工具处理器
+			appInstance.URL,       // URL 工具处理器
 		},
 	})
 
