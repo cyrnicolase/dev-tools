@@ -8,9 +8,9 @@ function JsonFormatter() {
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
   const [error, setError] = useState('')
-  const [isValid, setIsValid] = useState(null)
   const [api, setApi] = useState(null)
   const [maximizeMode, setMaximizeMode] = useState('none') // 'none', 'fullscreen', 'content'
+  const [inputMaximizeMode, setInputMaximizeMode] = useState('none') // 'none', 'fullscreen', 'content'
   const [preserveEscape, setPreserveEscape] = useState(true) // 默认保留转义
   const [lastFormattedInput, setLastFormattedInput] = useState('') // 保存最后一次格式化的输入
   const [outputFormat, setOutputFormat] = useState('json') // 'json' 或 'yaml'
@@ -67,15 +67,14 @@ function JsonFormatter() {
       // 使用 FormatWithEscape 方法，传入 preserveEscape 参数
       const result = await wailsAPI.JSON.FormatWithEscape(input, preserveEscape)
       if (result) {
+        setInput(result) // 同时格式化输入框内容
         setOutput(result)
-        setLastFormattedInput(input) // 保存原始输入
+        setLastFormattedInput(result) // 保存格式化后的输入（用于重新格式化）
         setOutputFormat('json') // 重置为 JSON 格式
         setIsMinified(false) // 格式化后不是压缩格式
-        setIsValid(true)
       }
     } catch (err) {
       setError(err.message || '格式化失败')
-      setIsValid(false)
     }
   }
 
@@ -105,7 +104,6 @@ function JsonFormatter() {
         if (result) {
           setOutput(result)
           setIsMinified(false)
-          setIsValid(true)
         }
       } else {
         // 当前是格式化格式，转换为压缩
@@ -113,33 +111,10 @@ function JsonFormatter() {
         if (result) {
           setOutput(result)
           setIsMinified(true)
-          setIsValid(true)
         }
       }
     } catch (err) {
       setError(err.message || '转换失败')
-      setIsValid(false)
-    }
-  }
-
-  const handleValidate = async () => {
-    try {
-      setError('')
-      const wailsAPI = api || getWailsAPI()
-      if (!wailsAPI?.JSON) {
-        setError('后端 API 未加载，请稍候重试')
-        return
-      }
-      const result = await wailsAPI.JSON.Validate(input)
-      setIsValid(result)
-      if (result) {
-        setError('')
-      } else {
-        setError('JSON 格式无效')
-      }
-    } catch (err) {
-      setIsValid(false)
-      setError(err.message || '验证失败')
     }
   }
 
@@ -164,16 +139,13 @@ function JsonFormatter() {
           setOutput(result)
           setOutputFormat('yaml')
           setIsMinified(false) // YAML 格式不是压缩格式
-          setIsValid(true)
         } else {
           setError('转换失败：返回结果为空')
-          setIsValid(false)
         }
       } else {
         // 当前是 YAML，转换回 JSON
         if (!wailsAPI.JSON.FromYAML) {
           setError('YAML 转 JSON 功能不可用，请检查后端 API')
-          setIsValid(false)
           return
         }
         result = await wailsAPI.JSON.FromYAML(output)
@@ -181,10 +153,8 @@ function JsonFormatter() {
           setOutput(result)
           setOutputFormat('json')
           setIsMinified(false) // YAML 转 JSON 后是格式化格式
-          setIsValid(true)
         } else {
           setError('转换失败：返回结果为空')
-          setIsValid(false)
         }
       }
     } catch (err) {
@@ -201,7 +171,6 @@ function JsonFormatter() {
         errorMsg = err
       }
       setError(errorMsg)
-      setIsValid(false)
     }
   }
 
@@ -221,57 +190,98 @@ function JsonFormatter() {
     setMaximizeMode('none')
   }
 
+  const handleInputMaximizeFullscreen = () => {
+    setInputMaximizeMode('fullscreen')
+  }
+
+  const handleInputMaximizeContent = () => {
+    setInputMaximizeMode('content')
+  }
+
+  const handleRestoreInput = () => {
+    setInputMaximizeMode('none')
+  }
+
   const isMaximized = maximizeMode !== 'none'
   const isFullscreen = maximizeMode === 'fullscreen'
   const isContentMaximized = maximizeMode === 'content'
+  const isInputMaximized = inputMaximizeMode !== 'none'
+  const isInputFullscreen = inputMaximizeMode === 'fullscreen'
+  const isInputContentMaximized = inputMaximizeMode === 'content'
 
   return (
     <div className={`space-y-4 ${
-      isFullscreen 
+      isFullscreen || isInputFullscreen
         ? 'fixed inset-0 z-50 bg-white p-8 overflow-auto' 
-        : isContentMaximized 
+        : isContentMaximized || isInputContentMaximized
         ? 'fixed right-0 top-0 bottom-0 left-64 z-40 bg-white p-8 overflow-auto' 
         : ''
     }`}>
-      {!isMaximized && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">输入</h3>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleValidate}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                验证
-              </button>
-              <button
-                onClick={handleFormat}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                格式化
-              </button>
-            </div>
+      <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${
+        isInputMaximized ? 'h-full flex flex-col' : ''
+      } ${isMaximized && !isInputMaximized ? 'hidden' : ''}`}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">输入</h3>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleFormat}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              格式化
+            </button>
+            {isInputMaximized ? (
+              <Tooltip content="恢复" delay={200}>
+                <button
+                  onClick={handleRestoreInput}
+                  className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+                  </svg>
+                </button>
+              </Tooltip>
+            ) : (
+              <>
+                <Tooltip content="内容区最大化" delay={200}>
+                  <button
+                    onClick={handleInputMaximizeContent}
+                    className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                  </button>
+                </Tooltip>
+                <Tooltip content="全屏最大化" delay={200}>
+                  <button
+                    onClick={handleInputMaximizeFullscreen}
+                    className="p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l4-4m0 0l4 4m-4-4v12M21 8l-4-4m0 0l-4 4m4-4v12M3 16l4 4m0 0l4-4m-4 4V4m14 12l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </button>
+                </Tooltip>
+              </>
+            )}
           </div>
+        </div>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="w-full h-64 p-4 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full p-4 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            isInputMaximized ? 'flex-1 min-h-0' : 'h-64'
+          }`}
           placeholder="输入 JSON 数据..."
         />
         {error && (
-          <div className={`mt-2 p-3 rounded-lg ${isValid === false ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700'}`}>
+          <div className="mt-2 p-3 rounded-lg bg-red-50 text-red-700">
             {error}
           </div>
         )}
-        {isValid === true && !error && (
-          <div className="mt-2 p-3 rounded-lg bg-green-50 text-green-700">
-            JSON 格式有效
-          </div>
-        )}
-        </div>
-      )}
+      </div>
 
-      <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${isMaximized ? 'h-full flex flex-col' : ''}`}>
+      <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${isMaximized ? 'h-full flex flex-col' : ''} ${isInputMaximized && !isMaximized ? 'hidden' : ''}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
             <h3 className="text-lg font-semibold text-gray-800">输出</h3>

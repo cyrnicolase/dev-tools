@@ -48,7 +48,6 @@ export function waitForWailsAPI(timeout = 5000) {
             Format: jsonHandler.Format?.bind(jsonHandler),
             FormatWithEscape: jsonHandler.FormatWithEscape?.bind(jsonHandler),
             Minify: jsonHandler.Minify?.bind(jsonHandler),
-            Validate: jsonHandler.Validate?.bind(jsonHandler),
             ToYAML: jsonHandler.ToYAML?.bind(jsonHandler),
             FromYAML: jsonHandler.FromYAML?.bind(jsonHandler),
           } : null,
