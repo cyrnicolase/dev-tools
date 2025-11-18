@@ -142,28 +142,28 @@ function TimestampTool() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">时间戳工具</h2>
-        <p className="text-gray-600 text-sm">时间戳和时间格式转换</p>
+        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">时间戳工具</h2>
+        <p className="text-gray-600 text-sm select-none">时间戳和时间格式转换</p>
       </div>
 
       {/* 当前时间 */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">当前时间</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 select-none">当前时间</h3>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">时间</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间</label>
             <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm">
               {currentTime || '加载中...'}
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">秒级时间戳</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">秒级时间戳</label>
             <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm">
               {currentTimestamp || '加载中...'}
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">毫秒时间戳</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">毫秒时间戳</label>
             <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm">
               {currentTimestampMilli || '加载中...'}
             </div>
@@ -175,11 +175,11 @@ function TimestampTool() {
       <div className="grid grid-cols-2 gap-6">
         {/* 时间戳转时间 */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">时间戳 → 时间</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 select-none">时间戳 → 时间</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">时间戳类型</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间戳类型</label>
                 <select
                   value={timestampType}
                   onChange={(e) => setTimestampType(e.target.value)}
@@ -190,7 +190,7 @@ function TimestampTool() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">格式</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">格式</label>
                 <select
                   value={format}
                   onChange={(e) => setFormat(e.target.value)}
@@ -205,7 +205,7 @@ function TimestampTool() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">时间戳</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间戳</label>
               <div className="flex space-x-2">
                 <input
                   type="text"
@@ -216,7 +216,7 @@ function TimestampTool() {
                 />
                 <button
                   onClick={handleGetCurrentTimestamp}
-                  className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
                 >
                   当前
                 </button>
@@ -224,17 +224,17 @@ function TimestampTool() {
             </div>
             <button
               onClick={handleTimestampToTime}
-              className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+              className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium select-none"
             >
               转换
             </button>
             {resultTimeString && (
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">结果</label>
+                  <label className="block text-sm font-medium text-gray-700 select-none">结果</label>
                   <button
                     onClick={() => handleCopy(resultTimeString)}
-                    className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
                     title="复制"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -252,11 +252,11 @@ function TimestampTool() {
 
         {/* 时间转时间戳 */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">时间 → 时间戳</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 select-none">时间 → 时间戳</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">时间戳类型</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间戳类型</label>
                 <select
                   value={timestampType}
                   onChange={(e) => setTimestampType(e.target.value)}
@@ -267,7 +267,7 @@ function TimestampTool() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">格式</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">格式</label>
                 <select
                   value={format}
                   onChange={(e) => setFormat(e.target.value)}
@@ -282,7 +282,7 @@ function TimestampTool() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">时间字符串</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间字符串</label>
               <div className="flex space-x-2">
                 <input
                   type="text"
@@ -293,7 +293,7 @@ function TimestampTool() {
                 />
                 <button
                   onClick={handleGetCurrentTime}
-                  className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
                 >
                   当前
                 </button>
@@ -301,17 +301,17 @@ function TimestampTool() {
             </div>
             <button
               onClick={handleTimeToTimestamp}
-              className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+              className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium select-none"
             >
               转换
             </button>
             {resultTimestamp && (
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">结果</label>
+                  <label className="block text-sm font-medium text-gray-700 select-none">结果</label>
                   <button
                     onClick={() => handleCopy(resultTimestamp)}
-                    className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
                     title="复制"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -329,7 +329,7 @@ function TimestampTool() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 select-none">
           {error}
         </div>
       )}

@@ -131,23 +131,23 @@ function App() {
       {/* 侧边栏 */}
       <div className="w-64 bg-white border-r border-gray-200 shadow-sm">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-800">Dev Tools</h1>
-          <p className="text-sm text-gray-500 mt-1">开发工具集</p>
-          <p className="text-xs text-gray-400 mt-2">v{version}</p>
+          <h1 className="text-2xl font-bold text-gray-800 select-none">Dev Tools</h1>
+          <p className="text-sm text-gray-500 mt-1 select-none">开发工具集</p>
+          <p className="text-xs text-gray-400 mt-2 select-none">v{version}</p>
         </div>
         <nav className="p-4">
           {tools.map((tool) => (
             <button
               key={tool.id}
               onClick={() => setActiveTool(tool.id)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-colors ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-colors select-none ${
                 activeTool === tool.id
                   ? 'bg-blue-50 text-blue-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <span className="text-xl">{tool.icon}</span>
-              <span>{tool.name}</span>
+              <span className="text-xl select-none">{tool.icon}</span>
+              <span className="select-none">{tool.name}</span>
             </button>
           ))}
         </nav>

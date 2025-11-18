@@ -100,22 +100,22 @@ function UuidTool() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">UUID 工具</h2>
-        <p className="text-gray-600 text-sm">生成各种版本的 UUID</p>
+        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">UUID 工具</h2>
+        <p className="text-gray-600 text-sm select-none">生成各种版本的 UUID</p>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">生成配置</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 select-none">生成配置</h3>
         <div className="space-y-4">
           {/* UUID 版本选择 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">UUID 版本</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">UUID 版本</label>
             <div className="flex flex-wrap gap-2">
               {['v1', 'v3', 'v4', 'v5'].map((v) => (
                 <button
                   key={v}
                   onClick={() => setVersion(v)}
-                  className={`px-4 py-2 rounded-lg transition-colors text-sm ${
+                  className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
                     version === v
                       ? 'bg-blue-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -125,7 +125,7 @@ function UuidTool() {
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 mt-2 select-none">
               {version === 'v1' && '基于时间戳和 MAC 地址'}
               {version === 'v3' && '基于命名空间和名称的 MD5（确定性：相同输入生成相同 UUID）'}
               {version === 'v4' && '随机生成（推荐）'}
@@ -135,7 +135,7 @@ function UuidTool() {
 
           {/* 批量生成数量 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">生成数量</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">生成数量</label>
             <input
               type="number"
               min="1"
@@ -150,7 +150,7 @@ function UuidTool() {
           {(version === 'v3' || version === 'v5') && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Namespace</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">Namespace</label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <select
@@ -176,7 +176,7 @@ function UuidTool() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">Name</label>
                 <input
                   type="text"
                   value={name}
@@ -191,13 +191,13 @@ function UuidTool() {
           {/* 生成按钮 */}
           <button
             onClick={handleGenerate}
-            className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium select-none"
           >
             生成 UUID
           </button>
         </div>
         {error && (
-          <div className="mt-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+          <div className="mt-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm select-none">
             {error}
           </div>
         )}
@@ -207,11 +207,11 @@ function UuidTool() {
       {results.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">生成结果</h3>
+            <h3 className="text-lg font-semibold text-gray-800 select-none">生成结果</h3>
             {results.length > 1 && (
               <button
                 onClick={handleCopyAll}
-                className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm select-none"
               >
                 复制全部
               </button>
@@ -226,7 +226,7 @@ function UuidTool() {
                 <span className="font-mono text-sm flex-1">{uuid}</span>
                 <button
                   onClick={() => handleCopy(uuid)}
-                  className="ml-2 p-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                  className="ml-2 p-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors select-none"
                   title="复制"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

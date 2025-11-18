@@ -221,11 +221,11 @@ function JsonFormatter() {
         isInputMaximized ? 'h-full flex flex-col' : ''
       } ${isMaximized && !isInputMaximized ? 'hidden' : ''}`}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">输入</h3>
+          <h3 className="text-lg font-semibold text-gray-800 select-none">输入</h3>
           <div className="flex items-center space-x-2">
             <button
               onClick={handleFormat}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors select-none"
             >
               格式化
             </button>
@@ -233,7 +233,7 @@ function JsonFormatter() {
               <Tooltip content="恢复" delay={200}>
                 <button
                   onClick={handleRestoreInput}
-                  className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
@@ -245,7 +245,7 @@ function JsonFormatter() {
                 <Tooltip content="内容区最大化" delay={200}>
                   <button
                     onClick={handleInputMaximizeContent}
-                    className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                    className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors select-none"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -255,7 +255,7 @@ function JsonFormatter() {
                 <Tooltip content="全屏最大化" delay={200}>
                   <button
                     onClick={handleInputMaximizeFullscreen}
-                    className="p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                    className="p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors select-none"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l4-4m0 0l4 4m-4-4v12M21 8l-4-4m0 0l-4 4m4-4v12M3 16l4 4m0 0l4-4m-4 4V4m14 12l-4 4m0 0l-4-4m4 4V4" />
@@ -275,7 +275,7 @@ function JsonFormatter() {
           placeholder="输入 JSON 数据..."
         />
         {error && (
-          <div className="mt-2 p-3 rounded-lg bg-red-50 text-red-700">
+          <div className="mt-2 p-3 rounded-lg bg-red-50 text-red-700 select-none">
             {error}
           </div>
         )}
@@ -284,15 +284,15 @@ function JsonFormatter() {
       <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${isMaximized ? 'h-full flex flex-col' : ''} ${isInputMaximized && !isMaximized ? 'hidden' : ''}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
-            <h3 className="text-lg font-semibold text-gray-800">输出</h3>
-            <label className="flex items-center space-x-2 cursor-pointer">
+            <h3 className="text-lg font-semibold text-gray-800 select-none">输出</h3>
+            <label className="flex items-center space-x-2 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={preserveEscape}
                 onChange={(e) => setPreserveEscape(e.target.checked)}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-700">保留转义</span>
+              <span className="text-sm text-gray-700 select-none">保留转义</span>
             </label>
           </div>
           <div className="flex space-x-2">
@@ -300,7 +300,7 @@ function JsonFormatter() {
               <button
                 onClick={handleToggleMinify}
                 disabled={!output || outputFormat !== 'json'}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-colors select-none ${
                   output && outputFormat === 'json'
                     ? 'bg-green-100 text-green-700 hover:bg-green-200'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -315,7 +315,7 @@ function JsonFormatter() {
               <button
                 onClick={handleToggleYAML}
                 disabled={!output}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-colors select-none ${
                   output
                     ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -330,7 +330,7 @@ function JsonFormatter() {
               <Tooltip content="恢复" delay={200}>
                 <button
                   onClick={handleRestoreOutput}
-                  className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
@@ -342,7 +342,7 @@ function JsonFormatter() {
                 <Tooltip content="内容区最大化" delay={200}>
                   <button
                     onClick={handleMaximizeContent}
-                    className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                    className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors select-none"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -352,7 +352,7 @@ function JsonFormatter() {
                 <Tooltip content="全屏最大化" delay={200}>
                   <button
                     onClick={handleMaximizeFullscreen}
-                    className="p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                    className="p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors select-none"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l4-4m0 0l4 4m-4-4v12M21 8l-4-4m0 0l-4 4m4-4v12M3 16l4 4m0 0l4-4m-4 4V4m14 12l-4 4m0 0l-4-4m4 4V4" />
@@ -364,7 +364,7 @@ function JsonFormatter() {
             <Tooltip content="复制" delay={200}>
               <button
                 onClick={handleCopy}
-                className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
