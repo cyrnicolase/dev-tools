@@ -126,23 +126,6 @@ function App() {
     { id: 'url', name: 'URL', icon: '🔗' },
   ]
 
-  const renderTool = () => {
-    switch (activeTool) {
-      case 'json':
-        return <JsonTool />
-      case 'base64':
-        return <Base64Tool />
-      case 'timestamp':
-        return <TimestampTool />
-      case 'uuid':
-        return <UuidTool />
-      case 'url':
-        return <UrlTool />
-      default:
-        return <JsonTool />
-    }
-  }
-
   return (
     <div className="flex h-screen bg-gray-50">
       {/* 侧边栏 */}
@@ -174,7 +157,22 @@ function App() {
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
           <div className="max-w-6xl mx-auto p-8">
-            {renderTool()}
+            {/* 渲染所有工具组件，但只显示当前激活的工具 */}
+            <div className={activeTool === 'json' ? '' : 'hidden'}>
+              <JsonTool />
+            </div>
+            <div className={activeTool === 'base64' ? '' : 'hidden'}>
+              <Base64Tool />
+            </div>
+            <div className={activeTool === 'timestamp' ? '' : 'hidden'}>
+              <TimestampTool />
+            </div>
+            <div className={activeTool === 'uuid' ? '' : 'hidden'}>
+              <UuidTool />
+            </div>
+            <div className={activeTool === 'url' ? '' : 'hidden'}>
+              <UrlTool />
+            </div>
           </div>
         </div>
       </div>
