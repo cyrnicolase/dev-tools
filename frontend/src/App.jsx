@@ -156,9 +156,9 @@ function App() {
       {/* 主内容区 */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
-          <div className="max-w-6xl mx-auto p-8">
+          <div className="max-w-6xl mx-auto p-8 h-full flex flex-col">
             {/* 渲染所有工具组件，但只显示当前激活的工具 */}
-            <div className={activeTool === 'json' ? '' : 'hidden'}>
+            <div className={activeTool === 'json' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <JsonTool />
             </div>
             <div className={activeTool === 'base64' ? '' : 'hidden'}>
