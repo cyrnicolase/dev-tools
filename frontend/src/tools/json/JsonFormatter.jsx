@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Toast from '../../components/Toast'
 import Tooltip from '../../components/Tooltip'
 
 function JsonFormatter() {
@@ -14,7 +13,7 @@ function JsonFormatter() {
   const [outputFormat, setOutputFormat] = useState('json') // 'json' 或 'yaml'
   const [isMinified, setIsMinified] = useState(false) // 当前输出是否是压缩格式
   const [isFormatted, setIsFormatted] = useState(false) // 是否已格式化
-  const [showSyntaxHighlight, setShowSyntaxHighlight] = useState(false) // 是否显示代码高亮（格式化后默认显示，点击可切换）
+  const [showToast, setShowToast] = useState(false) // 是否显示 Toast 提示
 
   useEffect(() => {
     waitForWailsAPI()
@@ -45,7 +44,6 @@ function JsonFormatter() {
         if (result) {
           setInput(result)
           setLastFormattedInput(result)
-          setShowSyntaxHighlight(true) // 重新格式化后显示代码高亮
         }
       } catch (err) {
         // 静默处理错误，避免控制台噪音
@@ -70,7 +68,6 @@ function JsonFormatter() {
         setOutputFormat('json') // 重置为 JSON 格式
         setIsMinified(false) // 格式化后不是压缩格式
         setIsFormatted(true) // 标记为已格式化
-        setShowSyntaxHighlight(true) // 格式化后默认显示代码高亮
       }
     } catch (err) {
       setError(err.message || '格式化失败')
@@ -105,7 +102,6 @@ function JsonFormatter() {
           setInput(result)
           setLastFormattedInput(result)
           setIsMinified(false)
-          setShowSyntaxHighlight(true)
         }
       } else {
         // 当前是格式化格式，转换为压缩
@@ -115,7 +111,6 @@ function JsonFormatter() {
           setInput(result)
           // 压缩时不更新 lastFormattedInput，保持原始的格式化JSON用于后续格式化
           setIsMinified(true)
-          setShowSyntaxHighlight(true)
         }
       }
     } catch (err) {
@@ -145,7 +140,6 @@ function JsonFormatter() {
           setLastFormattedInput(result)
           setOutputFormat('yaml')
           setIsMinified(false) // YAML 格式不是压缩格式
-          setShowSyntaxHighlight(true)
         } else {
           setError('转换失败：返回结果为空')
         }
@@ -161,7 +155,6 @@ function JsonFormatter() {
           setLastFormattedInput(result)
           setOutputFormat('json')
           setIsMinified(false) // YAML 转 JSON 后是格式化格式
-          setShowSyntaxHighlight(true)
         } else {
           setError('转换失败：返回结果为空')
         }
@@ -182,8 +175,13 @@ function JsonFormatter() {
     }
   }
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(input)
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(input)
+      setShowToast(true)
+    } catch (err) {
+      setError('复制失败')
+    }
   }
 
   const handleInputMaximizeFullscreen = () => {
@@ -196,11 +194,6 @@ function JsonFormatter() {
 
   const handleRestoreInput = () => {
     setInputMaximizeMode('none')
-  }
-
-  // 点击代码高亮区域切换回编辑模式（保持格式化状态，只是切换显示方式）
-  const handleClickToEdit = () => {
-    setShowSyntaxHighlight(false)
   }
 
   // 当用户编辑输入框时，如果已格式化，保持格式化状态但允许编辑
@@ -324,43 +317,23 @@ function JsonFormatter() {
             </Tooltip>
           </div>
         </div>
-        {isFormatted && input && showSyntaxHighlight ? (
-          <div 
-            className="w-full border border-gray-300 rounded-lg overflow-hidden bg-gray-50 cursor-pointer flex-1 min-h-0"
-            onClick={handleClickToEdit}
-            title="点击切换回编辑模式"
-          >
-            <SyntaxHighlighter
-              language={outputFormat === 'json' ? 'json' : 'yaml'}
-              style={vscDarkPlus}
-              customStyle={{
-                margin: 0,
-                padding: '1rem',
-                height: '100%',
-                fontSize: '0.875rem',
-                overflow: 'auto',
-                background: '#1e1e1e',
-              }}
-              showLineNumbers={false}
-              wrapLines={true}
-            >
-              {input}
-            </SyntaxHighlighter>
-          </div>
-        ) : (
-          <textarea
-            value={input}
-            onChange={handleInputChange}
-            className="w-full p-4 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-h-0 resize-none"
-            placeholder="输入 JSON 数据..."
-          />
-        )}
+        <textarea
+          value={input}
+          onChange={handleInputChange}
+          className="json-formatter-textarea w-full p-4 border border-gray-300 rounded-lg font-mono text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-h-0 resize-none"
+          placeholder="输入 JSON 数据..."
+        />
         {error && (
           <div className="mt-2 p-3 rounded-lg bg-red-50 text-red-700 select-none">
             {error}
           </div>
         )}
       </div>
+      <Toast
+        message="已复制到剪贴板"
+        show={showToast}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   )
 }

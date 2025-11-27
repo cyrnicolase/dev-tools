@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
+import Toast from '../../components/Toast'
 
 function TimestampTool() {
   const [timestamp, setTimestamp] = useState('')
   const [timeString, setTimeString] = useState('')
   const [format, setFormat] = useState('RFC3339')
+  const [timestampType, setTimestampType] = useState('second') // 'second' or 'milli'
   const [currentTime, setCurrentTime] = useState('')
   const [currentTimestamp, setCurrentTimestamp] = useState(0)
   const [currentTimestampMilli, setCurrentTimestampMilli] = useState(0)
-  const [timestampType, setTimestampType] = useState('second') // 'second' or 'milli'
   const [resultTimestamp, setResultTimestamp] = useState('')
   const [resultTimeString, setResultTimeString] = useState('')
-  const [error, setError] = useState('')
   const [api, setApi] = useState(null)
+  const [error, setError] = useState('')
+  const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -118,8 +120,13 @@ function TimestampTool() {
     }
   }
 
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text)
+  const handleCopy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setShowToast(true)
+    } catch (err) {
+      setError('复制失败')
+    }
   }
 
   const handleGetCurrentTime = async () => {
@@ -333,6 +340,11 @@ function TimestampTool() {
           {error}
         </div>
       )}
+      <Toast
+        message="已复制到剪贴板"
+        show={showToast}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   )
 }

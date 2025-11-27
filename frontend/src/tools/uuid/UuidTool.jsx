@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
+import Toast from '../../components/Toast'
 
 function UuidTool() {
   const [version, setVersion] = useState('v4')
@@ -7,8 +8,9 @@ function UuidTool() {
   const [namespace, setNamespace] = useState('')
   const [name, setName] = useState('')
   const [results, setResults] = useState([])
-  const [error, setError] = useState('')
   const [api, setApi] = useState(null)
+  const [error, setError] = useState('')
+  const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -81,13 +83,23 @@ function UuidTool() {
     return uuidRegex.test(str)
   }
 
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text)
+  const handleCopy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setShowToast(true)
+    } catch (err) {
+      setError('复制失败')
+    }
   }
 
-  const handleCopyAll = () => {
-    const allText = results.join('\n')
-    navigator.clipboard.writeText(allText)
+  const handleCopyAll = async () => {
+    try {
+      const allText = results.join('\n')
+      await navigator.clipboard.writeText(allText)
+      setShowToast(true)
+    } catch (err) {
+      setError('复制失败')
+    }
   }
 
   const predefinedNamespaces = [
@@ -238,6 +250,11 @@ function UuidTool() {
           </div>
         </div>
       )}
+      <Toast
+        message="已复制到剪贴板"
+        show={showToast}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   )
 }

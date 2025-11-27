@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
+import Toast from '../../components/Toast'
 
 function Base64Tool() {
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
-  const [error, setError] = useState('')
   const [mode, setMode] = useState('encode') // encode, decode
   const [urlSafe, setUrlSafe] = useState(false)
   const [api, setApi] = useState(null)
+  const [error, setError] = useState('')
+  const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -88,8 +90,13 @@ function Base64Tool() {
     }
   }
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(output)
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(output)
+      setShowToast(true)
+    } catch (err) {
+      setError('复制失败')
+    }
   }
 
   return (
@@ -188,6 +195,11 @@ function Base64Tool() {
           placeholder="输出结果将显示在这里..."
         />
       </div>
+      <Toast
+        message="已复制到剪贴板"
+        show={showToast}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   )
 }
