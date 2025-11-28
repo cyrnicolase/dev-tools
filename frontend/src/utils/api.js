@@ -41,6 +41,7 @@ export function waitForWailsAPI(timeout = 5000) {
       const timestampHandler = window.go?.handlers?.TimestampHandler
       const uuidHandler = window.go?.handlers?.UUIDHandler
       const urlHandler = window.go?.handlers?.URLHandler
+      const qrcodeHandler = window.go?.handlers?.QRCodeHandler
       
       if (appAPI) {
         const result = {
@@ -79,6 +80,10 @@ export function waitForWailsAPI(timeout = 5000) {
             Encode: urlHandler.Encode?.bind(urlHandler),
             Decode: urlHandler.Decode?.bind(urlHandler),
           } : null,
+          QRCode: qrcodeHandler ? {
+            Generate: qrcodeHandler.Generate?.bind(qrcodeHandler),
+            GenerateImage: qrcodeHandler.GenerateImage?.bind(qrcodeHandler),
+          } : null,
           GetVersion: appAPI.GetVersion?.bind(appAPI),
           GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
           NavigateToTool: appAPI.NavigateToTool?.bind(appAPI),
@@ -86,7 +91,7 @@ export function waitForWailsAPI(timeout = 5000) {
         }
         
         // 检查至少有一个方法可用
-        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode) {
+        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate) {
           resolve(result)
           return
         }
@@ -130,6 +135,7 @@ export function getWailsAPI() {
   const timestampHandler = window.go?.handlers?.TimestampHandler
   const uuidHandler = window.go?.handlers?.UUIDHandler
   const urlHandler = window.go?.handlers?.URLHandler
+  const qrcodeHandler = window.go?.handlers?.QRCodeHandler
   
   if (appAPI) {
     return {
@@ -168,6 +174,10 @@ export function getWailsAPI() {
       URL: urlHandler ? {
         Encode: urlHandler.Encode?.bind(urlHandler),
         Decode: urlHandler.Decode?.bind(urlHandler),
+      } : null,
+      QRCode: qrcodeHandler ? {
+        Generate: qrcodeHandler.Generate?.bind(qrcodeHandler),
+        GenerateImage: qrcodeHandler.GenerateImage?.bind(qrcodeHandler),
       } : null,
       GetVersion: appAPI.GetVersion?.bind(appAPI),
       GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),

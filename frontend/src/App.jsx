@@ -4,11 +4,12 @@ import Base64Tool from './tools/base64/Base64Tool'
 import TimestampTool from './tools/timestamp/TimestampTool'
 import UuidTool from './tools/uuid/UuidTool'
 import UrlTool from './tools/url/UrlTool'
+import QrcodeTool from './tools/qrcode/QrcodeTool'
 import { waitForWailsAPI, getWailsAPI } from './utils/api'
 
 function App() {
   const [activeTool, setActiveTool] = useState('json')
-  const [version, setVersion] = useState('1.0.6')
+  const [version, setVersion] = useState('1.0.7')
   const [apiReady, setApiReady] = useState(false)
   const [initialToolHandled, setInitialToolHandled] = useState(false)
   const lastCheckedToolRef = useRef('')
@@ -35,7 +36,7 @@ function App() {
             .then((toolName) => {
               if (toolName && toolName.trim() !== '') {
                 // 验证工具名称是否有效
-                const validTools = ['json', 'base64', 'timestamp', 'uuid', 'url']
+                const validTools = ['json', 'base64', 'timestamp', 'uuid', 'url', 'qrcode']
                 const normalizedTool = toolName.toLowerCase().trim()
                 if (validTools.includes(normalizedTool)) {
                   setActiveTool(normalizedTool)
@@ -90,7 +91,7 @@ function App() {
           const toolName = await api.GetInitialTool()
           if (toolName && toolName.trim() !== '') {
             const normalizedTool = toolName.toLowerCase().trim()
-            const validTools = ['json', 'base64', 'timestamp', 'uuid', 'url']
+            const validTools = ['json', 'base64', 'timestamp', 'uuid', 'url', 'qrcode']
             // 只有当工具名称与上次检查的不同时才切换（检测外部新请求）
             // 如果与 lastCheckedToolRef 相同，说明已经处理过了，不再切换
             if (validTools.includes(normalizedTool) && 
@@ -124,6 +125,7 @@ function App() {
     { id: 'timestamp', name: '时间戳', icon: '⏰' },
     { id: 'uuid', name: 'UUID', icon: '🆔' },
     { id: 'url', name: 'URL', icon: '🔗' },
+    { id: 'qrcode', name: '二维码', icon: '📱' },
   ]
 
   return (
@@ -172,6 +174,9 @@ function App() {
             </div>
             <div className={activeTool === 'url' ? '' : 'hidden'}>
               <UrlTool />
+            </div>
+            <div className={activeTool === 'qrcode' ? '' : 'hidden'}>
+              <QrcodeTool />
             </div>
           </div>
         </div>
