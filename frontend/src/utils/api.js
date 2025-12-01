@@ -42,6 +42,7 @@ export function waitForWailsAPI(timeout = 5000) {
       const uuidHandler = window.go?.handlers?.UUIDHandler
       const urlHandler = window.go?.handlers?.URLHandler
       const qrcodeHandler = window.go?.handlers?.QRCodeHandler
+      const ipqueryHandler = window.go?.handlers?.IPQueryHandler
       
       if (appAPI) {
         const result = {
@@ -84,6 +85,9 @@ export function waitForWailsAPI(timeout = 5000) {
             Generate: qrcodeHandler.Generate?.bind(qrcodeHandler),
             GenerateImage: qrcodeHandler.GenerateImage?.bind(qrcodeHandler),
           } : null,
+          IPQuery: ipqueryHandler ? {
+            Query: ipqueryHandler.Query?.bind(ipqueryHandler),
+          } : null,
           GetVersion: appAPI.GetVersion?.bind(appAPI),
           GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
           NavigateToTool: appAPI.NavigateToTool?.bind(appAPI),
@@ -91,7 +95,7 @@ export function waitForWailsAPI(timeout = 5000) {
         }
         
         // 检查至少有一个方法可用
-        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate) {
+        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate || result.IPQuery?.Query) {
           resolve(result)
           return
         }
@@ -136,6 +140,7 @@ export function getWailsAPI() {
   const uuidHandler = window.go?.handlers?.UUIDHandler
   const urlHandler = window.go?.handlers?.URLHandler
   const qrcodeHandler = window.go?.handlers?.QRCodeHandler
+  const ipqueryHandler = window.go?.handlers?.IPQueryHandler
   
   if (appAPI) {
     return {
@@ -178,6 +183,9 @@ export function getWailsAPI() {
       QRCode: qrcodeHandler ? {
         Generate: qrcodeHandler.Generate?.bind(qrcodeHandler),
         GenerateImage: qrcodeHandler.GenerateImage?.bind(qrcodeHandler),
+      } : null,
+      IPQuery: ipqueryHandler ? {
+        Query: ipqueryHandler.Query?.bind(ipqueryHandler),
       } : null,
       GetVersion: appAPI.GetVersion?.bind(appAPI),
       GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),

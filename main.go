@@ -59,6 +59,7 @@ func main() {
 			appInstance.UUID,      // UUID 工具处理器
 			appInstance.URL,       // URL 工具处理器
 			appInstance.QRCode,    // 二维码工具处理器
+			appInstance.IPQuery,   // IP查询工具处理器
 		},
 	})
 
