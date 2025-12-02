@@ -3,6 +3,16 @@
 # 获取工具名称参数
 TOOL_NAME="$1"
 
+# 工具名称映射
+case "$TOOL_NAME" in
+    ip)
+    TOOL_NAME="ipquery"
+    ;;
+    ts)
+    TOOL_NAME="timestamp"
+    ;;
+esac
+
 # 验证工具名称
 case "$TOOL_NAME" in
   json|base64|timestamp|uuid|url|qrcode|ipquery)
