@@ -5,10 +5,16 @@ export function ClearInitialTool():Promise<void>;
 
 export function GetInitialTool():Promise<string>;
 
+export function GetTheme():Promise<string>;
+
 export function GetVersion():Promise<string>;
+
+export function LoadThemeForStartup():Promise<void>;
 
 export function NavigateToTool(arg1:string):Promise<boolean>;
 
 export function SetInitialTool(arg1:string):Promise<void>;
+
+export function SetTheme(arg1:string):Promise<void>;
 
 export function ShowHelp():Promise<void>;

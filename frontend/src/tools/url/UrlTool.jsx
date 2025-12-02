@@ -77,19 +77,19 @@ function UrlTool({ onShowHelp }) {
         />
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 select-none">输入</h3>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">输入</h3>
           <div className="flex items-center space-x-6">
             {/* 左侧：模式选择 */}
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700 select-none">模式：</span>
+              <span className="text-sm font-medium text-[var(--text-primary)] select-none">模式：</span>
               <button
                 onClick={() => setMode('encode')}
                 className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
                   mode === 'encode'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
                 }`}
               >
                 编码
@@ -99,14 +99,14 @@ function UrlTool({ onShowHelp }) {
                 className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
                   mode === 'decode'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
                 }`}
               >
                 解码
               </button>
             </div>
             {/* 右侧：操作按钮 */}
-            <div className="flex items-center space-x-2 border-l border-gray-300 pl-6">
+            <div className="flex items-center space-x-2 border-l border-border-input pl-6">
               <button
                 onClick={mode === 'encode' ? handleEncode : handleDecode}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium select-none"
@@ -119,22 +119,22 @@ function UrlTool({ onShowHelp }) {
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="w-full h-64 p-4 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-64 p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder={mode === 'encode' ? '输入要编码的文本...' : '输入要解码的 URL 编码字符串...'}
         />
         {error && (
-          <div className="mt-2 p-3 rounded-lg bg-red-50 text-red-700 select-none">
+          <div className="mt-2 p-3 rounded-lg bg-error-bg text-error-text select-none">
             {error}
           </div>
         )}
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 select-none">输出</h3>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">输出</h3>
           <button
             onClick={handleCopy}
-            className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+            className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
             title="复制"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -145,7 +145,7 @@ function UrlTool({ onShowHelp }) {
         <textarea
           value={output}
           readOnly
-          className="w-full h-64 p-4 border border-gray-300 rounded-lg font-mono text-sm bg-gray-50 focus:outline-none"
+          className="w-full h-64 p-4 border border-border-input rounded-lg font-mono text-sm bg-input-disabled text-[var(--text-input)] focus:outline-none"
           placeholder="输出结果将显示在这里..."
         />
       </div>

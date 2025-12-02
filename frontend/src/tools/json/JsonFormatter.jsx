@@ -213,12 +213,12 @@ function JsonFormatter() {
   return (
     <div className={`h-full flex flex-col ${
       isInputFullscreen
-        ? 'fixed inset-0 z-50 bg-white p-8 overflow-auto' 
+        ? 'fixed inset-0 z-50 bg-secondary p-8 overflow-auto' 
         : isInputContentMaximized
-        ? 'fixed right-0 top-0 bottom-0 left-64 z-40 bg-white p-8 overflow-auto' 
+        ? 'fixed right-0 top-0 bottom-0 left-64 z-40 bg-secondary p-8 overflow-auto' 
         : ''
     }`}>
-      <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col ${
+      <div className={`bg-secondary rounded-lg shadow-sm border border-border-primary p-6 flex flex-col ${
         isInputMaximized ? 'h-full' : 'flex-1 min-h-0'
       }`}>
         <div className="flex items-center justify-between mb-4">
@@ -228,9 +228,9 @@ function JsonFormatter() {
                 type="checkbox"
                 checked={preserveEscape}
                 onChange={(e) => setPreserveEscape(e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-border-input rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-700 select-none">保留转义</span>
+              <span className="text-sm text-[var(--text-primary)] select-none">保留转义</span>
             </label>
           </div>
           <div className="flex items-center space-x-2">
@@ -247,7 +247,7 @@ function JsonFormatter() {
                 className={`p-2 rounded-lg transition-colors select-none ${
                   input && isFormatted && outputFormat === 'json'
                     ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-button-secondary text-[var(--text-tertiary)] cursor-not-allowed'
                 }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -262,7 +262,7 @@ function JsonFormatter() {
                 className={`p-2 rounded-lg transition-colors select-none ${
                   input && isFormatted
                     ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-button-secondary text-[var(--text-tertiary)] cursor-not-allowed'
                 }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -274,7 +274,7 @@ function JsonFormatter() {
               <Tooltip content="恢复" delay={200}>
                 <button
                   onClick={handleRestoreInput}
-                  className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+                  className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
@@ -320,11 +320,11 @@ function JsonFormatter() {
         <textarea
           value={input}
           onChange={handleInputChange}
-          className="json-formatter-textarea w-full p-4 border border-gray-300 rounded-lg font-mono text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-h-0 resize-none"
+          className="json-formatter-textarea w-full p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-h-0 resize-none"
           placeholder="输入 JSON 数据..."
         />
         {error && (
-          <div className="mt-2 p-3 rounded-lg bg-red-50 text-red-700 select-none">
+          <div className="mt-2 p-3 rounded-lg bg-error-bg text-error-text select-none">
             {error}
           </div>
         )}

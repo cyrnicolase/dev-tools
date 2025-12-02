@@ -159,24 +159,24 @@ function TimestampTool({ onShowHelp }) {
       </div>
 
       {/* 当前时间 */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 select-none">当前时间</h3>
+      <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
+        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 select-none">当前时间</h3>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间</label>
-            <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm">
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间</label>
+            <div className="p-3 bg-input-disabled border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)]">
               {currentTime || '加载中...'}
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">秒级时间戳</label>
-            <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm">
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">秒级时间戳</label>
+            <div className="p-3 bg-input-disabled border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)]">
               {currentTimestamp || '加载中...'}
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">毫秒时间戳</label>
-            <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm">
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">毫秒时间戳</label>
+            <div className="p-3 bg-input-disabled border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)]">
               {currentTimestampMilli || '加载中...'}
             </div>
           </div>
@@ -186,27 +186,27 @@ function TimestampTool({ onShowHelp }) {
       {/* 转换工具 - 水平布局 */}
       <div className="grid grid-cols-2 gap-6">
         {/* 时间戳转时间 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 select-none">时间戳 → 时间</h3>
+        <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 select-none">时间戳 → 时间</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间戳类型</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳类型</label>
                 <select
                   value={timestampType}
                   onChange={(e) => setTimestampType(e.target.value)}
-                  className="w-full p-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
+                  className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
                 >
                   <option value="second">秒级时间戳</option>
                   <option value="milli">毫秒时间戳</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">格式</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">格式</label>
                 <select
                   value={format}
                   onChange={(e) => setFormat(e.target.value)}
-                  className="w-full p-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
+                  className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
                 >
                   {formats.map((f) => (
                     <option key={f.value} value={f.value}>
@@ -217,18 +217,18 @@ function TimestampTool({ onShowHelp }) {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间戳</label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳</label>
               <div className="flex space-x-2">
                 <input
                   type="text"
                   value={timestamp}
                   onChange={(e) => setTimestamp(e.target.value)}
-                  className="flex-1 p-3 text-sm border border-gray-300 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 p-3 text-sm border border-border-input rounded-lg font-mono text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder={`输入${timestampType === 'milli' ? '毫秒' : '秒级'}时间戳...`}
                 />
                 <button
                   onClick={handleGetCurrentTimestamp}
-                  className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+                  className="px-4 py-2 text-sm bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
                 >
                   当前
                 </button>
@@ -243,10 +243,10 @@ function TimestampTool({ onShowHelp }) {
             {resultTimeString && (
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700 select-none">结果</label>
+                  <label className="block text-sm font-medium text-[var(--text-primary)] select-none">结果</label>
                   <button
                     onClick={() => handleCopy(resultTimeString)}
-                    className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+                    className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
                     title="复制"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -254,7 +254,7 @@ function TimestampTool({ onShowHelp }) {
                     </svg>
                   </button>
                 </div>
-                <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm break-all">
+                <div className="p-3 bg-input-disabled border border-border-input rounded-lg font-mono text-sm break-all text-[var(--text-input)]">
                   {resultTimeString}
                 </div>
               </div>
@@ -263,27 +263,27 @@ function TimestampTool({ onShowHelp }) {
         </div>
 
         {/* 时间转时间戳 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 select-none">时间 → 时间戳</h3>
+        <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 select-none">时间 → 时间戳</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间戳类型</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳类型</label>
                 <select
                   value={timestampType}
                   onChange={(e) => setTimestampType(e.target.value)}
-                  className="w-full p-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
+                  className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
                 >
                   <option value="second">秒级时间戳</option>
                   <option value="milli">毫秒时间戳</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">格式</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">格式</label>
                 <select
                   value={format}
                   onChange={(e) => setFormat(e.target.value)}
-                  className="w-full p-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
+                  className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
                 >
                   {formats.map((f) => (
                     <option key={f.value} value={f.value}>
@@ -294,18 +294,18 @@ function TimestampTool({ onShowHelp }) {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 select-none">时间字符串</label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间字符串</label>
               <div className="flex space-x-2">
                 <input
                   type="text"
                   value={timeString}
                   onChange={(e) => setTimeString(e.target.value)}
-                  className="flex-1 p-3 text-sm border border-gray-300 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 p-3 text-sm border border-border-input rounded-lg font-mono text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="输入时间字符串..."
                 />
                 <button
                   onClick={handleGetCurrentTime}
-                  className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+                  className="px-4 py-2 text-sm bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
                 >
                   当前
                 </button>
@@ -320,10 +320,10 @@ function TimestampTool({ onShowHelp }) {
             {resultTimestamp && (
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700 select-none">结果</label>
+                  <label className="block text-sm font-medium text-[var(--text-primary)] select-none">结果</label>
                   <button
                     onClick={() => handleCopy(resultTimestamp)}
-                    className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+                    className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
                     title="复制"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -331,7 +331,7 @@ function TimestampTool({ onShowHelp }) {
                     </svg>
                   </button>
                 </div>
-                <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm break-all">
+                <div className="p-3 bg-input-disabled border border-border-input rounded-lg font-mono text-sm break-all text-[var(--text-input)]">
                   {resultTimestamp}
                 </div>
               </div>
@@ -341,7 +341,7 @@ function TimestampTool({ onShowHelp }) {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 select-none">
+        <div className="bg-error-bg border border-red-200 rounded-lg p-4 text-error-text select-none">
           {error}
         </div>
       )}

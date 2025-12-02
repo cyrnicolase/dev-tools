@@ -27,10 +27,25 @@ func main() {
 
 	appInstance := app.NewApp()
 
+	// 在启动前先加载主题设置（用于设置窗口背景色）
+	// 注意：这里需要手动加载主题，因为 Startup 回调在窗口创建后才执行
+	appInstance.LoadThemeForStartup()
+
 	// 解析命令行参数
 	toolName := parseCommandLineArgs()
 	if toolName != "" {
 		appInstance.SetInitialTool(toolName)
+	}
+
+	// 获取当前主题，用于设置窗口背景色
+	currentTheme := appInstance.GetTheme()
+	var bgColor *options.RGBA
+	if currentTheme == "dark" {
+		// 深色主题背景色：对应 --bg-primary (#111827)
+		bgColor = &options.RGBA{R: 17, G: 24, B: 39, A: 1}
+	} else {
+		// 浅色主题背景色：对应 --bg-primary (#f9fafb)
+		bgColor = &options.RGBA{R: 249, G: 250, B: 251, A: 1}
 	}
 
 	// 创建菜单栏，保留系统默认菜单
@@ -59,7 +74,7 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		BackgroundColour: bgColor,
 		OnStartup:        appInstance.Startup,
 		Mac: &mac.Options{
 			OnUrlOpen: func(url string) {

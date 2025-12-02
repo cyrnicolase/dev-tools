@@ -85,19 +85,19 @@ function QrcodeTool({ onShowHelp }) {
         />
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 select-none">输入</h3>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">输入</h3>
           <div className="flex items-center space-x-6">
             {/* 左侧：尺寸选择 */}
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700 select-none">尺寸：</span>
+              <span className="text-sm font-medium text-[var(--text-primary)] select-none">尺寸：</span>
               <button
                 onClick={() => setSize('small')}
                 className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
                   size === 'small'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
                 }`}
               >
                 小
@@ -107,7 +107,7 @@ function QrcodeTool({ onShowHelp }) {
                 className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
                   size === 'medium'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
                 }`}
               >
                 中
@@ -117,14 +117,14 @@ function QrcodeTool({ onShowHelp }) {
                 className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
                   size === 'large'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
                 }`}
               >
                 大
               </button>
             </div>
             {/* 右侧：操作按钮 */}
-            <div className="flex items-center space-x-2 border-l border-gray-300 pl-6">
+            <div className="flex items-center space-x-2 border-l border-border-input pl-6">
               <button
                 onClick={handleGenerate}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium select-none"
@@ -137,23 +137,23 @@ function QrcodeTool({ onShowHelp }) {
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="w-full h-32 p-4 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-32 p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="输入要生成二维码的文本..."
         />
         {error && (
-          <div className="mt-2 p-3 rounded-lg bg-red-50 text-red-700 select-none">
+          <div className="mt-2 p-3 rounded-lg bg-error-bg text-error-text select-none">
             {error}
           </div>
         )}
       </div>
 
       {qrcodeImage && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800 select-none">二维码</h3>
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">二维码</h3>
             <button
               onClick={handleDownload}
-              className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+              className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
               title="下载"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

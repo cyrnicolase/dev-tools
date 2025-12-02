@@ -6,10 +6,10 @@ function ToolHeader({ title, description, toolId, onShowHelp }) {
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <h2 className="text-3xl font-bold text-gray-800 select-none">{title}</h2>
+            <h2 className="text-3xl font-bold text-[var(--text-primary)] select-none">{title}</h2>
             <button
               onClick={() => onShowHelp && onShowHelp(toolId)}
-              className="inline-flex items-center justify-center w-6 h-6 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors select-none"
+              className="inline-flex items-center justify-center w-6 h-6 text-link hover:text-[var(--link)] hover:bg-hover rounded transition-colors select-none"
               title="查看使用说明"
             >
               <svg
@@ -28,7 +28,7 @@ function ToolHeader({ title, description, toolId, onShowHelp }) {
               </svg>
             </button>
           </div>
-          <p className="text-gray-600 text-sm select-none">{description}</p>
+          <p className="text-[var(--text-secondary)] text-sm select-none">{description}</p>
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@ function Toast({ message, show, onClose, duration = 2000 }) {
 
   return (
     <div className="fixed top-4 right-4 z-50 animate-fade-in">
-      <div className="bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 select-none">
+      <div className="bg-secondary border border-border-primary text-[var(--text-primary)] px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 select-none">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-5 w-5 text-green-400"

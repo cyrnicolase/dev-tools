@@ -34,19 +34,29 @@ type App struct {
 	// 工具导航
 	initialTool string
 	toolMu      sync.RWMutex
+
+	// 主题管理器
+	themeManager *ThemeManager
 }
 
 // NewApp 创建新的 App 实例
 func NewApp() *App {
 	return &App{
-		JSON:      handlers.NewJSONHandler(),
-		Base64:    handlers.NewBase64Handler(),
-		Timestamp: handlers.NewTimestampHandler(),
-		UUID:      handlers.NewUUIDHandler(),
-		URL:       handlers.NewURLHandler(),
-		QRCode:    handlers.NewQRCodeHandler(),
-		IPQuery:   handlers.NewIPQueryHandler(),
+		JSON:         handlers.NewJSONHandler(),
+		Base64:       handlers.NewBase64Handler(),
+		Timestamp:    handlers.NewTimestampHandler(),
+		UUID:         handlers.NewUUIDHandler(),
+		URL:          handlers.NewURLHandler(),
+		QRCode:       handlers.NewQRCodeHandler(),
+		IPQuery:      handlers.NewIPQueryHandler(),
+		themeManager: NewThemeManager(),
 	}
+}
+
+// LoadThemeForStartup 在启动时加载主题设置（用于设置窗口背景色）
+// 这个方法在窗口创建之前调用，确保窗口背景色与主题一致
+func (a *App) LoadThemeForStartup() {
+	a.themeManager.Load()
 }
 
 // Startup 应用启动时的回调
@@ -63,6 +73,8 @@ func (a *App) Startup(_ context.Context) {
 		// 日志初始化失败不影响应用运行，只输出到控制台
 		println("警告: 日志初始化失败:", err.Error())
 	}
+
+	// 主题管理器在创建时已经加载了主题设置，这里不需要再次加载
 }
 
 // GetVersion 获取应用版本号（实例方法）
@@ -118,4 +130,14 @@ func (a *App) NavigateToTool(toolName string) bool {
 func (a *App) ShowHelp() {
 	// 设置 initialTool 为 "help"，前端会检测到并显示帮助页面
 	a.SetInitialTool("help")
+}
+
+// GetTheme 获取当前主题
+func (a *App) GetTheme() string {
+	return a.themeManager.Get()
+}
+
+// SetTheme 设置主题并持久化保存
+func (a *App) SetTheme(theme string) error {
+	return a.themeManager.Save(theme)
 }

@@ -77,9 +77,9 @@ function IPQueryTool({ onShowHelp }) {
         />
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 select-none">输入</h3>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">输入</h3>
           <div className="flex items-center space-x-2">
             <button
               onClick={handleQuery}
@@ -99,11 +99,11 @@ function IPQueryTool({ onShowHelp }) {
               handleQuery()
             }
           }}
-          className="w-full p-4 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="输入IP地址，例如: 8.8.8.8 或 2001:4860:4860::8888"
         />
         {error && (
-          <div className="mt-2 p-3 rounded-lg bg-red-50 text-red-700 select-none">
+          <div className="mt-2 p-3 rounded-lg bg-error-bg text-error-text select-none">
             {error}
           </div>
         )}
@@ -114,18 +114,18 @@ function IPQueryTool({ onShowHelp }) {
           {results.map((result, index) => (
             <div
               key={index}
-              className={`bg-white rounded-lg shadow-sm border p-6 ${
-                result.status === 'error' ? 'border-red-200' : 'border-gray-200'
+              className={`bg-secondary rounded-lg shadow-sm border p-6 ${
+                result.status === 'error' ? 'border-red-200' : 'border-border-primary'
               }`}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800 select-none">
+                <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">
                   {result.source}
                 </h3>
                 {result.status === 'success' && (
                   <button
                     onClick={() => handleCopy(result)}
-                    className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+                    className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
                     title="复制结果"
                   >
                     <svg
@@ -147,26 +147,26 @@ function IPQueryTool({ onShowHelp }) {
               </div>
 
               {result.status === 'error' ? (
-                <div className="p-3 rounded-lg bg-red-50 text-red-700 select-none">
+                <div className="p-3 rounded-lg bg-error-bg text-error-text select-none">
                   {result.error || '查询失败'}
                 </div>
               ) : (
                 <div className="space-y-3">
                   <div>
-                    <span className="text-sm text-gray-500 select-none">国家：</span>
-                    <span className="text-sm font-medium text-gray-800 ml-2 select-none">
+                    <span className="text-sm text-[var(--text-secondary)] select-none">国家：</span>
+                    <span className="text-sm font-medium text-[var(--text-primary)] ml-2 select-none">
                       {result.country || 'N/A'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-500 select-none">省份/州：</span>
-                    <span className="text-sm font-medium text-gray-800 ml-2 select-none">
+                    <span className="text-sm text-[var(--text-secondary)] select-none">省份/州：</span>
+                    <span className="text-sm font-medium text-[var(--text-primary)] ml-2 select-none">
                       {result.region || 'N/A'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-500 select-none">城市：</span>
-                    <span className="text-sm font-medium text-gray-800 ml-2 select-none">
+                    <span className="text-sm text-[var(--text-secondary)] select-none">城市：</span>
+                    <span className="text-sm font-medium text-[var(--text-primary)] ml-2 select-none">
                       {result.city || 'N/A'}
                     </span>
                   </div>

@@ -10,8 +10,16 @@ export function GetInitialTool() {
   return window['go']['app']['App']['GetInitialTool']();
 }
 
+export function GetTheme() {
+  return window['go']['app']['App']['GetTheme']();
+}
+
 export function GetVersion() {
   return window['go']['app']['App']['GetVersion']();
+}
+
+export function LoadThemeForStartup() {
+  return window['go']['app']['App']['LoadThemeForStartup']();
 }
 
 export function NavigateToTool(arg1) {
@@ -20,6 +28,10 @@ export function NavigateToTool(arg1) {
 
 export function SetInitialTool(arg1) {
   return window['go']['app']['App']['SetInitialTool'](arg1);
+}
+
+export function SetTheme(arg1) {
+  return window['go']['app']['App']['SetTheme'](arg1);
 }
 
 export function ShowHelp() {

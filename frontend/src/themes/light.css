@@ -1,0 +1,48 @@
+/* 默认浅色主题（根元素） */
+:root {
+  --bg-primary: #f9fafb;
+  --bg-secondary: #ffffff;
+  --bg-input: #ffffff;
+  --bg-input-disabled: #f9fafb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-input: #111827;
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+  --border-input: #d1d5db;
+  --hover-bg: #f3f4f6;
+  --active-bg: #eff6ff;
+  --active-text: #1e40af;
+  --link: #2563eb;
+  --error-bg: #fef2f2;
+  --error-text: #b91c1c;
+  --button-secondary-bg: #f3f4f6;
+  --button-secondary-text: #374151;
+  --button-secondary-hover: #e5e7eb;
+}
+
+/* 浅色主题 */
+[data-theme="light"] {
+  --bg-primary: #f9fafb;
+  --bg-secondary: #ffffff;
+  --bg-input: #ffffff;
+  --bg-input-disabled: #f9fafb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-input: #111827;
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+  --border-input: #d1d5db;
+  --hover-bg: #f3f4f6;
+  --active-bg: #eff6ff;
+  --active-text: #1e40af;
+  --link: #2563eb;
+  --error-bg: #fef2f2;
+  --error-text: #b91c1c;
+  --button-secondary-bg: #f3f4f6;
+  --button-secondary-text: #374151;
+  --button-secondary-hover: #e5e7eb;
+}
+

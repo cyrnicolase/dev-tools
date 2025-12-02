@@ -115,46 +115,46 @@ function HelpTool({ scrollToToolId }) {
   return (
     <div className="h-full flex flex-col">
       <div className="mb-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">使用说明</h2>
-        <p className="text-gray-600 text-sm select-none">了解各个工具的功能和使用方法</p>
+        <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-2 select-none">使用说明</h2>
+        <p className="text-[var(--text-secondary)] text-sm select-none">了解各个工具的功能和使用方法</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         <div className="space-y-6">
           {/* Alfred 使用说明 */}
-          <div className="bg-blue-50 rounded-lg border border-blue-200 p-6 shadow-sm">
+          <div className="bg-secondary rounded-lg border border-border-primary p-6 shadow-sm">
             <div className="flex items-start space-x-4">
               <span className="text-4xl select-none">⚡</span>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2 select-none">
+                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2 select-none">
                   Alfred 快速启动
                 </h3>
-                <p className="text-gray-600 mb-4 select-none">
+                <p className="text-[var(--text-secondary)] mb-4 select-none">
                   通过 Alfred 可以快速打开指定的工具，提高工作效率
                 </p>
-                <div className="bg-white rounded-lg p-4 border border-blue-100">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3 select-none">
+                <div className="bg-secondary rounded-lg p-4 border border-border-primary">
+                  <h4 className="text-sm font-medium text-[var(--text-primary)] mb-3 select-none">
                     使用方法：
                   </h4>
                   <ul className="space-y-2 mb-4">
-                    <li className="text-sm text-gray-600 flex items-start select-none">
-                      <span className="text-blue-500 mr-2 mt-1">•</span>
-                      <span>在 Alfred 中输入命令：<code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">devtools &lt;工具名&gt;</code></span>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none">
+                      <span className="text-link mr-2 mt-1">•</span>
+                      <span>在 Alfred 中输入命令：<code className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">devtools &lt;工具名&gt;</code></span>
                     </li>
-                    <li className="text-sm text-gray-600 flex items-start select-none">
-                      <span className="text-blue-500 mr-2 mt-1">•</span>
-                      <span>或者使用 URL Scheme：<code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">devtools://tool/&lt;工具名&gt;</code></span>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none">
+                      <span className="text-link mr-2 mt-1">•</span>
+                      <span>或者使用 URL Scheme：<code className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">devtools://tool/&lt;工具名&gt;</code></span>
                     </li>
                   </ul>
                   <div className="mt-4">
-                    <h5 className="text-xs font-medium text-gray-700 mb-2 select-none">
+                    <h5 className="text-xs font-medium text-[var(--text-primary)] mb-2 select-none">
                       可用工具参数：
                     </h5>
                     <div className="flex flex-wrap gap-2">
                       {tools.map((tool, index) => (
                         <span
                           key={index}
-                          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 select-none"
+                          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-active-bg text-active-text select-none"
                         >
                           {tool.icon} {tool.alfred}
                         </span>
@@ -176,43 +176,43 @@ function HelpTool({ scrollToToolId }) {
                   toolRefs.current[tool.alfred] = el
                 }
               }}
-              className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm"
+              className="bg-secondary rounded-lg border border-border-primary p-6 shadow-sm"
             >
               <div className="flex items-start space-x-4">
                 <span className="text-4xl select-none">{tool.icon}</span>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-semibold text-gray-800 select-none">
+                    <h3 className="text-xl font-semibold text-[var(--text-primary)] select-none">
                       {tool.name}
                     </h3>
                     {tool.alfred && (
-                      <span className="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded select-none">
+                      <span className="text-xs font-mono bg-input-disabled text-[var(--text-input)] px-2 py-1 rounded select-none">
                         Alfred: {tool.alfred}
                       </span>
                     )}
                   </div>
-                  <p className="text-gray-600 mb-4 select-none">{tool.description}</p>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3 select-none">
+                  <p className="text-[var(--text-secondary)] mb-4 select-none">{tool.description}</p>
+                  <div className="bg-input-disabled rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-[var(--text-primary)] mb-3 select-none">
                       使用方法：
                     </h4>
                     <ul className="space-y-2">
                       {tool.usage.map((step, stepIndex) => (
                         <li
                           key={stepIndex}
-                          className="text-sm text-gray-600 flex items-start select-none"
+                          className="text-sm text-[var(--text-secondary)] flex items-start select-none"
                         >
-                          <span className="text-blue-500 mr-2 mt-1">•</span>
+                          <span className="text-link mr-2 mt-1">•</span>
                           <span>{step}</span>
                         </li>
                       ))}
                     </ul>
                     {tool.alfred && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2 select-none">
+                      <div className="mt-4 pt-4 border-t border-border-input">
+                        <h4 className="text-sm font-medium text-[var(--text-primary)] mb-2 select-none">
                           Alfred 调用：
                         </h4>
-                        <div className="bg-gray-100 rounded p-2 font-mono text-xs text-gray-800 select-all">
+                        <div className="bg-input-disabled rounded p-2 font-mono text-xs text-[var(--text-input)] select-all">
                           devtools://tool/{tool.alfred}
                         </div>
                       </div>

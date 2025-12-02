@@ -1,0 +1,24 @@
+/* 深色主题 */
+[data-theme="dark"] {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-input: #1f2937;
+  --bg-input-disabled: #111827;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-input: #f9fafb;
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+  --border-input: #4b5563;
+  --hover-bg: #374151;
+  --active-bg: #1e3a8a;
+  --active-text: #93c5fd;
+  --link: #60a5fa;
+  --error-bg: #7f1d1d;
+  --error-text: #fca5a5;
+  --button-secondary-bg: #374151;
+  --button-secondary-text: #d1d5db;
+  --button-secondary-hover: #4b5563;
+}
+

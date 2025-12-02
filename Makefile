@@ -19,6 +19,10 @@ help:
 # 开发模式
 dev:
 	@echo "启动 Wails 开发模式..."
+	@if [ ! -f "frontend/dist/index.html" ]; then \
+		echo "前端构建文件不存在，正在构建前端..."; \
+		$(MAKE) frontend-build; \
+	fi
 	wails dev
 
 # 构建应用（当前平台）
@@ -45,7 +49,7 @@ build-all:
 clean:
 	@echo "清理构建产物..."
 	rm -rf build/
-	rm -rf frontend/dist/
+	rm -rf frontend/dist
 	rm -rf frontend/node_modules/.vite/
 	@echo "清理完成"
 

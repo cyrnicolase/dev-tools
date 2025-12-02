@@ -144,12 +144,12 @@ function UuidTool({ onShowHelp }) {
         />
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 select-none">生成配置</h3>
+      <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
+        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 select-none">生成配置</h3>
         <div className="space-y-4">
           {/* UUID 版本选择 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">UUID 版本</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">UUID 版本</label>
             <div className="flex flex-wrap gap-2">
               {['v1', 'v3', 'v4', 'v5'].map((v) => (
                 <button
@@ -158,14 +158,14 @@ function UuidTool({ onShowHelp }) {
                   className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
                     version === v
                       ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
                   }`}
                 >
                   {v.toUpperCase()}
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-2 select-none">
+            <p className="text-xs text-[var(--text-secondary)] mt-2 select-none">
               {version === 'v1' && '基于时间戳和 MAC 地址'}
               {version === 'v3' && '基于命名空间和名称的 MD5（确定性：相同输入生成相同 UUID）'}
               {version === 'v4' && '随机生成（推荐）'}
@@ -175,24 +175,24 @@ function UuidTool({ onShowHelp }) {
 
           {/* 批量生成数量 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">生成数量</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">生成数量</label>
             <input
               type="number"
               min="1"
               max="1000"
               value={count}
               onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full p-3 border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             />
           </div>
 
           {/* 格式选项 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">格式选项</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">格式选项</label>
             <div className="flex items-center gap-6">
               {/* 大小写选项 */}
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 select-none">大小写：</span>
+                <span className="text-sm text-[var(--text-secondary)] select-none">大小写：</span>
                 <div className="flex gap-1">
                   {[
                     { value: 'lowercase', label: '小写' },
@@ -204,7 +204,7 @@ function UuidTool({ onShowHelp }) {
                       className={`px-3 py-1.5 rounded transition-colors text-sm select-none ${
                         formatCase === option.value
                           ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
                       }`}
                     >
                       {option.label}
@@ -214,7 +214,7 @@ function UuidTool({ onShowHelp }) {
               </div>
               {/* 连字符选项 */}
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 select-none">连字符：</span>
+                <span className="text-sm text-[var(--text-secondary)] select-none">连字符：</span>
                 <div className="flex gap-1">
                   {[
                     { value: true, label: '带' },
@@ -226,7 +226,7 @@ function UuidTool({ onShowHelp }) {
                       className={`px-3 py-1.5 rounded transition-colors text-sm select-none ${
                         formatHyphens === option.value
                           ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
                       }`}
                     >
                       {option.label}
@@ -241,13 +241,13 @@ function UuidTool({ onShowHelp }) {
           {(version === 'v3' || version === 'v5') && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">Namespace</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">Namespace</label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <select
                       value={namespace}
                       onChange={(e) => setNamespace(e.target.value)}
-                      className="flex-1 p-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="flex-1 p-2 border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     >
                       <option value="">选择预定义命名空间</option>
                       {predefinedNamespaces.map((ns) => (
@@ -262,18 +262,18 @@ function UuidTool({ onShowHelp }) {
                     value={namespace}
                     onChange={(e) => setNamespace(e.target.value)}
                     placeholder="或输入自定义 UUID"
-                    className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 select-none">Name</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="输入名称"
-                  className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </>
@@ -288,7 +288,7 @@ function UuidTool({ onShowHelp }) {
           </button>
         </div>
         {error && (
-          <div className="mt-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm select-none">
+          <div className="mt-4 p-3 rounded-lg bg-error-bg text-error-text text-sm select-none">
             {error}
           </div>
         )}
@@ -296,13 +296,13 @@ function UuidTool({ onShowHelp }) {
 
       {/* 结果显示 */}
       {results.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800 select-none">生成结果</h3>
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">生成结果</h3>
             {results.length > 1 && (
               <button
                 onClick={handleCopyAll}
-                className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm select-none"
+                className="px-3 py-1.5 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors text-sm select-none"
               >
                 复制全部
               </button>
@@ -312,12 +312,12 @@ function UuidTool({ onShowHelp }) {
             {results.map((uuid, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg"
+                className="flex items-center justify-between p-3 bg-input-disabled border border-border-input rounded-lg"
               >
-                <span className="font-mono text-sm flex-1">{uuid}</span>
+                <span className="font-mono text-sm flex-1 text-[var(--text-input)]">{uuid}</span>
                 <button
                   onClick={() => handleCopy(uuid)}
-                  className="ml-2 p-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors select-none"
+                  className="ml-2 p-1.5 bg-button-secondary text-button-secondary-text rounded hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
                   title="复制"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

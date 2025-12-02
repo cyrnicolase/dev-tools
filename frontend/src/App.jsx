@@ -7,18 +7,18 @@ import UrlTool from './tools/url/UrlTool'
 import QrcodeTool from './tools/qrcode/QrcodeTool'
 import IPQueryTool from './tools/ipquery/IPQueryTool'
 import HelpTool from './menus/help/HelpTool'
+import ThemeToggle from './components/ThemeToggle'
 import { waitForWailsAPI, getWailsAPI } from './utils/api'
-
-// 工具列表常量
-const VALID_TOOLS = ['json', 'base64', 'timestamp', 'uuid', 'url', 'qrcode', 'ipquery']
-const VALID_VIEWS = [...VALID_TOOLS, 'help'] // 包括工具和菜单视图
+import { useTheme } from './hooks/useTheme'
+import { TOOLS, VIEW_IDS, DEFAULT_TOOL_ID } from './constants/tools'
 
 function App() {
-  const [activeTool, setActiveTool] = useState('json')
+  const [activeTool, setActiveTool] = useState(DEFAULT_TOOL_ID)
   const [version, setVersion] = useState('1.0.8')
   const [apiReady, setApiReady] = useState(false)
   const [initialToolHandled, setInitialToolHandled] = useState(false)
-  const [helpToolId, setHelpToolId] = useState(null) // 用于跳转到帮助页面的特定工具
+  const [helpToolId, setHelpToolId] = useState(null)
+  const { theme, toggleTheme } = useTheme()
   const lastCheckedToolRef = useRef('')
 
   useEffect(() => {
@@ -42,22 +42,16 @@ function App() {
           api.GetInitialTool()
             .then((toolName) => {
               if (toolName && toolName.trim() !== '') {
-                // 验证工具名称是否有效（包括菜单视图如 help）
                 const normalizedTool = toolName.toLowerCase().trim()
-                if (VALID_VIEWS.includes(normalizedTool)) {
+                if (VIEW_IDS.includes(normalizedTool)) {
                   setActiveTool(normalizedTool)
                   lastCheckedToolRef.current = normalizedTool
-                  // 立即清除初始工具设置，防止轮询时重复切换
-                  // 使用 setTimeout 确保清除操作在状态更新后执行
                   setTimeout(() => {
                     if (api.ClearInitialTool) {
-                      api.ClearInitialTool().catch(() => {
-                        // 忽略错误
-                      })
+                      api.ClearInitialTool().catch(() => {})
                     }
                   }, 100)
                 } else {
-                  // 即使工具名称无效，也要清除并标记为已处理
                   if (api.ClearInitialTool) {
                     api.ClearInitialTool().catch(() => {})
                   }
@@ -70,7 +64,6 @@ function App() {
               setInitialToolHandled(true)
             })
         } else {
-          // 如果没有初始工具，也标记为已处理
           setInitialToolHandled(true)
         }
       })
@@ -97,18 +90,13 @@ function App() {
           const toolName = await api.GetInitialTool()
           if (toolName && toolName.trim() !== '') {
             const normalizedTool = toolName.toLowerCase().trim()
-            // 只有当工具名称与上次检查的不同时才切换（检测外部新请求）
-            // 如果与 lastCheckedToolRef 相同，说明已经处理过了，不再切换
-            if (VALID_VIEWS.includes(normalizedTool) && 
+            if (VIEW_IDS.includes(normalizedTool) && 
                 normalizedTool !== lastCheckedToolRef.current &&
                 normalizedTool !== activeTool) {
               setActiveTool(normalizedTool)
               lastCheckedToolRef.current = normalizedTool
-              // 清除初始工具设置，防止下次轮询时再次切换
               if (api.ClearInitialTool) {
-                api.ClearInitialTool().catch(() => {
-                  // 忽略错误
-                })
+                api.ClearInitialTool().catch(() => {})
               }
             }
           }
@@ -124,16 +112,6 @@ function App() {
     return () => clearInterval(interval)
   }, [apiReady, initialToolHandled, activeTool])
 
-  const tools = [
-    { id: 'json', name: 'JSON', icon: '📄' },
-    { id: 'base64', name: 'Base64', icon: '🔐' },
-    { id: 'timestamp', name: '时间戳', icon: '⏰' },
-    { id: 'uuid', name: 'UUID', icon: '🆔' },
-    { id: 'url', name: 'URL', icon: '🔗' },
-    { id: 'qrcode', name: '二维码', icon: '📱' },
-    { id: 'ipquery', name: 'IP查询', icon: '🌍' },
-  ]
-
   // 处理跳转到帮助页面的特定工具介绍
   const handleShowHelp = (toolId) => {
     setHelpToolId(toolId)
@@ -141,23 +119,26 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-primary">
       {/* 侧边栏 */}
-      <div className="w-64 bg-white border-r border-gray-200 shadow-sm">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-800 select-none">Dev Tools</h1>
-          <p className="text-sm text-gray-500 mt-1 select-none">开发工具集</p>
-          <p className="text-xs text-gray-400 mt-2 select-none">v{version}</p>
+      <div className="w-64 bg-secondary border-r border-border-primary shadow-sm">
+        <div className="p-6 border-b border-border-primary">
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] select-none">Dev Tools</h1>
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          </div>
+          <p className="text-sm text-[var(--text-secondary)] select-none">开发工具集</p>
+          <p className="text-xs text-[var(--text-tertiary)] mt-1 select-none">v{version}</p>
         </div>
         <nav className="p-4">
-          {tools.map((tool) => (
+          {TOOLS.map((tool) => (
             <button
               key={tool.id}
               onClick={() => setActiveTool(tool.id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-colors select-none ${
                 activeTool === tool.id
-                  ? 'bg-blue-50 text-blue-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-active-bg text-active-text font-medium'
+                  : 'text-[var(--text-primary)] hover:bg-hover'
               }`}
             >
               <span className="text-xl select-none">{tool.icon}</span>

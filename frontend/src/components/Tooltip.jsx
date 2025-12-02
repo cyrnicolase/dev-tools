@@ -94,10 +94,13 @@ function Tooltip({ children, content, delay = 200 }) {
       {show && content && (
         <div
           ref={tooltipRef}
-          className="fixed z-50 px-2.5 py-1.5 text-sm text-white bg-gray-900 rounded-md shadow-xl whitespace-nowrap pointer-events-none font-medium"
+          className="fixed z-50 px-2.5 py-1.5 text-sm rounded-md shadow-xl whitespace-nowrap pointer-events-none font-medium"
           style={{
             top: `${position.top}px`,
             left: `${position.left}px`,
+            backgroundColor: 'var(--bg-secondary)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border-primary)',
             WebkitFontSmoothing: 'antialiased',
             MozOsxFontSmoothing: 'grayscale',
             textRendering: 'optimizeLegibility',
@@ -107,11 +110,14 @@ function Tooltip({ children, content, delay = 200 }) {
         >
           {content}
           <div
-            className="absolute w-2 h-2 bg-gray-900 transform rotate-45"
+            className="absolute w-2 h-2 transform rotate-45"
             style={{ 
               top: '-4px',
               left: `${position.centerX - position.left}px`,
-              marginLeft: '-4px'
+              marginLeft: '-4px',
+              backgroundColor: 'var(--bg-secondary)',
+              borderLeft: '1px solid var(--border-primary)',
+              borderTop: '1px solid var(--border-primary)',
             }}
           />
         </div>
