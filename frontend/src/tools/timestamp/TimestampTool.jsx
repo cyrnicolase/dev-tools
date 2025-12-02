@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
+import ToolHeader from '../../components/ToolHeader'
 
-function TimestampTool() {
+function TimestampTool({ onShowHelp }) {
   const [timestamp, setTimestamp] = useState('')
   const [timeString, setTimeString] = useState('')
   const [format, setFormat] = useState('RFC3339')
@@ -149,8 +150,12 @@ function TimestampTool() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">时间戳工具</h2>
-        <p className="text-gray-600 text-sm select-none">时间戳和时间格式转换</p>
+        <ToolHeader
+          title="时间戳工具"
+          description="时间戳和时间格式转换"
+          toolId="timestamp"
+          onShowHelp={onShowHelp}
+        />
       </div>
 
       {/* 当前时间 */}

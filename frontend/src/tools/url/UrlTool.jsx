@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
+import ToolHeader from '../../components/ToolHeader'
 
-function UrlTool() {
+function UrlTool({ onShowHelp }) {
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
   const [mode, setMode] = useState('encode') // encode, decode
@@ -68,8 +69,12 @@ function UrlTool() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">URL 工具</h2>
-        <p className="text-gray-600 text-sm select-none">URL 编码和解码</p>
+        <ToolHeader
+          title="URL 工具"
+          description="URL 编码和解码"
+          toolId="url"
+          onShowHelp={onShowHelp}
+        />
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

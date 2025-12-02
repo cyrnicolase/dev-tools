@@ -10,3 +10,5 @@ export function GetVersion():Promise<string>;
 export function NavigateToTool(arg1:string):Promise<boolean>;
 
 export function SetInitialTool(arg1:string):Promise<void>;
+
+export function ShowHelp():Promise<void>;

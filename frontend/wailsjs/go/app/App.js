@@ -21,3 +21,7 @@ export function NavigateToTool(arg1) {
 export function SetInitialTool(arg1) {
   return window['go']['app']['App']['SetInitialTool'](arg1);
 }
+
+export function ShowHelp() {
+  return window['go']['app']['App']['ShowHelp']();
+}

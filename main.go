@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/menu"
+	"github.com/wailsapp/wails/v2/pkg/menu/keys"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
@@ -31,10 +33,29 @@ func main() {
 		appInstance.SetInitialTool(toolName)
 	}
 
+	// 创建菜单栏，保留系统默认菜单
+	appMenu := menu.NewMenu()
+
+	// 添加默认的应用菜单（macOS 上的应用菜单，包含关于、偏好设置等）
+	appMenu.Append(menu.AppMenu())
+
+	// 添加默认的编辑菜单（包含复制、粘贴、全选等）
+	appMenu.Append(menu.EditMenu())
+
+	// 添加默认的窗口菜单（包含最小化、缩放、全屏等）
+	appMenu.Append(menu.WindowMenu())
+
+	// 添加自定义的帮助菜单
+	helpMenu := appMenu.AddSubmenu("Help")
+	helpMenu.AddText("Usage", keys.CmdOrCtrl("i"), func(_ *menu.CallbackData) {
+		appInstance.ShowHelp()
+	})
+
 	err := wails.Run(&options.App{
 		Title:  "Dev Tools",
 		Width:  1140,
 		Height: 940,
+		Menu:   appMenu,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

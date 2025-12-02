@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
+import ToolHeader from '../../components/ToolHeader'
 
-function Base64Tool() {
+function Base64Tool({ onShowHelp }) {
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
   const [mode, setMode] = useState('encode') // encode, decode
@@ -101,10 +102,12 @@ function Base64Tool() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">Base64 工具</h2>
-        <p className="text-gray-600 text-sm select-none">Base64 编码和解码</p>
-      </div>
+      <ToolHeader
+        title="Base64 工具"
+        description="Base64 编码和解码"
+        toolId="base64"
+        onShowHelp={onShowHelp}
+      />
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">

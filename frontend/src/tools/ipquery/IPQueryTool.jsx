@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
+import ToolHeader from '../../components/ToolHeader'
 
-function IPQueryTool() {
+function IPQueryTool({ onShowHelp }) {
   const [input, setInput] = useState('')
   const [results, setResults] = useState([])
   const [api, setApi] = useState(null)
@@ -68,8 +69,12 @@ function IPQueryTool() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">IP查询工具</h2>
-        <p className="text-gray-600 text-sm select-none">查询IP地址所属地信息（支持IPv4和IPv6）</p>
+        <ToolHeader
+          title="IP查询工具"
+          description="查询IP地址所属地信息（支持IPv4和IPv6）"
+          toolId="ipquery"
+          onShowHelp={onShowHelp}
+        />
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

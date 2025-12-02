@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
+import ToolHeader from '../../components/ToolHeader'
 
-function QrcodeTool() {
+function QrcodeTool({ onShowHelp }) {
   const [input, setInput] = useState('')
   const [qrcodeImage, setQrcodeImage] = useState('')
   const [size, setSize] = useState('small') // small, medium, large
@@ -76,8 +77,12 @@ function QrcodeTool() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">二维码工具</h2>
-        <p className="text-gray-600 text-sm select-none">生成二维码图片</p>
+        <ToolHeader
+          title="二维码工具"
+          description="生成二维码图片"
+          toolId="qrcode"
+          onShowHelp={onShowHelp}
+        />
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

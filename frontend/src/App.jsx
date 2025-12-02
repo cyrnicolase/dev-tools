@@ -6,13 +6,19 @@ import UuidTool from './tools/uuid/UuidTool'
 import UrlTool from './tools/url/UrlTool'
 import QrcodeTool from './tools/qrcode/QrcodeTool'
 import IPQueryTool from './tools/ipquery/IPQueryTool'
+import HelpTool from './menus/help/HelpTool'
 import { waitForWailsAPI, getWailsAPI } from './utils/api'
+
+// 工具列表常量
+const VALID_TOOLS = ['json', 'base64', 'timestamp', 'uuid', 'url', 'qrcode', 'ipquery']
+const VALID_VIEWS = [...VALID_TOOLS, 'help'] // 包括工具和菜单视图
 
 function App() {
   const [activeTool, setActiveTool] = useState('json')
   const [version, setVersion] = useState('1.0.8')
   const [apiReady, setApiReady] = useState(false)
   const [initialToolHandled, setInitialToolHandled] = useState(false)
+  const [helpToolId, setHelpToolId] = useState(null) // 用于跳转到帮助页面的特定工具
   const lastCheckedToolRef = useRef('')
 
   useEffect(() => {
@@ -36,10 +42,9 @@ function App() {
           api.GetInitialTool()
             .then((toolName) => {
               if (toolName && toolName.trim() !== '') {
-                // 验证工具名称是否有效
-                const validTools = ['json', 'base64', 'timestamp', 'uuid', 'url', 'qrcode', 'ipquery']
+                // 验证工具名称是否有效（包括菜单视图如 help）
                 const normalizedTool = toolName.toLowerCase().trim()
-                if (validTools.includes(normalizedTool)) {
+                if (VALID_VIEWS.includes(normalizedTool)) {
                   setActiveTool(normalizedTool)
                   lastCheckedToolRef.current = normalizedTool
                   // 立即清除初始工具设置，防止轮询时重复切换
@@ -92,10 +97,9 @@ function App() {
           const toolName = await api.GetInitialTool()
           if (toolName && toolName.trim() !== '') {
             const normalizedTool = toolName.toLowerCase().trim()
-            const validTools = ['json', 'base64', 'timestamp', 'uuid', 'url', 'qrcode', 'ipquery']
             // 只有当工具名称与上次检查的不同时才切换（检测外部新请求）
             // 如果与 lastCheckedToolRef 相同，说明已经处理过了，不再切换
-            if (validTools.includes(normalizedTool) && 
+            if (VALID_VIEWS.includes(normalizedTool) && 
                 normalizedTool !== lastCheckedToolRef.current &&
                 normalizedTool !== activeTool) {
               setActiveTool(normalizedTool)
@@ -130,6 +134,12 @@ function App() {
     { id: 'ipquery', name: 'IP查询', icon: '🌍' },
   ]
 
+  // 处理跳转到帮助页面的特定工具介绍
+  const handleShowHelp = (toolId) => {
+    setHelpToolId(toolId)
+    setActiveTool('help')
+  }
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* 侧边栏 */}
@@ -163,25 +173,28 @@ function App() {
           <div className="max-w-6xl mx-auto p-8 h-full flex flex-col">
             {/* 渲染所有工具组件，但只显示当前激活的工具 */}
             <div className={activeTool === 'json' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
-              <JsonTool />
+              <JsonTool onShowHelp={handleShowHelp} />
             </div>
             <div className={activeTool === 'base64' ? '' : 'hidden'}>
-              <Base64Tool />
+              <Base64Tool onShowHelp={handleShowHelp} />
             </div>
             <div className={activeTool === 'timestamp' ? '' : 'hidden'}>
-              <TimestampTool />
+              <TimestampTool onShowHelp={handleShowHelp} />
             </div>
             <div className={activeTool === 'uuid' ? '' : 'hidden'}>
-              <UuidTool />
+              <UuidTool onShowHelp={handleShowHelp} />
             </div>
             <div className={activeTool === 'url' ? '' : 'hidden'}>
-              <UrlTool />
+              <UrlTool onShowHelp={handleShowHelp} />
             </div>
             <div className={activeTool === 'qrcode' ? '' : 'hidden'}>
-              <QrcodeTool />
+              <QrcodeTool onShowHelp={handleShowHelp} />
             </div>
             <div className={activeTool === 'ipquery' ? '' : 'hidden'}>
-              <IPQueryTool />
+              <IPQueryTool onShowHelp={handleShowHelp} />
+            </div>
+            <div className={activeTool === 'help' ? '' : 'hidden'}>
+              <HelpTool scrollToToolId={helpToolId} />
             </div>
           </div>
         </div>

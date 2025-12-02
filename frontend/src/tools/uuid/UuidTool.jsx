@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
+import ToolHeader from '../../components/ToolHeader'
 
-function UuidTool() {
+function UuidTool({ onShowHelp }) {
   const [version, setVersion] = useState('v4')
   const [count, setCount] = useState(1)
   const [namespace, setNamespace] = useState('')
@@ -112,8 +113,12 @@ function UuidTool() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 select-none">UUID 工具</h2>
-        <p className="text-gray-600 text-sm select-none">生成各种版本的 UUID</p>
+        <ToolHeader
+          title="UUID 工具"
+          description="生成各种版本的 UUID"
+          toolId="uuid"
+          onShowHelp={onShowHelp}
+        />
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
