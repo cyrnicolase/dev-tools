@@ -60,8 +60,13 @@ function HelpTool({ scrollToToolId }) {
       description: '生成 UUID（通用唯一标识符）',
       alfred: 'uuid',
       usage: [
-        '点击"生成 UUID"按钮生成新的 UUID',
-        '可以一次生成多个 UUID',
+        '选择 UUID 版本（v1、v3、v4、v5）',
+        '设置生成数量（1-1000）',
+        '配置格式选项：',
+        '  - 大小写：小写（默认）或大写',
+        '  - 连字符：带连字符（默认）或无连字符',
+        'v3 和 v5 版本需要提供 namespace 和 name',
+        '点击"生成 UUID"按钮生成',
         '使用"复制"按钮复制单个 UUID',
         '使用"复制全部"按钮复制所有 UUID'
       ]

@@ -8,6 +8,8 @@ function UuidTool({ onShowHelp }) {
   const [count, setCount] = useState(1)
   const [namespace, setNamespace] = useState('')
   const [name, setName] = useState('')
+  const [formatCase, setFormatCase] = useState('lowercase') // 'lowercase' | 'uppercase'
+  const [formatHyphens, setFormatHyphens] = useState(true) // true = 带连字符, false = 无连字符
   const [results, setResults] = useState([])
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
@@ -73,7 +75,9 @@ function UuidTool({ onShowHelp }) {
         generatedResults = await wailsAPI.UUID.GenerateBatch(version, count, namespace || '', name || '')
       }
 
-      setResults(generatedResults)
+      // 应用格式化
+      const formattedResults = generatedResults.map(uuid => formatUUID(uuid, formatCase, formatHyphens))
+      setResults(formattedResults)
     } catch (err) {
       setError(err.message || '生成失败')
     }
@@ -82,6 +86,25 @@ function UuidTool({ onShowHelp }) {
   const isValidUUID = (str) => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     return uuidRegex.test(str)
+  }
+
+  // 格式化 UUID
+  const formatUUID = (uuid, caseFormat, includeHyphens) => {
+    let formatted = uuid
+    
+    // 处理大小写
+    if (caseFormat === 'uppercase') {
+      formatted = formatted.toUpperCase()
+    } else {
+      formatted = formatted.toLowerCase()
+    }
+    
+    // 处理连字符
+    if (!includeHyphens) {
+      formatted = formatted.replace(/-/g, '')
+    }
+    
+    return formatted
   }
 
   const handleCopy = async (text) => {
@@ -161,6 +184,57 @@ function UuidTool({ onShowHelp }) {
               onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             />
+          </div>
+
+          {/* 格式选项 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2 select-none">格式选项</label>
+            <div className="flex items-center gap-6">
+              {/* 大小写选项 */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 select-none">大小写：</span>
+                <div className="flex gap-1">
+                  {[
+                    { value: 'lowercase', label: '小写' },
+                    { value: 'uppercase', label: '大写' }
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setFormatCase(option.value)}
+                      className={`px-3 py-1.5 rounded transition-colors text-sm select-none ${
+                        formatCase === option.value
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* 连字符选项 */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 select-none">连字符：</span>
+                <div className="flex gap-1">
+                  {[
+                    { value: true, label: '带' },
+                    { value: false, label: '无' }
+                  ].map((option) => (
+                    <button
+                      key={option.value.toString()}
+                      onClick={() => setFormatHyphens(option.value)}
+                      className={`px-3 py-1.5 rounded transition-colors text-sm select-none ${
+                        formatHyphens === option.value
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* v3/v5 的 namespace 和 name */}
