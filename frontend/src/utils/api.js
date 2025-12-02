@@ -8,33 +8,6 @@ export function waitForWailsAPI(timeout = 5000) {
       // 检查 App 结构体（包含所有 API）
       const appAPI = window.go?.app?.App
       
-      // 检查直接绑定的各个 API（如果存在）
-      // 由于包名冲突，Wails 可能使用完整路径的最后部分
-      let jsonAPI = null
-      let base64API = null
-      let timestampAPI = null
-      
-      // 尝试查找各个 API（可能的路径）
-      if (window.go) {
-        // 遍历所有可能的路径
-        for (const key in window.go) {
-          const pkg = window.go[key]
-          if (pkg && typeof pkg === 'object') {
-            // 检查是否有 API 结构体
-            if (pkg.API) {
-              // 根据包名判断是哪个 API
-              if (key.includes('json') || (!jsonAPI && !base64API && !timestampAPI)) {
-                jsonAPI = jsonAPI || pkg.API
-              } else if (key.includes('base64')) {
-                base64API = pkg.API
-              } else if (key.includes('timestamp')) {
-                timestampAPI = pkg.API
-              }
-            }
-          }
-        }
-      }
-      
       // 使用 App 结构体和各个 Handler
       const jsonHandler = window.go?.handlers?.JSONHandler
       const base64Handler = window.go?.handlers?.Base64Handler
@@ -99,17 +72,6 @@ export function waitForWailsAPI(timeout = 5000) {
           resolve(result)
           return
         }
-      }
-      
-      // 如果 App 不可用，尝试直接绑定的 API
-      if (jsonAPI || base64API || timestampAPI) {
-        resolve({
-          JSON: jsonAPI,
-          Base64: base64API,
-          Timestamp: timestampAPI,
-          GetVersion: null,
-        })
-        return
       }
       
       if (Date.now() - startTime > timeout) {
