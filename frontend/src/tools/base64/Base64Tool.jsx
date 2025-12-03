@@ -101,13 +101,14 @@ function Base64Tool({ onShowHelp }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col">
       <ToolHeader
         title="Base64 工具"
         description="Base64 编码和解码"
         toolId="base64"
         onShowHelp={onShowHelp}
       />
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
 
       <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
         <div className="flex items-center justify-between mb-4">
@@ -203,6 +204,7 @@ function Base64Tool({ onShowHelp }) {
         show={showToast}
         onClose={() => setShowToast(false)}
       />
+      </div>
     </div>
   )
 }

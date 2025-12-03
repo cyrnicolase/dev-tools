@@ -151,27 +151,27 @@ function App() {
       {/* 主内容区 */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
-          <div className="max-w-6xl mx-auto p-8 h-full flex flex-col">
+          <div className="w-full p-8 h-full flex flex-col">
             {/* 渲染所有工具组件，但只显示当前激活的工具 */}
             <div className={activeTool === 'json' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <JsonTool onShowHelp={handleShowHelp} />
             </div>
-            <div className={activeTool === 'base64' ? '' : 'hidden'}>
+            <div className={activeTool === 'base64' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <Base64Tool onShowHelp={handleShowHelp} />
             </div>
-            <div className={activeTool === 'timestamp' ? '' : 'hidden'}>
+            <div className={activeTool === 'timestamp' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <TimestampTool onShowHelp={handleShowHelp} />
             </div>
-            <div className={activeTool === 'uuid' ? '' : 'hidden'}>
+            <div className={activeTool === 'uuid' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <UuidTool onShowHelp={handleShowHelp} />
             </div>
-            <div className={activeTool === 'url' ? '' : 'hidden'}>
+            <div className={activeTool === 'url' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <UrlTool onShowHelp={handleShowHelp} />
             </div>
-            <div className={activeTool === 'qrcode' ? '' : 'hidden'}>
+            <div className={activeTool === 'qrcode' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <QrcodeTool onShowHelp={handleShowHelp} />
             </div>
-            <div className={activeTool === 'ipquery' ? '' : 'hidden'}>
+            <div className={activeTool === 'ipquery' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <IPQueryTool onShowHelp={handleShowHelp} />
             </div>
             <div className={activeTool === 'help' ? '' : 'hidden'}>

@@ -75,7 +75,7 @@ function QrcodeTool({ onShowHelp }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col">
       <div>
         <ToolHeader
           title="二维码工具"
@@ -84,6 +84,7 @@ function QrcodeTool({ onShowHelp }) {
           onShowHelp={onShowHelp}
         />
       </div>
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
 
       <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
         <div className="flex items-center justify-between mb-4">
@@ -175,6 +176,7 @@ function QrcodeTool({ onShowHelp }) {
         show={showToast}
         onClose={() => setShowToast(false)}
       />
+      </div>
     </div>
   )
 }

@@ -134,7 +134,7 @@ function UuidTool({ onShowHelp }) {
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col">
       <div>
         <ToolHeader
           title="UUID 工具"
@@ -143,6 +143,7 @@ function UuidTool({ onShowHelp }) {
           onShowHelp={onShowHelp}
         />
       </div>
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
 
       <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
         <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 select-none">生成配置</h3>
@@ -334,6 +335,7 @@ function UuidTool({ onShowHelp }) {
         show={showToast}
         onClose={() => setShowToast(false)}
       />
+      </div>
     </div>
   )
 }

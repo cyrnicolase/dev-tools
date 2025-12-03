@@ -148,7 +148,7 @@ function TimestampTool({ onShowHelp }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="h-full flex flex-col">
       <div>
         <ToolHeader
           title="时间戳工具"
@@ -157,6 +157,7 @@ function TimestampTool({ onShowHelp }) {
           onShowHelp={onShowHelp}
         />
       </div>
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-6">
 
       {/* 当前时间 */}
       <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
@@ -350,6 +351,7 @@ function TimestampTool({ onShowHelp }) {
         show={showToast}
         onClose={() => setShowToast(false)}
       />
+      </div>
     </div>
   )
 }
