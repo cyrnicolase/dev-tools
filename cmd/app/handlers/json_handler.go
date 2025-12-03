@@ -85,8 +85,8 @@ func (h *JSONHandler) logError(method string, err error) {
 	if ok {
 		funcName := runtime.FuncForPC(pc).Name()
 		enhancedErr := fmt.Errorf("%s [%s:%d] %w", funcName, filepath.Base(file), line, err)
-		logger.GetLogger().LogError("JSONHandler", method, enhancedErr)
+		logger.MustGetLogger().LogError("JSONHandler", method, enhancedErr)
 	} else {
-		logger.GetLogger().LogError("JSONHandler", method, err)
+		logger.MustGetLogger().LogError("JSONHandler", method, err)
 	}
 }

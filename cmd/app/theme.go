@@ -31,7 +31,7 @@ func NewThemeManager() *ThemeManager {
 	// 创建时立即加载主题设置
 	// 如果加载失败，使用默认主题（已在初始化时设置）
 	if err := tm.Load(); err != nil {
-		logger.GetLogger().LogError("ThemeManager", "NewThemeManager", err)
+		logger.MustGetLogger().LogError("ThemeManager", "NewThemeManager", err)
 	}
 	return tm
 }

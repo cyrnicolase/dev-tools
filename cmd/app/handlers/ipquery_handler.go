@@ -39,9 +39,8 @@ func (h *IPQueryHandler) logError(method string, err error) {
 	if ok {
 		funcName := runtime.FuncForPC(pc).Name()
 		enhancedErr := fmt.Errorf("%s [%s:%d] %w", funcName, filepath.Base(file), line, err)
-		logger.GetLogger().LogError("IPQueryHandler", method, enhancedErr)
+		logger.MustGetLogger().LogError("IPQueryHandler", method, enhancedErr)
 	} else {
-		logger.GetLogger().LogError("IPQueryHandler", method, err)
+		logger.MustGetLogger().LogError("IPQueryHandler", method, err)
 	}
 }
-

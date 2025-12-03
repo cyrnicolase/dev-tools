@@ -51,13 +51,10 @@ func NewLogger(logDir string) (*Logger, error) {
 	}, nil
 }
 
-// GetLogger 获取全局日志记录器
-func GetLogger() *Logger {
+// MustGetLogger 获取全局日志记录器
+func MustGetLogger() *Logger {
 	if globalLogger == nil {
-		// 默认使用应用目录下的 logs 文件夹
-		homeDir, _ := os.UserHomeDir()
-		logDir := filepath.Join(homeDir, ".dev-tools", "logs")
-		_ = InitLogger(logDir)
+		panic("logger not initialized")
 	}
 	return globalLogger
 }
@@ -133,7 +130,7 @@ func (l *Logger) Close() error {
 
 // LogError 全局错误日志记录函数
 func LogError(handler, method string, err error) {
-	if logger := GetLogger(); logger != nil {
+	if logger := MustGetLogger(); logger != nil {
 		logger.LogError(handler, method, err)
 	}
 }

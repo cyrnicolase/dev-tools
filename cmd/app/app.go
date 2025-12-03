@@ -58,7 +58,7 @@ func NewApp() *App {
 // 如果加载失败，使用默认主题，不影响应用启动
 func (a *App) LoadThemeForStartup() {
 	if err := a.themeManager.Load(); err != nil {
-		logger.GetLogger().LogError("App", "LoadThemeForStartup", err)
+		logger.MustGetLogger().LogError("App", "LoadThemeForStartup", err)
 	}
 }
 
@@ -70,7 +70,7 @@ func (a *App) Startup(_ context.Context) {
 	}
 	logDir := filepath.Join(homeDir, ".dev-tools", "logs")
 	if err := logger.InitLogger(logDir); err != nil {
-		println("警告: 日志初始化失败:", err.Error())
+		panic(err)
 	}
 }
 

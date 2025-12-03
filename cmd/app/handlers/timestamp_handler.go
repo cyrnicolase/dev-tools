@@ -85,8 +85,8 @@ func (h *TimestampHandler) logError(method string, err error) {
 	if ok {
 		funcName := runtime.FuncForPC(pc).Name()
 		enhancedErr := fmt.Errorf("%s [%s:%d] %w", funcName, filepath.Base(file), line, err)
-		logger.GetLogger().LogError("TimestampHandler", method, enhancedErr)
+		logger.MustGetLogger().LogError("TimestampHandler", method, enhancedErr)
 	} else {
-		logger.GetLogger().LogError("TimestampHandler", method, err)
+		logger.MustGetLogger().LogError("TimestampHandler", method, err)
 	}
 }

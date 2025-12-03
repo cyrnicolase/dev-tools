@@ -58,9 +58,9 @@ func (h *Base64Handler) logError(method string, err error) {
 	if ok {
 		funcName := runtime.FuncForPC(pc).Name()
 		enhancedErr := fmt.Errorf("%s [%s:%d] %w", funcName, filepath.Base(file), line, err)
-		logger.GetLogger().LogError("Base64Handler", method, enhancedErr)
+		logger.MustGetLogger().LogError("Base64Handler", method, enhancedErr)
 	} else {
-		logger.GetLogger().LogError("Base64Handler", method, err)
+		logger.MustGetLogger().LogError("Base64Handler", method, err)
 	}
 }
 
