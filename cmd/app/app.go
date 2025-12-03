@@ -55,26 +55,23 @@ func NewApp() *App {
 
 // LoadThemeForStartup 在启动时加载主题设置（用于设置窗口背景色）
 // 这个方法在窗口创建之前调用，确保窗口背景色与主题一致
+// 如果加载失败，使用默认主题，不影响应用启动
 func (a *App) LoadThemeForStartup() {
-	a.themeManager.Load()
+	if err := a.themeManager.Load(); err != nil {
+		logger.GetLogger().LogError("App", "LoadThemeForStartup", err)
+	}
 }
 
 // Startup 应用启动时的回调
 func (a *App) Startup(_ context.Context) {
-	// 初始化日志记录器
-	// 日志文件保存在用户目录下的 .dev-tools/logs 文件夹
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		// 如果获取用户目录失败，使用当前目录
 		homeDir = "."
 	}
 	logDir := filepath.Join(homeDir, ".dev-tools", "logs")
 	if err := logger.InitLogger(logDir); err != nil {
-		// 日志初始化失败不影响应用运行，只输出到控制台
 		println("警告: 日志初始化失败:", err.Error())
 	}
-
-	// 主题管理器在创建时已经加载了主题设置，这里不需要再次加载
 }
 
 // GetVersion 获取应用版本号（实例方法）

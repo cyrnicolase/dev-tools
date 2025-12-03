@@ -5,6 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/cyrnicolase/dev-tools/internal/logger"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -20,12 +23,16 @@ type ThemeManager struct {
 }
 
 // NewThemeManager 创建新的主题管理器实例
+// 如果加载主题失败，使用默认主题，不影响创建
 func NewThemeManager() *ThemeManager {
 	tm := &ThemeManager{
 		theme: defaultTheme,
 	}
 	// 创建时立即加载主题设置
-	tm.Load()
+	// 如果加载失败，使用默认主题（已在初始化时设置）
+	if err := tm.Load(); err != nil {
+		logger.GetLogger().LogError("ThemeManager", "NewThemeManager", err)
+	}
 	return tm
 }
 
@@ -48,31 +55,46 @@ func (tm *ThemeManager) validateTheme(theme string) string {
 	return theme
 }
 
+// setThemeUnsafe 设置主题（不加锁，内部使用）
+func (tm *ThemeManager) setThemeUnsafe(theme string) {
+	tm.theme = theme
+}
+
+// setTheme 设置主题（加锁）
+func (tm *ThemeManager) setTheme(theme string) {
+	tm.themeMu.Lock()
+	defer tm.themeMu.Unlock()
+	tm.setThemeUnsafe(theme)
+}
+
 // Load 从文件加载主题设置
-func (tm *ThemeManager) Load() {
+// 如果配置文件不存在，使用默认主题并返回 nil
+// 如果发生其他错误（如权限错误、JSON 解析错误），返回错误
+func (tm *ThemeManager) Load() error {
 	configFilePath, err := tm.getConfigPath()
 	if err != nil {
-		tm.themeMu.Lock()
-		tm.theme = defaultTheme
-		tm.themeMu.Unlock()
-		return
+		tm.setTheme(defaultTheme)
+		return nil
 	}
 
-	// 如果配置文件不存在，使用默认主题
-	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
-		tm.themeMu.Lock()
-		tm.theme = defaultTheme
-		tm.themeMu.Unlock()
-		return
+	// 检查配置文件是否存在
+	_, err = os.Stat(configFilePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// 配置文件不存在，使用默认主题（这是正常情况）
+			tm.setTheme(defaultTheme)
+			return nil
+		}
+		tm.setTheme(defaultTheme)
+		return errors.WithStack(err)
 	}
 
 	// 读取配置文件
 	data, err := os.ReadFile(configFilePath)
 	if err != nil {
-		tm.themeMu.Lock()
-		tm.theme = defaultTheme
-		tm.themeMu.Unlock()
-		return
+		// 读取文件失败，首次错误使用 WithStack 包装
+		tm.setTheme(defaultTheme)
+		return errors.WithStack(err)
 	}
 
 	// 解析JSON
@@ -80,17 +102,15 @@ func (tm *ThemeManager) Load() {
 		Theme string `json:"theme"`
 	}
 	if err := json.Unmarshal(data, &config); err != nil {
-		tm.themeMu.Lock()
-		tm.theme = defaultTheme
-		tm.themeMu.Unlock()
-		return
+		// JSON 解析失败，首次错误使用 WithStack 包装
+		tm.setTheme(defaultTheme)
+		return errors.WithStack(err)
 	}
 
 	// 验证并设置主题值
 	validTheme := tm.validateTheme(config.Theme)
-	tm.themeMu.Lock()
-	tm.theme = validTheme
-	tm.themeMu.Unlock()
+	tm.setTheme(validTheme)
+	return nil
 }
 
 // Save 保存主题设置到文件
@@ -102,13 +122,15 @@ func (tm *ThemeManager) Save(theme string) error {
 
 	configFilePath, err := tm.getConfigPath()
 	if err != nil {
-		return err
+		// 首次错误使用 WithStack 包装
+		return errors.WithStack(err)
 	}
 
 	configDirPath := filepath.Dir(configFilePath)
 	// 确保配置目录存在
 	if err := os.MkdirAll(configDirPath, 0755); err != nil {
-		return err
+		// 首次错误使用 WithStack 包装
+		return errors.WithStack(err)
 	}
 
 	// 准备配置数据
@@ -121,18 +143,18 @@ func (tm *ThemeManager) Save(theme string) error {
 	// 序列化为JSON
 	data, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
-		return err
+		// 首次错误使用 WithStack 包装
+		return errors.WithStack(err)
 	}
 
 	// 写入文件
 	if err := os.WriteFile(configFilePath, data, 0644); err != nil {
-		return err
+		// 首次错误使用 WithStack 包装
+		return errors.WithStack(err)
 	}
 
 	// 更新内存中的主题值
-	tm.themeMu.Lock()
-	tm.theme = validTheme
-	tm.themeMu.Unlock()
+	tm.setTheme(validTheme)
 
 	return nil
 }
@@ -150,7 +172,5 @@ func (tm *ThemeManager) Get() string {
 // Set 设置主题（不保存到文件，仅更新内存）
 func (tm *ThemeManager) Set(theme string) {
 	validTheme := tm.validateTheme(theme)
-	tm.themeMu.Lock()
-	tm.theme = validTheme
-	tm.themeMu.Unlock()
+	tm.setTheme(validTheme)
 }
