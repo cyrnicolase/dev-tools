@@ -38,3 +38,12 @@ body {
   animation: fade-in 0.3s ease-out;
 }
 
+/* Monaco Editor 搜索高亮样式 */
+.monaco-search-match {
+  background-color: rgba(234, 92, 0, 0.33) !important;
+}
+
+[data-theme="dark"] .monaco-search-match {
+  background-color: rgba(234, 92, 0, 0.5) !important;
+}
+

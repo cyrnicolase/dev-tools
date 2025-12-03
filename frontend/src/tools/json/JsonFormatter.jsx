@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import Editor from '@monaco-editor/react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import Tooltip from '../../components/Tooltip'
+import SearchBar from '../../components/SearchBar'
+import { searchJsonKeys } from '../../utils/jsonSearch'
+import { useTheme } from '../../hooks/useTheme'
 
 function JsonFormatter() {
   const [input, setInput] = useState('')
@@ -14,6 +18,24 @@ function JsonFormatter() {
   const [isMinified, setIsMinified] = useState(false) // 当前输出是否是压缩格式
   const [isFormatted, setIsFormatted] = useState(false) // 是否已格式化
   const [showToast, setShowToast] = useState(false) // 是否显示 Toast 提示
+  
+  // 搜索相关状态
+  const [showSearch, setShowSearch] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [caseSensitive, setCaseSensitive] = useState(false)
+  const [regex, setRegex] = useState(false)
+  const [jsonMode, setJsonMode] = useState(false)
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0)
+  const [matchCount, setMatchCount] = useState(0)
+  const [jsonMatches, setJsonMatches] = useState([])
+  
+  // Monaco Editor 引用
+  const editorRef = useRef(null)
+  const monacoRef = useRef(null)
+  const decorationsRef = useRef([])
+  
+  // 主题
+  const { theme } = useTheme()
 
   useEffect(() => {
     waitForWailsAPI()
@@ -197,14 +219,298 @@ function JsonFormatter() {
   }
 
   // 当用户编辑输入框时，如果已格式化，保持格式化状态但允许编辑
-  const handleInputChange = (e) => {
-    setInput(e.target.value)
+  const handleInputChange = (value) => {
+    setInput(value || '')
     // 如果用户编辑了内容，且当前不是压缩状态，更新 lastFormattedInput 以便重新格式化
     // 如果是压缩状态，不更新 lastFormattedInput，保持原始的格式化JSON用于后续格式化
     if (isFormatted && !isMinified) {
-      setLastFormattedInput(e.target.value)
+      setLastFormattedInput(value || '')
+    }
+    // 如果正在搜索，更新搜索结果
+    if (showSearch && searchTerm) {
+      performSearch(value || '', searchTerm, caseSensitive, regex, jsonMode)
     }
   }
+  
+  // 使用 ref 存储最新状态，供快捷键使用
+  const showSearchRef = useRef(showSearch)
+  const searchTermRef = useRef(searchTerm)
+  
+  useEffect(() => {
+    showSearchRef.current = showSearch
+  }, [showSearch])
+  
+  useEffect(() => {
+    searchTermRef.current = searchTerm
+  }, [searchTerm])
+  
+  // Monaco Editor 初始化
+  const handleEditorDidMount = (editor, monaco) => {
+    editorRef.current = editor
+    monacoRef.current = monaco
+    
+    // 注册快捷键
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
+      setShowSearch(true)
+    })
+    
+    editor.addCommand(monaco.KeyCode.Escape, () => {
+      if (showSearchRef.current) {
+        setShowSearch(false)
+        clearSearch()
+      }
+    })
+    
+    editor.addCommand(monaco.KeyCode.F3, () => {
+      if (showSearchRef.current && searchTermRef.current) {
+        handleNextMatch()
+      }
+    })
+    
+    editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.F3, () => {
+      if (showSearchRef.current && searchTermRef.current) {
+        handlePreviousMatch()
+      }
+    })
+  }
+  
+  // 清除搜索高亮
+  const clearSearchHighlights = useCallback(() => {
+    if (editorRef.current && decorationsRef.current.length > 0) {
+      editorRef.current.deltaDecorations(decorationsRef.current, [])
+      decorationsRef.current = []
+    }
+  }, [])
+  
+  // 高亮 JSON 匹配项
+  const highlightJsonMatches = useCallback((matches, text) => {
+    if (!editorRef.current || !monacoRef.current) return
+    
+    const editor = editorRef.current
+    const model = editor.getModel()
+    const lines = text.split('\n')
+    
+    const decorations = []
+    
+    matches.forEach((match) => {
+      const { path, type, key } = match
+      
+      // 尝试找到匹配的行和列
+      if (type === 'key' && key) {
+        const keyPattern = new RegExp(`"${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"\\s*:`, 'g')
+        lines.forEach((line, lineIndex) => {
+          let matchResult
+          while ((matchResult = keyPattern.exec(line)) !== null) {
+            const startColumn = matchResult.index + 1
+            const endColumn = startColumn + key.length + 2
+            decorations.push({
+              range: new monacoRef.current.Range(lineIndex + 1, startColumn, lineIndex + 1, endColumn),
+              options: {
+                inlineClassName: 'monaco-search-match',
+                className: 'monaco-search-match',
+              },
+            })
+          }
+        })
+      } else if (type === 'value') {
+        const valueStr = String(match.value)
+        const escapedValue = valueStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const valuePattern = new RegExp(`:\\s*"${escapedValue}"`, 'g')
+        lines.forEach((line, lineIndex) => {
+          let matchResult
+          while ((matchResult = valuePattern.exec(line)) !== null) {
+            const valueStart = matchResult.index + matchResult[0].indexOf('"') + 1
+            const valueEnd = valueStart + valueStr.length + 2
+            decorations.push({
+              range: new monacoRef.current.Range(lineIndex + 1, valueStart, lineIndex + 1, valueEnd),
+              options: {
+                inlineClassName: 'monaco-search-match',
+                className: 'monaco-search-match',
+              },
+            })
+          }
+        })
+      }
+    })
+    
+    decorationsRef.current = editor.deltaDecorations(decorationsRef.current, decorations)
+  }, [])
+  
+  // 导航到 JSON 匹配项
+  const navigateToJsonMatch = useCallback((match) => {
+    if (!editorRef.current || !monacoRef.current || !match) return
+    
+    const editor = editorRef.current
+    const model = editor.getModel()
+    const text = model.getValue()
+    const lines = text.split('\n')
+    
+    // 尝试找到匹配的位置
+    if (match.type === 'key' && match.key) {
+      const keyPattern = new RegExp(`"${match.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"\\s*:`, 'g')
+      for (let i = 0; i < lines.length; i++) {
+        const matchResult = keyPattern.exec(lines[i])
+        if (matchResult) {
+          const startColumn = matchResult.index + 1
+          const endColumn = startColumn + match.key.length + 2
+          const range = new monacoRef.current.Range(i + 1, startColumn, i + 1, endColumn)
+          editor.setPosition(range.getStartPosition())
+          editor.revealRangeInCenter(range)
+          editor.setSelection(range)
+          break
+        }
+      }
+    }
+  }, [])
+  
+  // 文本搜索
+  const performTextSearch = useCallback((term, caseSens, useRegex) => {
+    if (!editorRef.current || !monacoRef.current) return
+    
+    const editor = editorRef.current
+    const model = editor.getModel()
+    
+    try {
+      const matches = model.findMatches(term, false, useRegex, caseSens, null, false)
+      setMatchCount(matches.length)
+      setJsonMatches([])
+      
+      if (matches.length > 0) {
+        // 高亮所有匹配项
+        const decorations = matches.map(match => ({
+          range: match.range,
+          options: {
+            inlineClassName: 'monaco-search-match',
+            className: 'monaco-search-match',
+          },
+        }))
+        
+        decorationsRef.current = editor.deltaDecorations(decorationsRef.current, decorations)
+        
+        // 导航到当前匹配项
+        const currentIdx = currentMatchIndex < matches.length ? currentMatchIndex : 0
+        if (currentIdx < matches.length) {
+          const match = matches[currentIdx]
+          editor.setPosition(match.range.getStartPosition())
+          editor.revealRangeInCenter(match.range)
+          editor.setSelection(match.range)
+        }
+      } else {
+        clearSearchHighlights()
+      }
+    } catch (err) {
+      console.error('搜索错误:', err)
+      setMatchCount(0)
+      clearSearchHighlights()
+    }
+  }, [currentMatchIndex, clearSearchHighlights])
+  
+  // 执行搜索
+  const performSearch = useCallback((text, term, caseSens, useRegex, jsonSearchMode) => {
+    if (!editorRef.current || !monacoRef.current || !term) {
+      setMatchCount(0)
+      setCurrentMatchIndex(0)
+      setJsonMatches([])
+      clearSearchHighlights()
+      return
+    }
+    
+    const editor = editorRef.current
+    const model = editor.getModel()
+    
+    if (jsonSearchMode && outputFormat === 'json') {
+      // JSON 键值搜索
+      try {
+        const jsonObj = JSON.parse(text)
+        const matches = searchJsonKeys(jsonObj, term, caseSens, useRegex)
+        setJsonMatches(matches)
+        setMatchCount(matches.length)
+        
+        if (matches.length > 0) {
+          // 高亮 JSON 匹配项
+          highlightJsonMatches(matches, text)
+          // 导航到第一个匹配项
+          const currentIdx = currentMatchIndex < matches.length ? currentMatchIndex : 0
+          setCurrentMatchIndex(currentIdx)
+          navigateToJsonMatch(matches[currentIdx])
+        } else {
+          clearSearchHighlights()
+        }
+      } catch (err) {
+        // JSON 解析失败，回退到文本搜索
+        performTextSearch(term, caseSens, useRegex)
+      }
+    } else {
+      // 文本搜索
+      performTextSearch(term, caseSens, useRegex)
+    }
+  }, [outputFormat, currentMatchIndex, clearSearchHighlights, highlightJsonMatches, navigateToJsonMatch, performTextSearch])
+  
+  // 清除搜索
+  const clearSearch = useCallback(() => {
+    setSearchTerm('')
+    setMatchCount(0)
+    setCurrentMatchIndex(0)
+    setJsonMatches([])
+    clearSearchHighlights()
+  }, [clearSearchHighlights])
+  
+  // 搜索词变化
+  useEffect(() => {
+    if (showSearch && searchTerm) {
+      performSearch(input, searchTerm, caseSensitive, regex, jsonMode)
+    } else if (!searchTerm) {
+      clearSearch()
+    }
+  }, [searchTerm, caseSensitive, regex, jsonMode, showSearch, input, performSearch, clearSearch])
+  
+  // 导航到下一个匹配项
+  const handleNextMatch = useCallback(() => {
+    if (matchCount === 0) return
+    
+    const nextIndex = (currentMatchIndex + 1) % matchCount
+    setCurrentMatchIndex(nextIndex)
+    
+    if (jsonMode && jsonMatches.length > 0) {
+      navigateToJsonMatch(jsonMatches[nextIndex])
+    } else if (editorRef.current) {
+      const editor = editorRef.current
+      const model = editor.getModel()
+      const matches = model.findMatches(searchTerm, false, regex, caseSensitive, null, false)
+      if (matches[nextIndex]) {
+        editor.setPosition(matches[nextIndex].range.getStartPosition())
+        editor.revealRangeInCenter(matches[nextIndex].range)
+        editor.setSelection(matches[nextIndex].range)
+      }
+    }
+  }, [matchCount, currentMatchIndex, jsonMode, jsonMatches, searchTerm, regex, caseSensitive, navigateToJsonMatch])
+  
+  // 导航到上一个匹配项
+  const handlePreviousMatch = useCallback(() => {
+    if (matchCount === 0) return
+    
+    const prevIndex = (currentMatchIndex - 1 + matchCount) % matchCount
+    setCurrentMatchIndex(prevIndex)
+    
+    if (jsonMode && jsonMatches.length > 0) {
+      navigateToJsonMatch(jsonMatches[prevIndex])
+    } else if (editorRef.current) {
+      const editor = editorRef.current
+      const model = editor.getModel()
+      const matches = model.findMatches(searchTerm, false, regex, caseSensitive, null, false)
+      if (matches[prevIndex]) {
+        editor.setPosition(matches[prevIndex].range.getStartPosition())
+        editor.revealRangeInCenter(matches[prevIndex].range)
+        editor.setSelection(matches[prevIndex].range)
+      }
+    }
+  }, [matchCount, currentMatchIndex, jsonMode, jsonMatches, searchTerm, regex, caseSensitive, navigateToJsonMatch])
+  
+  // 关闭搜索
+  const handleCloseSearch = useCallback(() => {
+    setShowSearch(false)
+    clearSearch()
+  }, [clearSearch])
 
   const isInputMaximized = inputMaximizeMode !== 'none'
   const isInputFullscreen = inputMaximizeMode === 'fullscreen'
@@ -305,6 +611,20 @@ function JsonFormatter() {
                 </Tooltip>
               </>
             )}
+            <Tooltip content="搜索 (Ctrl+F)" delay={200}>
+              <button
+                onClick={() => setShowSearch(!showSearch)}
+                className={`p-2 rounded-lg transition-colors select-none ${
+                  showSearch
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </Tooltip>
             <Tooltip content="复制" delay={200}>
               <button
                 onClick={handleCopy}
@@ -317,12 +637,48 @@ function JsonFormatter() {
             </Tooltip>
           </div>
         </div>
-        <textarea
-          value={input}
-          onChange={handleInputChange}
-          className="json-formatter-textarea w-full p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-h-0 resize-none"
-          placeholder="输入 JSON 数据..."
-        />
+        {showSearch && (
+          <SearchBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            onPrevious={handlePreviousMatch}
+            onNext={handleNextMatch}
+            onClose={handleCloseSearch}
+            matchCount={matchCount}
+            currentMatch={currentMatchIndex + 1}
+            caseSensitive={caseSensitive}
+            onCaseSensitiveChange={setCaseSensitive}
+            regex={regex}
+            onRegexChange={setRegex}
+            jsonMode={jsonMode}
+            onJsonModeChange={setJsonMode}
+          />
+        )}
+        <div className="flex-1 min-h-0 border border-border-input rounded-lg overflow-hidden">
+          <Editor
+            height="100%"
+            language={outputFormat === 'json' ? 'json' : 'yaml'}
+            value={input}
+            onChange={handleInputChange}
+            theme={theme === 'dark' ? 'vs-dark' : 'vs'}
+            onMount={handleEditorDidMount}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              wordWrap: 'on',
+              lineNumbers: 'on',
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              tabSize: 2,
+              formatOnPaste: false,
+              formatOnType: false,
+              scrollbar: {
+                vertical: 'auto',
+                horizontal: 'auto',
+              },
+            }}
+          />
+        </div>
         {error && (
           <div className="mt-2 p-3 rounded-lg bg-error-bg text-error-text select-none">
             {error}
