@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/cyrnicolase/dev-tools/internal/logger"
 	"github.com/pkg/errors"
 )
 
@@ -31,7 +30,7 @@ func NewThemeManager() *ThemeManager {
 	// 创建时立即加载主题设置
 	// 如果加载失败，使用默认主题（已在初始化时设置）
 	if err := tm.Load(); err != nil {
-		logger.MustGetLogger().LogError("ThemeManager", "NewThemeManager", err)
+		panic(err)
 	}
 	return tm
 }

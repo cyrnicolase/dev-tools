@@ -50,7 +50,7 @@ function TimestampTool({ onShowHelp }) {
     { value: 'Asia/Dhaka', label: '【东六区（UTC+6）】Asia/Dhaka', region: '东六区' },
     { value: 'Asia/Bangkok', label: '【东七区（UTC+7）】Asia/Bangkok', region: '东七区' },
     { value: 'Asia/Shanghai', label: '【东八区（UTC+8）】Asia/Shanghai', region: '东八区' },
-    { value: 'Asia/Tokyo', label: '【东九区（UTC+9）】Asia/Tokyo', region: '东九区' },
+    { value: 'Asia/Seoul', label: '【东九区（UTC+9）】Asia/Seoul', region: '东九区' },
     { value: 'Australia/Sydney', label: '【东十区（UTC+10）】Australia/Sydney', region: '东十区' },
     { value: 'Pacific/Auckland', label: '【东十一区（UTC+11）】Pacific/Auckland', region: '东十一区' },
     { value: 'Pacific/Fiji', label: '【东十二区（UTC+12）】Pacific/Fiji', region: '东十二区' },

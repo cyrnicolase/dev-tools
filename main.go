@@ -25,30 +25,50 @@ func main() {
 		return
 	}
 
+	// 初始化应用实例
+	appInstance := initializeApp()
+
+	// 创建 Wails 应用配置
+	appConfig := createAppConfig(appInstance)
+
+	// 运行应用
+	err := wails.Run(appConfig)
+	if err != nil {
+		println("Error:", err.Error())
+	}
+}
+
+// initializeApp 初始化应用实例
+// 包括加载主题设置和解析命令行参数
+func initializeApp() *app.App {
 	appInstance := app.NewApp()
 
 	// 在启动前先加载主题设置（用于设置窗口背景色）
 	// 注意：这里需要手动加载主题，因为 Startup 回调在窗口创建后才执行
 	appInstance.LoadThemeForStartup()
 
-	// 解析命令行参数
+	// 解析命令行参数并设置初始工具
 	toolName := parseCommandLineArgs()
 	if toolName != "" {
 		appInstance.SetInitialTool(toolName)
 	}
 
-	// 获取当前主题，用于设置窗口背景色
+	return appInstance
+}
+
+// getBackgroundColor 根据当前主题获取窗口背景色
+func getBackgroundColor(appInstance *app.App) *options.RGBA {
 	currentTheme := appInstance.GetTheme()
-	var bgColor *options.RGBA
 	if currentTheme == "dark" {
 		// 深色主题背景色：对应 --bg-primary (#111827)
-		bgColor = &options.RGBA{R: 17, G: 24, B: 39, A: 1}
-	} else {
-		// 浅色主题背景色：对应 --bg-primary (#f9fafb)
-		bgColor = &options.RGBA{R: 249, G: 250, B: 251, A: 1}
+		return &options.RGBA{R: 17, G: 24, B: 39, A: 1}
 	}
+	// 浅色主题背景色：对应 --bg-primary (#f9fafb)
+	return &options.RGBA{R: 249, G: 250, B: 251, A: 1}
+}
 
-	// 创建菜单栏，保留系统默认菜单
+// createAppMenu 创建应用菜单栏
+func createAppMenu(appInstance *app.App) *menu.Menu {
 	appMenu := menu.NewMenu()
 
 	// 添加默认的应用菜单（macOS 上的应用菜单，包含关于、偏好设置等）
@@ -66,15 +86,20 @@ func main() {
 		appInstance.ShowHelp()
 	})
 
-	err := wails.Run(&options.App{
+	return appMenu
+}
+
+// createAppConfig 创建 Wails 应用配置
+func createAppConfig(appInstance *app.App) *options.App {
+	return &options.App{
 		Title:  "Dev Tools",
 		Width:  1140,
 		Height: 940,
-		Menu:   appMenu,
+		Menu:   createAppMenu(appInstance),
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: bgColor,
+		BackgroundColour: getBackgroundColor(appInstance),
 		OnStartup:        appInstance.Startup,
 		Mac: &mac.Options{
 			OnUrlOpen: func(url string) {
@@ -97,10 +122,6 @@ func main() {
 			appInstance.QRCode,    // 二维码工具处理器
 			appInstance.IPQuery,   // IP查询工具处理器
 		},
-	})
-
-	if err != nil {
-		println("Error:", err.Error())
 	}
 }
 
