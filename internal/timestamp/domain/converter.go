@@ -28,20 +28,156 @@ func (c *Converter) TimeToTimestamp(t time.Time) int64 {
 }
 
 // TimestampToTimeString 将时间戳转换为时间字符串
-func (c *Converter) TimestampToTimeString(timestamp int64, format string) (string, error) {
+func (c *Converter) TimestampToTimeString(timestamp int64, format string, timezone string) (string, error) {
 	t := c.TimestampToTime(timestamp)
-	return c.formatter.FormatTime(t, format)
+	return c.formatter.FormatTime(t, format, timezone)
 }
 
 // TimeStringToTimestamp 将时间字符串转换为时间戳
-func (c *Converter) TimeStringToTimestamp(timeStr string, format string) (int64, error) {
-	// 将格式名称转换为实际的 Go 时间格式字符串
-	actualFormat := c.getActualFormat(format)
-	t, err := time.Parse(actualFormat, timeStr)
+func (c *Converter) TimeStringToTimestamp(timeStr string, format string, timezone string) (int64, error) {
+	// 加载时区
+	loc, err := time.LoadLocation(timezone)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse time: %w", err)
+		// 如果时区无效，回退到 UTC
+		loc = time.UTC
 	}
+
+	var t time.Time
+
+	// 检查格式是否包含时区信息
+	actualFormat := c.getActualFormat(format)
+	formatHasTimezone := c.formatRequiresTimezone(format)
+
+	if formatHasTimezone {
+		// 对于包含时区信息的格式（如 RFC3339），先尝试标准解析
+		// 如果输入包含时区信息，使用输入的时区；否则使用选择的时区
+		parsedTime, parseErr := time.Parse(actualFormat, timeStr)
+		if parseErr == nil {
+			// 解析成功，使用解析出的时间（可能包含时区信息）
+			t = parsedTime
+		} else {
+			// 标准解析失败，输入可能没有时区信息，使用选择的时区解析
+			formatsToTry := c.getFormatsToTry(format, timeStr)
+
+			var lastErr error
+			for _, fmtStr := range formatsToTry {
+				t, err = time.ParseInLocation(fmtStr, timeStr, loc)
+				if err == nil {
+					// 解析成功
+					break
+				}
+				lastErr = err
+			}
+
+			if err != nil {
+				return 0, fmt.Errorf("failed to parse time: %w", lastErr)
+			}
+		}
+	} else {
+		// 对于不包含时区信息的格式（如 DateTime、Date、Time），
+		// 直接使用选择的时区解析，不使用 time.Parse（因为 time.Parse 会使用 UTC）
+		t, err = time.ParseInLocation(actualFormat, timeStr, loc)
+		if err != nil {
+			return 0, fmt.Errorf("failed to parse time: %w", err)
+		}
+	}
+
+	// 转换为 UTC 时间戳
 	return c.TimeToTimestamp(t), nil
+}
+
+// formatRequiresTimezone 检查格式是否要求时区信息
+func (c *Converter) formatRequiresTimezone(format string) bool {
+	switch format {
+	case "RFC3339", "RFC3339Nano", "RFC822", "RFC822Z", "RFC1123", "RFC1123Z":
+		return true
+	case "DateTime", "Date", "Time":
+		return false
+	default:
+		// 对于未知格式，假设不要求时区信息，使用选择的时区
+		return false
+	}
+}
+
+// getFormatsToTry 根据格式和输入字符串，返回要尝试的格式列表
+// 格式按优先级排序，最精确的格式优先
+func (c *Converter) getFormatsToTry(format string, timeStr string) []string {
+	formats := []string{}
+
+	// 检查输入是否包含纳秒
+	hasNano := false
+	nanoLen := 0
+	if len(timeStr) > 19 && timeStr[19] == '.' {
+		hasNano = true
+		// 计算纳秒部分的长度
+		nanoEnd := len(timeStr)
+		for i := 20; i < len(timeStr); i++ {
+			if timeStr[i] == '+' || timeStr[i] == '-' || timeStr[i] == 'Z' {
+				nanoEnd = i
+				break
+			}
+		}
+		nanoLen = nanoEnd - 20
+	}
+
+	switch format {
+	case "RFC3339":
+		if hasNano {
+			// 输入有纳秒，根据纳秒长度尝试不同精度的格式
+			// 优先尝试最精确的格式
+			if nanoLen >= 9 {
+				formats = append(formats, "2006-01-02T15:04:05.999999999")
+			}
+			if nanoLen >= 6 {
+				formats = append(formats, "2006-01-02T15:04:05.999999")
+			}
+			if nanoLen >= 3 {
+				formats = append(formats, "2006-01-02T15:04:05.999")
+			}
+			// 也尝试通用格式
+			formats = append(formats, "2006-01-02T15:04:05.999999999")
+		}
+		formats = append(formats, "2006-01-02T15:04:05")
+	case "RFC3339Nano":
+		// RFC3339Nano 优先尝试带纳秒的格式
+		formats = append(formats, "2006-01-02T15:04:05.999999999")
+		if !hasNano {
+			// 输入没有纳秒，也尝试不带纳秒的格式
+			formats = append(formats, "2006-01-02T15:04:05")
+		}
+	case "RFC822", "RFC822Z":
+		formats = append(formats, "02 Jan 06 15:04")
+	case "RFC1123", "RFC1123Z":
+		formats = append(formats, "Mon, 02 Jan 2006 15:04:05")
+	default:
+		// 其他格式（DateTime、Date、Time）本身就不包含时区信息
+		actualFormat := c.getActualFormat(format)
+		formats = append(formats, actualFormat)
+	}
+
+	return formats
+}
+
+// getFormatWithoutTimezone 获取不带时区的格式版本
+// 例如：RFC3339 (2006-01-02T15:04:05Z07:00) -> 2006-01-02T15:04:05
+func (c *Converter) getFormatWithoutTimezone(format string) string {
+	switch format {
+	case "RFC3339":
+		// RFC3339: 2006-01-02T15:04:05Z07:00 -> 2006-01-02T15:04:05
+		return "2006-01-02T15:04:05"
+	case "RFC3339Nano":
+		// RFC3339Nano: 2006-01-02T15:04:05.999999999Z07:00 -> 2006-01-02T15:04:05.999999999
+		return "2006-01-02T15:04:05.999999999"
+	case "RFC822", "RFC822Z":
+		// RFC822: 02 Jan 06 15:04 MST -> 02 Jan 06 15:04
+		return "02 Jan 06 15:04"
+	case "RFC1123", "RFC1123Z":
+		// RFC1123: Mon, 02 Jan 2006 15:04:05 MST -> Mon, 02 Jan 2006 15:04:05
+		return "Mon, 02 Jan 2006 15:04:05"
+	default:
+		// 其他格式（DateTime、Date、Time）本身就不包含时区信息
+		return ""
+	}
 }
 
 // getActualFormat 将格式名称转换为实际的 Go 时间格式字符串
@@ -86,16 +222,16 @@ func (c *Converter) getActualFormat(format string) string {
 }
 
 // TimestampToTimeStringMilli 将毫秒时间戳转换为时间字符串
-func (c *Converter) TimestampToTimeStringMilli(timestampMilli int64, format string) (string, error) {
+func (c *Converter) TimestampToTimeStringMilli(timestampMilli int64, format string, timezone string) (string, error) {
 	// 毫秒时间戳转换为秒级时间戳
 	timestamp := timestampMilli / 1000
 	t := c.TimestampToTime(timestamp)
-	return c.formatter.FormatTime(t, format)
+	return c.formatter.FormatTime(t, format, timezone)
 }
 
 // TimeStringToTimestampMilli 将时间字符串转换为毫秒时间戳
-func (c *Converter) TimeStringToTimestampMilli(timeStr string, format string) (int64, error) {
-	timestamp, err := c.TimeStringToTimestamp(timeStr, format)
+func (c *Converter) TimeStringToTimestampMilli(timeStr string, format string, timezone string) (int64, error) {
+	timestamp, err := c.TimeStringToTimestamp(timeStr, format, timezone)
 	if err != nil {
 		return 0, err
 	}

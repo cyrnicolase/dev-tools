@@ -19,18 +19,18 @@ func NewService() *Service {
 }
 
 // TimestampToTimeString 时间戳转时间字符串
-func (s *Service) TimestampToTimeString(timestamp int64, format string) (string, error) {
-	return s.converter.TimestampToTimeString(timestamp, format)
+func (s *Service) TimestampToTimeString(timestamp int64, format string, timezone string) (string, error) {
+	return s.converter.TimestampToTimeString(timestamp, format, timezone)
 }
 
 // TimeStringToTimestamp 时间字符串转时间戳
-func (s *Service) TimeStringToTimestamp(timeStr string, format string) (int64, error) {
-	return s.converter.TimeStringToTimestamp(timeStr, format)
+func (s *Service) TimeStringToTimestamp(timeStr string, format string, timezone string) (int64, error) {
+	return s.converter.TimeStringToTimestamp(timeStr, format, timezone)
 }
 
 // FormatNow 格式化当前时间
-func (s *Service) FormatNow(format string) (string, error) {
-	return s.formatter.FormatNow(format)
+func (s *Service) FormatNow(format string, timezone string) (string, error) {
+	return s.formatter.FormatNow(format, timezone)
 }
 
 // GetCurrentTimestamp 获取当前时间戳
@@ -39,13 +39,13 @@ func (s *Service) GetCurrentTimestamp() int64 {
 }
 
 // TimestampToTimeStringMilli 毫秒时间戳转时间字符串
-func (s *Service) TimestampToTimeStringMilli(timestampMilli int64, format string) (string, error) {
-	return s.converter.TimestampToTimeStringMilli(timestampMilli, format)
+func (s *Service) TimestampToTimeStringMilli(timestampMilli int64, format string, timezone string) (string, error) {
+	return s.converter.TimestampToTimeStringMilli(timestampMilli, format, timezone)
 }
 
 // TimeStringToTimestampMilli 时间字符串转毫秒时间戳
-func (s *Service) TimeStringToTimestampMilli(timeStr string, format string) (int64, error) {
-	return s.converter.TimeStringToTimestampMilli(timeStr, format)
+func (s *Service) TimeStringToTimestampMilli(timeStr string, format string, timezone string) (int64, error) {
+	return s.converter.TimeStringToTimestampMilli(timeStr, format, timezone)
 }
 
 // GetCurrentTimestampMilli 获取当前毫秒时间戳

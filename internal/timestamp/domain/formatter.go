@@ -13,10 +13,20 @@ func NewFormatter() *Formatter {
 }
 
 // FormatTime 格式化时间为指定格式
-func (f *Formatter) FormatTime(t time.Time, format string) (string, error) {
+func (f *Formatter) FormatTime(t time.Time, format string, timezone string) (string, error) {
 	if format == "" {
 		format = time.RFC3339
 	}
+
+	// 加载时区
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		// 如果时区无效，回退到 UTC
+		loc = time.UTC
+	}
+	
+	// 将时间转换到指定时区
+	t = t.In(loc)
 
 	// 支持常用格式
 	switch format {
@@ -59,8 +69,8 @@ func (f *Formatter) FormatTime(t time.Time, format string) (string, error) {
 }
 
 // FormatNow 格式化当前时间
-func (f *Formatter) FormatNow(format string) (string, error) {
-	return f.FormatTime(time.Now(), format)
+func (f *Formatter) FormatNow(format string, timezone string) (string, error) {
+	return f.FormatTime(time.Now(), format, timezone)
 }
 
 // GetCurrentTimestamp 获取当前时间戳
