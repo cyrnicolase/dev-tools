@@ -36,22 +36,22 @@ type App struct {
 	initialTool string
 	toolMu      sync.RWMutex
 
-	// 主题管理器
-	themeManager *ThemeManager
+	// 主题处理器
+	Theme *handlers.ThemeHandler
 }
 
 // NewApp 创建新的 App 实例
 func NewApp() *App {
 	return &App{
-		JSON:         handlers.NewJSONHandler(),
-		Base64:       handlers.NewBase64Handler(),
-		Timestamp:    handlers.NewTimestampHandler(),
-		UUID:         handlers.NewUUIDHandler(),
-		URL:          handlers.NewURLHandler(),
-		QRCode:       handlers.NewQRCodeHandler(),
-		IPQuery:      handlers.NewIPQueryHandler(),
-		Translate:    handlers.NewTranslateHandler(),
-		themeManager: NewThemeManager(),
+		JSON:      handlers.NewJSONHandler(),
+		Base64:    handlers.NewBase64Handler(),
+		Timestamp: handlers.NewTimestampHandler(),
+		UUID:      handlers.NewUUIDHandler(),
+		URL:       handlers.NewURLHandler(),
+		QRCode:    handlers.NewQRCodeHandler(),
+		IPQuery:   handlers.NewIPQueryHandler(),
+		Translate: handlers.NewTranslateHandler(),
+		Theme:     handlers.NewThemeHandler(),
 	}
 }
 
@@ -59,7 +59,7 @@ func NewApp() *App {
 // 这个方法在窗口创建之前调用，确保窗口背景色与主题一致
 // 如果加载失败，使用默认主题，不影响应用启动
 func (a *App) LoadThemeForStartup() {
-	if err := a.themeManager.Load(); err != nil {
+	if err := a.Theme.LoadTheme(); err != nil {
 		logger.MustGetLogger().LogError("App", "LoadThemeForStartup", err)
 	}
 }
@@ -134,10 +134,10 @@ func (a *App) ShowHelp() {
 
 // GetTheme 获取当前主题
 func (a *App) GetTheme() string {
-	return a.themeManager.Get()
+	return a.Theme.GetTheme()
 }
 
 // SetTheme 设置主题并持久化保存
 func (a *App) SetTheme(theme string) error {
-	return a.themeManager.Save(theme)
+	return a.Theme.SetTheme(theme)
 }
