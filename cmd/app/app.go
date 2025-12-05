@@ -128,7 +128,6 @@ func (a *App) NavigateToTool(toolName string) bool {
 
 // ShowHelp 显示使用说明（供菜单栏调用）
 func (a *App) ShowHelp() {
-	// 设置 initialTool 为 "help"，前端会检测到并显示帮助页面
 	a.SetInitialTool("help")
 }
 

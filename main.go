@@ -42,12 +42,7 @@ func main() {
 // 包括加载主题设置和解析命令行参数
 func initializeApp() *app.App {
 	appInstance := app.NewApp()
-
-	// 在启动前先加载主题设置（用于设置窗口背景色）
-	// 注意：这里需要手动加载主题，因为 Startup 回调在窗口创建后才执行
 	appInstance.LoadThemeForStartup()
-
-	// 解析命令行参数并设置初始工具
 	toolName := parseCommandLineArgs()
 	if toolName != "" {
 		appInstance.SetInitialTool(toolName)
@@ -60,10 +55,8 @@ func initializeApp() *app.App {
 func getBackgroundColor(appInstance *app.App) *options.RGBA {
 	currentTheme := appInstance.GetTheme()
 	if currentTheme == "dark" {
-		// 深色主题背景色：对应 --bg-primary (#111827)
 		return &options.RGBA{R: 17, G: 24, B: 39, A: 1}
 	}
-	// 浅色主题背景色：对应 --bg-primary (#f9fafb)
 	return &options.RGBA{R: 249, G: 250, B: 251, A: 1}
 }
 
