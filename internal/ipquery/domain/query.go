@@ -7,6 +7,8 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // QueryResult IP查询结果
@@ -54,7 +56,7 @@ func NewQueryer() *Queryer {
 func (q *Queryer) ValidateIP(ip string) error {
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
-		return fmt.Errorf("无效的IP地址格式")
+		return errors.Wrapf(ErrInvalidIPFormat, "invalid IP address: %s", ip)
 	}
 	return nil
 }
@@ -73,28 +75,15 @@ func (q *Queryer) QueryIPAPI(ip string) QueryResult {
 	}
 
 	url := fmt.Sprintf("http://ip-api.com/json/%s?fields=status,message,country,regionName,city", ip)
-	
-	resp, err := q.httpClient.Get(url)
+	body, err := q.doHTTPRequest(url)
 	if err != nil {
-		result.Error = fmt.Sprintf("请求失败: %v", err)
-		return result
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		result.Error = fmt.Sprintf("HTTP错误: %d", resp.StatusCode)
-		return result
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		result.Error = fmt.Sprintf("读取响应失败: %v", err)
+		result.Error = err.Error()
 		return result
 	}
 
 	var apiResp IPAPIResponse
 	if err := json.Unmarshal(body, &apiResp); err != nil {
-		result.Error = fmt.Sprintf("解析JSON失败: %v", err)
+		result.Error = errors.Wrapf(ErrParseJSONFailed, "failed to parse JSON: %v", err).Error()
 		return result
 	}
 
@@ -124,28 +113,15 @@ func (q *Queryer) QueryIPInfo(ip string) QueryResult {
 	}
 
 	url := fmt.Sprintf("https://ipinfo.io/%s/json", ip)
-	
-	resp, err := q.httpClient.Get(url)
+	body, err := q.doHTTPRequest(url)
 	if err != nil {
-		result.Error = fmt.Sprintf("请求失败: %v", err)
-		return result
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		result.Error = fmt.Sprintf("HTTP错误: %d", resp.StatusCode)
-		return result
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		result.Error = fmt.Sprintf("读取响应失败: %v", err)
+		result.Error = err.Error()
 		return result
 	}
 
 	var apiResp IPInfoResponse
 	if err := json.Unmarshal(body, &apiResp); err != nil {
-		result.Error = fmt.Sprintf("解析JSON失败: %v", err)
+		result.Error = errors.Wrapf(ErrParseJSONFailed, "failed to parse JSON: %v", err).Error()
 		return result
 	}
 
@@ -160,5 +136,25 @@ func (q *Queryer) QueryIPInfo(ip string) QueryResult {
 	result.Region = apiResp.Region
 	result.City = apiResp.City
 	return result
+}
+
+// doHTTPRequest 执行HTTP GET请求并返回响应体
+func (q *Queryer) doHTTPRequest(url string) ([]byte, error) {
+	resp, err := q.httpClient.Get(url)
+	if err != nil {
+		return nil, errors.Wrapf(ErrHTTPRequestFailed, "request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(ErrHTTPStatusError, "HTTP status code: %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrapf(ErrReadResponseFailed, "failed to read response: %v", err)
+	}
+
+	return body, nil
 }
 

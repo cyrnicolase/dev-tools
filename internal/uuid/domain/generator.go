@@ -2,6 +2,7 @@ package domain
 
 import (
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 // Generator 提供 UUID 生成功能
@@ -22,7 +23,7 @@ func (g *Generator) GenerateV1() string {
 func (g *Generator) GenerateV3(namespace, name string) (string, error) {
 	nsUUID, err := uuid.Parse(namespace)
 	if err != nil {
-		return "", err
+		return "", errors.Wrapf(err, "invalid namespace: %s", namespace)
 	}
 	id := uuid.NewMD5(nsUUID, []byte(name))
 	return id.String(), nil
@@ -38,7 +39,7 @@ func (g *Generator) GenerateV4() string {
 func (g *Generator) GenerateV5(namespace, name string) (string, error) {
 	nsUUID, err := uuid.Parse(namespace)
 	if err != nil {
-		return "", err
+		return "", errors.Wrapf(err, "invalid namespace: %s", namespace)
 	}
 	id := uuid.NewSHA1(nsUUID, []byte(name))
 	return id.String(), nil
@@ -62,7 +63,7 @@ func (g *Generator) GenerateBatch(version string, count int, namespace, name str
 		}
 	case "v3":
 		if namespace == "" || name == "" {
-			return nil, &InvalidParameterError{Message: "v3 requires namespace and name"}
+			return nil, ErrV3RequiresNamespaceAndName
 		}
 		for i := 0; i < count; i++ {
 			id, err := g.GenerateV3(namespace, name)
@@ -77,7 +78,7 @@ func (g *Generator) GenerateBatch(version string, count int, namespace, name str
 		}
 	case "v5":
 		if namespace == "" || name == "" {
-			return nil, &InvalidParameterError{Message: "v5 requires namespace and name"}
+			return nil, ErrV5RequiresNamespaceAndName
 		}
 		for i := 0; i < count; i++ {
 			id, err := g.GenerateV5(namespace, name)
@@ -87,18 +88,9 @@ func (g *Generator) GenerateBatch(version string, count int, namespace, name str
 			results = append(results, id)
 		}
 	default:
-		return nil, &InvalidParameterError{Message: "unsupported UUID version: " + version}
+		return nil, errors.Wrapf(ErrUnsupportedUUIDVersion, "unsupported UUID version: %s", version)
 	}
 
 	return results, nil
-}
-
-// InvalidParameterError 参数错误
-type InvalidParameterError struct {
-	Message string
-}
-
-func (e *InvalidParameterError) Error() string {
-	return e.Message
 }
 

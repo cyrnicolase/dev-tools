@@ -119,18 +119,3 @@ func (l *Logger) getStackTrace() string {
 
 	return stack.String()
 }
-
-// Close 关闭日志文件
-func (l *Logger) Close() error {
-	if l == nil || l.file == nil {
-		return nil
-	}
-	return l.file.Close()
-}
-
-// LogError 全局错误日志记录函数
-func LogError(handler, method string, err error) {
-	if logger := MustGetLogger(); logger != nil {
-		logger.LogError(handler, method, err)
-	}
-}

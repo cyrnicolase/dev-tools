@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	defaultTheme = "light"
+	defaultTheme = "dark"
 	configDir    = ".dev-tools"
 	configFile   = "theme.json"
 )

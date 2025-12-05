@@ -1,8 +1,7 @@
 package domain
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/skip2/go-qrcode"
 )
 
@@ -41,7 +40,7 @@ func (s Size) GetSizeInPixels() int {
 // 返回 PNG 格式的字节数组
 func (g *Generator) Generate(text string, size Size) ([]byte, error) {
 	if text == "" {
-		return nil, fmt.Errorf("输入文本不能为空")
+		return nil, ErrEmptyInputText
 	}
 
 	pixels := size.GetSizeInPixels()
@@ -49,13 +48,13 @@ func (g *Generator) Generate(text string, size Size) ([]byte, error) {
 	// 使用 Medium 错误纠正级别（默认）
 	qr, err := qrcode.New(text, qrcode.Medium)
 	if err != nil {
-		return nil, fmt.Errorf("生成二维码失败: %w", err)
+		return nil, errors.Wrapf(ErrGenerateQRCodeFailed, "failed to generate QR code: %v", err)
 	}
 
 	// 生成 PNG 图片
 	png, err := qr.PNG(pixels)
 	if err != nil {
-		return nil, fmt.Errorf("生成 PNG 图片失败: %w", err)
+		return nil, errors.Wrapf(ErrGeneratePNGFailed, "failed to generate PNG: %v", err)
 	}
 
 	return png, nil

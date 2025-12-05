@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -30,7 +32,7 @@ func (f *Formatter) Format(input string) (string, error) {
 func (f *Formatter) FormatWithEscape(input string, preserveEscape bool) (string, error) {
 	var jsonObj interface{}
 	if err := json.Unmarshal([]byte(input), &jsonObj); err != nil {
-		return "", err
+		return "", errors.WithStack(err)
 	}
 
 	if preserveEscape {
@@ -242,7 +244,7 @@ func (f *Formatter) escapeKey(s string) string {
 func (f *Formatter) Minify(input string) (string, error) {
 	var jsonObj interface{}
 	if err := json.Unmarshal([]byte(input), &jsonObj); err != nil {
-		return "", err
+		return "", errors.WithStack(err)
 	}
 
 	var buf bytes.Buffer

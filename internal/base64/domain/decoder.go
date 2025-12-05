@@ -2,7 +2,8 @@ package domain
 
 import (
 	"encoding/base64"
-	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 // Decoder 提供 Base64 解码功能
@@ -17,7 +18,7 @@ func NewDecoder() *Decoder {
 func (d *Decoder) Decode(input string) (string, error) {
 	decoded, err := base64.StdEncoding.DecodeString(input)
 	if err != nil {
-		return "", fmt.Errorf("failed to decode base64: %w", err)
+		return "", errors.Wrapf(err, "failed to decode base64")
 	}
 	return string(decoded), nil
 }
@@ -26,7 +27,7 @@ func (d *Decoder) Decode(input string) (string, error) {
 func (d *Decoder) DecodeURLSafe(input string) (string, error) {
 	decoded, err := base64.URLEncoding.DecodeString(input)
 	if err != nil {
-		return "", fmt.Errorf("failed to decode URL-safe base64: %w", err)
+		return "", errors.Wrapf(err, "failed to decode URL-safe base64")
 	}
 	return string(decoded), nil
 }

@@ -6,6 +6,7 @@ import UuidTool from './tools/uuid/UuidTool'
 import UrlTool from './tools/url/UrlTool'
 import QrcodeTool from './tools/qrcode/QrcodeTool'
 import IPQueryTool from './tools/ipquery/IPQueryTool'
+import TranslateTool from './tools/translate/TranslateTool'
 import HelpTool from './menus/help/HelpTool'
 import ThemeToggle from './components/ThemeToggle'
 import { waitForWailsAPI, getWailsAPI } from './utils/api'
@@ -14,7 +15,7 @@ import { TOOLS, VIEW_IDS, DEFAULT_TOOL_ID } from './constants/tools'
 
 function App() {
   const [activeTool, setActiveTool] = useState(DEFAULT_TOOL_ID)
-  const [version, setVersion] = useState('1.0.8')
+  const [version, setVersion] = useState('1.1.0')
   const [apiReady, setApiReady] = useState(false)
   const [initialToolHandled, setInitialToolHandled] = useState(false)
   const [helpToolId, setHelpToolId] = useState(null)
@@ -173,6 +174,9 @@ function App() {
             </div>
             <div className={activeTool === 'ipquery' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
               <IPQueryTool onShowHelp={handleShowHelp} />
+            </div>
+            <div className={activeTool === 'translate' ? 'flex-1 min-h-0 flex flex-col' : 'hidden'}>
+              <TranslateTool onShowHelp={handleShowHelp} />
             </div>
             <div className={activeTool === 'help' ? '' : 'hidden'}>
               <HelpTool scrollToToolId={helpToolId} />

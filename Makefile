@@ -19,6 +19,7 @@ help:
 # 开发模式
 dev:
 	@echo "启动 Wails 开发模式..."
+	$(MAKE) clean
 	@if [ ! -f "frontend/dist/index.html" ]; then \
 		echo "前端构建文件不存在，正在构建前端..."; \
 		$(MAKE) frontend-build; \

@@ -16,6 +16,7 @@ export function waitForWailsAPI(timeout = 5000) {
       const urlHandler = window.go?.handlers?.URLHandler
       const qrcodeHandler = window.go?.handlers?.QRCodeHandler
       const ipqueryHandler = window.go?.handlers?.IPQueryHandler
+      const translateHandler = window.go?.handlers?.TranslateHandler
       
       if (appAPI) {
         const result = {
@@ -61,6 +62,14 @@ export function waitForWailsAPI(timeout = 5000) {
           IPQuery: ipqueryHandler ? {
             Query: ipqueryHandler.Query?.bind(ipqueryHandler),
           } : null,
+          Translate: translateHandler ? {
+            Translate: translateHandler.Translate?.bind(translateHandler),
+            GetProviders: translateHandler.GetProviders?.bind(translateHandler),
+            GetDefaultProvider: translateHandler.GetDefaultProvider?.bind(translateHandler),
+            SetDefaultProvider: translateHandler.SetDefaultProvider?.bind(translateHandler),
+            GetProviderConfig: translateHandler.GetProviderConfig?.bind(translateHandler),
+            SaveProviderConfig: translateHandler.SaveProviderConfig?.bind(translateHandler),
+          } : null,
           GetVersion: appAPI.GetVersion?.bind(appAPI),
           GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
           NavigateToTool: appAPI.NavigateToTool?.bind(appAPI),
@@ -70,7 +79,7 @@ export function waitForWailsAPI(timeout = 5000) {
         }
         
         // 检查至少有一个方法可用
-        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate || result.IPQuery?.Query) {
+        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate || result.IPQuery?.Query || result.Translate?.Translate) {
           resolve(result)
           return
         }
@@ -105,6 +114,7 @@ export function getWailsAPI() {
   const urlHandler = window.go?.handlers?.URLHandler
   const qrcodeHandler = window.go?.handlers?.QRCodeHandler
   const ipqueryHandler = window.go?.handlers?.IPQueryHandler
+  const translateHandler = window.go?.handlers?.TranslateHandler
   
   if (appAPI) {
     return {
@@ -150,6 +160,14 @@ export function getWailsAPI() {
       } : null,
       IPQuery: ipqueryHandler ? {
         Query: ipqueryHandler.Query?.bind(ipqueryHandler),
+      } : null,
+      Translate: translateHandler ? {
+        Translate: translateHandler.Translate?.bind(translateHandler),
+        GetProviders: translateHandler.GetProviders?.bind(translateHandler),
+        GetDefaultProvider: translateHandler.GetDefaultProvider?.bind(translateHandler),
+        SetDefaultProvider: translateHandler.SetDefaultProvider?.bind(translateHandler),
+        GetProviderConfig: translateHandler.GetProviderConfig?.bind(translateHandler),
+        SaveProviderConfig: translateHandler.SaveProviderConfig?.bind(translateHandler),
       } : null,
       GetVersion: appAPI.GetVersion?.bind(appAPI),
       GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),

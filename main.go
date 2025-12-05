@@ -103,11 +103,8 @@ func createAppConfig(appInstance *app.App) *options.App {
 		OnStartup:        appInstance.Startup,
 		Mac: &mac.Options{
 			OnUrlOpen: func(url string) {
-				// 处理 URL Scheme 调用（应用已运行时）
-				fmt.Fprintf(os.Stderr, "DEBUG: OnUrlOpen 接收到 URL: %s\n", url)
 				toolName := parseURLScheme(url)
 				if toolName != "" {
-					fmt.Fprintf(os.Stderr, "DEBUG: OnUrlOpen 解析到工具: %s\n", toolName)
 					appInstance.SetInitialTool(toolName)
 				}
 			},
@@ -121,6 +118,7 @@ func createAppConfig(appInstance *app.App) *options.App {
 			appInstance.URL,       // URL 工具处理器
 			appInstance.QRCode,    // 二维码工具处理器
 			appInstance.IPQuery,   // IP查询工具处理器
+			appInstance.Translate, // 翻译工具处理器
 		},
 	}
 }

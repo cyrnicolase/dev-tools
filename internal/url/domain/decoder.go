@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"fmt"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 // Decoder 提供 URL 解码功能
@@ -17,7 +18,7 @@ func NewDecoder() *Decoder {
 func (d *Decoder) Decode(input string) (string, error) {
 	decoded, err := url.QueryUnescape(input)
 	if err != nil {
-		return "", fmt.Errorf("failed to decode URL: %w", err)
+		return "", errors.Wrapf(err, "failed to decode URL")
 	}
 	return decoded, nil
 }

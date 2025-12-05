@@ -12,8 +12,8 @@ import (
 )
 
 // Version 应用版本号
-// 可以通过构建时注入: go build -ldflags "-X github.com/cyrnicolase/dev-tools/cmd/app.Version=1.0.8"
-var Version = "1.0.8"
+// 可以通过构建时注入: go build -ldflags "-X github.com/cyrnicolase/dev-tools/cmd/app.Version=1.1.0"
+var Version = "1.1.0"
 
 // GetVersion 获取应用版本号（包级别函数）
 func GetVersion() string {
@@ -30,6 +30,7 @@ type App struct {
 	URL       *handlers.URLHandler
 	QRCode    *handlers.QRCodeHandler
 	IPQuery   *handlers.IPQueryHandler
+	Translate *handlers.TranslateHandler
 
 	// 工具导航
 	initialTool string
@@ -49,6 +50,7 @@ func NewApp() *App {
 		URL:          handlers.NewURLHandler(),
 		QRCode:       handlers.NewQRCodeHandler(),
 		IPQuery:      handlers.NewIPQueryHandler(),
+		Translate:    handlers.NewTranslateHandler(),
 		themeManager: NewThemeManager(),
 	}
 }
@@ -111,6 +113,7 @@ func (a *App) NavigateToTool(toolName string) bool {
 		"url":       true,
 		"qrcode":    true,
 		"ipquery":   true,
+		"translate": true,
 	}
 
 	toolName = strings.ToLower(strings.TrimSpace(toolName))

@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // Converter 提供时间戳转换功能
@@ -70,7 +71,7 @@ func (c *Converter) TimeStringToTimestamp(timeStr string, format string, timezon
 			}
 
 			if err != nil {
-				return 0, fmt.Errorf("failed to parse time: %w", lastErr)
+				return 0, errors.Wrapf(lastErr, "failed to parse time")
 			}
 		}
 	} else {
@@ -78,7 +79,7 @@ func (c *Converter) TimeStringToTimestamp(timeStr string, format string, timezon
 		// 直接使用选择的时区解析，不使用 time.Parse（因为 time.Parse 会使用 UTC）
 		t, err = time.ParseInLocation(actualFormat, timeStr, loc)
 		if err != nil {
-			return 0, fmt.Errorf("failed to parse time: %w", err)
+			return 0, errors.Wrapf(err, "failed to parse time")
 		}
 	}
 
@@ -156,28 +157,6 @@ func (c *Converter) getFormatsToTry(format string, timeStr string) []string {
 	}
 
 	return formats
-}
-
-// getFormatWithoutTimezone 获取不带时区的格式版本
-// 例如：RFC3339 (2006-01-02T15:04:05Z07:00) -> 2006-01-02T15:04:05
-func (c *Converter) getFormatWithoutTimezone(format string) string {
-	switch format {
-	case "RFC3339":
-		// RFC3339: 2006-01-02T15:04:05Z07:00 -> 2006-01-02T15:04:05
-		return "2006-01-02T15:04:05"
-	case "RFC3339Nano":
-		// RFC3339Nano: 2006-01-02T15:04:05.999999999Z07:00 -> 2006-01-02T15:04:05.999999999
-		return "2006-01-02T15:04:05.999999999"
-	case "RFC822", "RFC822Z":
-		// RFC822: 02 Jan 06 15:04 MST -> 02 Jan 06 15:04
-		return "02 Jan 06 15:04"
-	case "RFC1123", "RFC1123Z":
-		// RFC1123: Mon, 02 Jan 2006 15:04:05 MST -> Mon, 02 Jan 2006 15:04:05
-		return "Mon, 02 Jan 2006 15:04:05"
-	default:
-		// 其他格式（DateTime、Date、Time）本身就不包含时区信息
-		return ""
-	}
 }
 
 // getActualFormat 将格式名称转换为实际的 Go 时间格式字符串

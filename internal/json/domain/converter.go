@@ -2,9 +2,9 @@ package domain
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,13 +20,13 @@ func NewConverter() *Converter {
 func (c *Converter) ToYAML(input string) (string, error) {
 	var jsonObj interface{}
 	if err := json.Unmarshal([]byte(input), &jsonObj); err != nil {
-		return "", fmt.Errorf("JSON 解析失败: %v", err)
+		return "", errors.Wrapf(err, "JSON 解析失败")
 	}
 
 	// 使用标准 YAML 库生成 YAML，确保格式正确
 	yamlBytes, err := yaml.Marshal(jsonObj)
 	if err != nil {
-		return "", fmt.Errorf("YAML 生成失败: %v", err)
+		return "", errors.Wrapf(ErrYAMLGenerateFailed, "YAML generate failed: %v", err)
 	}
 
 	return string(yamlBytes), nil
@@ -36,18 +36,18 @@ func (c *Converter) ToYAML(input string) (string, error) {
 func (c *Converter) FromYAML(input string) (string, error) {
 	// 如果输入为空，返回错误
 	if len(strings.TrimSpace(input)) == 0 {
-		return "", fmt.Errorf("YAML 输入为空")
+		return "", ErrEmptyYAMLInput
 	}
 
 	var yamlObj interface{}
 	if err := yaml.Unmarshal([]byte(input), &yamlObj); err != nil {
-		return "", fmt.Errorf("YAML 解析失败: %v", err)
+		return "", errors.Wrapf(ErrYAMLParseFailed, "YAML parse failed: %v", err)
 	}
 
 	// 将 YAML 对象转换为 JSON
 	jsonBytes, err := json.MarshalIndent(yamlObj, "", "  ")
 	if err != nil {
-		return "", fmt.Errorf("JSON 转换失败: %v", err)
+		return "", errors.Wrapf(ErrJSONConvertFailed, "JSON convert failed: %v", err)
 	}
 
 	return string(jsonBytes), nil
