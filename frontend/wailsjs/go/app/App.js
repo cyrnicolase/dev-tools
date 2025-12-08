@@ -6,6 +6,10 @@ export function ClearInitialTool() {
   return window['go']['app']['App']['ClearInitialTool']();
 }
 
+export function GetCurrentTool() {
+  return window['go']['app']['App']['GetCurrentTool']();
+}
+
 export function GetInitialTool() {
   return window['go']['app']['App']['GetInitialTool']();
 }
@@ -24,6 +28,18 @@ export function LoadThemeForStartup() {
 
 export function NavigateToTool(arg1) {
   return window['go']['app']['App']['NavigateToTool'](arg1);
+}
+
+export function NextTool() {
+  return window['go']['app']['App']['NextTool']();
+}
+
+export function PreviousTool() {
+  return window['go']['app']['App']['PreviousTool']();
+}
+
+export function SetCurrentTool(arg1) {
+  return window['go']['app']['App']['SetCurrentTool'](arg1);
 }
 
 export function SetInitialTool(arg1) {

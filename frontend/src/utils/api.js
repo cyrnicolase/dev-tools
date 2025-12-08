@@ -72,10 +72,13 @@ export function waitForWailsAPI(timeout = 5000) {
           } : null,
           GetVersion: appAPI.GetVersion?.bind(appAPI),
           GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
-          NavigateToTool: appAPI.NavigateToTool?.bind(appAPI),
           ClearInitialTool: appAPI.ClearInitialTool?.bind(appAPI),
           GetTheme: appAPI.GetTheme?.bind(appAPI),
           SetTheme: appAPI.SetTheme?.bind(appAPI),
+          NextTool: appAPI.NextTool?.bind(appAPI),
+          PreviousTool: appAPI.PreviousTool?.bind(appAPI),
+          GetCurrentTool: appAPI.GetCurrentTool?.bind(appAPI),
+          SetCurrentTool: appAPI.SetCurrentTool?.bind(appAPI),
         }
         
         // 检查至少有一个方法可用
@@ -171,10 +174,13 @@ export function getWailsAPI() {
       } : null,
       GetVersion: appAPI.GetVersion?.bind(appAPI),
       GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
-      NavigateToTool: appAPI.NavigateToTool?.bind(appAPI),
       ClearInitialTool: appAPI.ClearInitialTool?.bind(appAPI),
       GetTheme: appAPI.GetTheme?.bind(appAPI),
       SetTheme: appAPI.SetTheme?.bind(appAPI),
+      NextTool: appAPI.NextTool?.bind(appAPI),
+      PreviousTool: appAPI.PreviousTool?.bind(appAPI),
+      GetCurrentTool: appAPI.GetCurrentTool?.bind(appAPI),
+      SetCurrentTool: appAPI.SetCurrentTool?.bind(appAPI),
     }
   }
   

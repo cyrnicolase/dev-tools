@@ -2,13 +2,6 @@ package app
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-	"strings"
-	"sync"
-
-	"github.com/cyrnicolase/dev-tools/cmd/app/handlers"
-	"github.com/cyrnicolase/dev-tools/internal/logger"
 )
 
 // Version 应用版本号
@@ -20,38 +13,25 @@ func GetVersion() string {
 	return Version
 }
 
-// App 应用主结构体，负责应用级别的功能
+// App 应用聚合根
+// 负责聚合各个管理器，提供统一的访问接口
 type App struct {
-	// 工具处理器
-	JSON      *handlers.JSONHandler
-	Base64    *handlers.Base64Handler
-	Timestamp *handlers.TimestampHandler
-	UUID      *handlers.UUIDHandler
-	URL       *handlers.URLHandler
-	QRCode    *handlers.QRCodeHandler
-	IPQuery   *handlers.IPQueryHandler
-	Translate *handlers.TranslateHandler
+	// 工具管理器
+	ToolManager *ToolManager
 
-	// 工具导航
-	initialTool string
-	toolMu      sync.RWMutex
+	// 处理器注册表
+	Handlers *HandlerRegistry
 
-	// 主题处理器
-	Theme *handlers.ThemeHandler
+	// 主题管理器
+	Theme *ThemeManager
 }
 
 // NewApp 创建新的 App 实例
 func NewApp() *App {
 	return &App{
-		JSON:      handlers.NewJSONHandler(),
-		Base64:    handlers.NewBase64Handler(),
-		Timestamp: handlers.NewTimestampHandler(),
-		UUID:      handlers.NewUUIDHandler(),
-		URL:       handlers.NewURLHandler(),
-		QRCode:    handlers.NewQRCodeHandler(),
-		IPQuery:   handlers.NewIPQueryHandler(),
-		Translate: handlers.NewTranslateHandler(),
-		Theme:     handlers.NewThemeHandler(),
+		ToolManager: NewToolManager(),
+		Handlers:    NewHandlerRegistry(),
+		Theme:       NewThemeManager(),
 	}
 }
 
@@ -59,21 +39,13 @@ func NewApp() *App {
 // 这个方法在窗口创建之前调用，确保窗口背景色与主题一致
 // 如果加载失败，使用默认主题，不影响应用启动
 func (a *App) LoadThemeForStartup() {
-	if err := a.Theme.LoadTheme(); err != nil {
-		logger.MustGetLogger().LogError("App", "LoadThemeForStartup", err)
-	}
+	a.Theme.LoadThemeForStartup()
 }
 
 // Startup 应用启动时的回调
-func (a *App) Startup(_ context.Context) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		homeDir = "."
-	}
-	logDir := filepath.Join(homeDir, ".dev-tools", "logs")
-	if err := logger.InitLogger(logDir); err != nil {
-		panic(err)
-	}
+func (a *App) Startup(ctx context.Context) {
+	// 设置工具管理器的上下文（用于事件发送）
+	a.ToolManager.SetContext(ctx)
 }
 
 // GetVersion 获取应用版本号（实例方法）
@@ -83,52 +55,27 @@ func (a *App) GetVersion() string {
 
 // SetInitialTool 设置启动时的工具名称
 func (a *App) SetInitialTool(toolName string) {
-	a.toolMu.Lock()
-	defer a.toolMu.Unlock()
-	a.initialTool = toolName
+	a.ToolManager.SetInitialTool(toolName)
 }
 
 // GetInitialTool 获取启动时指定的工具名称
 func (a *App) GetInitialTool() string {
-	a.toolMu.RLock()
-	defer a.toolMu.RUnlock()
-	return a.initialTool
+	return a.ToolManager.GetInitialTool()
 }
 
 // ClearInitialTool 清除初始工具设置（用于防止重复切换）
 func (a *App) ClearInitialTool() {
-	a.toolMu.Lock()
-	defer a.toolMu.Unlock()
-	a.initialTool = ""
+	a.ToolManager.ClearInitialTool()
 }
 
 // NavigateToTool 导航到指定工具（供前端调用）
 func (a *App) NavigateToTool(toolName string) bool {
-	// 验证工具名称
-	validTools := map[string]bool{
-		"json":      true,
-		"base64":    true,
-		"timestamp": true,
-		"uuid":      true,
-		"url":       true,
-		"qrcode":    true,
-		"ipquery":   true,
-		"translate": true,
-	}
-
-	toolName = strings.ToLower(strings.TrimSpace(toolName))
-	if !validTools[toolName] {
-		return false
-	}
-
-	// 设置工具名称，前端会通过 GetInitialTool 获取
-	a.SetInitialTool(toolName)
-	return true
+	return a.ToolManager.NavigateToTool(toolName)
 }
 
 // ShowHelp 显示使用说明（供菜单栏调用）
 func (a *App) ShowHelp() {
-	a.SetInitialTool("help")
+	a.ToolManager.ShowHelp()
 }
 
 // GetTheme 获取当前主题
@@ -139,4 +86,24 @@ func (a *App) GetTheme() string {
 // SetTheme 设置主题并持久化保存
 func (a *App) SetTheme(theme string) error {
 	return a.Theme.SetTheme(theme)
+}
+
+// NextTool 切换到下一个工具（循环）
+func (a *App) NextTool() {
+	a.ToolManager.NextTool()
+}
+
+// PreviousTool 切换到上一个工具（循环）
+func (a *App) PreviousTool() {
+	a.ToolManager.PreviousTool()
+}
+
+// GetCurrentTool 获取当前工具ID
+func (a *App) GetCurrentTool() string {
+	return a.ToolManager.GetCurrentTool()
+}
+
+// SetCurrentTool 设置当前工具（供前端同步状态，不发送事件）
+func (a *App) SetCurrentTool(toolID string) {
+	a.ToolManager.SetCurrentTool(toolID)
 }

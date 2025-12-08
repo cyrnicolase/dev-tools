@@ -73,6 +73,15 @@ func createAppMenu(appInstance *app.App) *menu.Menu {
 	// 添加默认的窗口菜单（包含最小化、缩放、全屏等）
 	appMenu.Append(menu.WindowMenu())
 
+	// 添加自定义的工具菜单
+	toolsMenu := appMenu.AddSubmenu("Tools")
+	toolsMenu.AddText("Next Tool", keys.CmdOrCtrl("n"), func(_ *menu.CallbackData) {
+		appInstance.NextTool()
+	})
+	toolsMenu.AddText("Previous Tool", keys.Combo("n", keys.CmdOrCtrlKey, keys.ShiftKey), func(_ *menu.CallbackData) {
+		appInstance.PreviousTool()
+	})
+
 	// 添加自定义的帮助菜单
 	helpMenu := appMenu.AddSubmenu("Help")
 	helpMenu.AddText("Usage", keys.CmdOrCtrl("i"), func(_ *menu.CallbackData) {
@@ -103,15 +112,16 @@ func createAppConfig(appInstance *app.App) *options.App {
 			},
 		},
 		Bind: []interface{}{
-			appInstance,           // 应用级别功能（版本号、导航）
-			appInstance.JSON,      // JSON 工具处理器
-			appInstance.Base64,    // Base64 工具处理器
-			appInstance.Timestamp, // Timestamp 工具处理器
-			appInstance.UUID,      // UUID 工具处理器
-			appInstance.URL,       // URL 工具处理器
-			appInstance.QRCode,    // 二维码工具处理器
-			appInstance.IPQuery,   // IP查询工具处理器
-			appInstance.Translate, // 翻译工具处理器
+			appInstance,                    // 应用级别功能（版本号、导航）
+			appInstance.Handlers.JSON,      // JSON 工具处理器
+			appInstance.Handlers.Base64,    // Base64 工具处理器
+			appInstance.Handlers.Timestamp, // Timestamp 工具处理器
+			appInstance.Handlers.UUID,      // UUID 工具处理器
+			appInstance.Handlers.URL,       // URL 工具处理器
+			appInstance.Handlers.QRCode,    // 二维码工具处理器
+			appInstance.Handlers.IPQuery,   // IP查询工具处理器
+			appInstance.Handlers.Translate, // 翻译工具处理器
+			appInstance.Theme.GetHandler(), // 主题处理器
 		},
 	}
 }

@@ -3,6 +3,8 @@
 
 export function ClearInitialTool():Promise<void>;
 
+export function GetCurrentTool():Promise<string>;
+
 export function GetInitialTool():Promise<string>;
 
 export function GetTheme():Promise<string>;
@@ -12,6 +14,12 @@ export function GetVersion():Promise<string>;
 export function LoadThemeForStartup():Promise<void>;
 
 export function NavigateToTool(arg1:string):Promise<boolean>;
+
+export function NextTool():Promise<void>;
+
+export function PreviousTool():Promise<void>;
+
+export function SetCurrentTool(arg1:string):Promise<void>;
 
 export function SetInitialTool(arg1:string):Promise<void>;
 
