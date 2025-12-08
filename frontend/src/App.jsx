@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import ThemeToggle from './components/ThemeToggle'
+import ToolSearchBar from './components/ToolSearchBar'
 import { useTheme } from './hooks/useTheme'
 import { useToolNavigation } from './hooks/useToolNavigation'
+import { useToolSearch } from './hooks/useToolSearch'
 import { TOOLS } from './constants/tools'
 import { TOOL_COMPONENTS } from './config/toolComponents'
 
@@ -12,6 +14,17 @@ function App() {
   // 使用工具导航 Hook（包含初始化逻辑）
   const { activeTool, switchToTool, version } = useToolNavigation()
 
+  // 使用工具搜索 Hook
+  const {
+    isOpen: isSearchOpen,
+    searchQuery,
+    setSearchQuery,
+    matchedResults,
+    selectedIndex,
+    selectTool: selectToolFromSearch,
+    closeSearch,
+  } = useToolSearch(switchToTool)
+
   // 处理跳转到帮助页面的特定工具介绍
   const handleShowHelp = (toolId) => {
     setHelpToolId(toolId)
@@ -20,6 +33,17 @@ function App() {
 
   return (
     <div className="flex h-screen bg-primary">
+      {/* 工具搜索栏 */}
+      <ToolSearchBar
+        isOpen={isSearchOpen}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        matchedResults={matchedResults}
+        selectedIndex={selectedIndex}
+        onSelectTool={selectToolFromSearch}
+        onClose={closeSearch}
+      />
+
       {/* 侧边栏 */}
       <div className="w-64 bg-secondary border-r border-border-primary shadow-sm">
         <div className="p-6 border-b border-border-primary">
@@ -27,8 +51,10 @@ function App() {
             <h1 className="text-2xl font-bold text-[var(--text-primary)] select-none">Dev Tools</h1>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
-          <p className="text-sm text-[var(--text-secondary)] select-none">开发工具集</p>
-          <p className="text-xs text-[var(--text-tertiary)] mt-1 select-none">v{version}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-[var(--text-secondary)] select-none">开发工具集</p>
+            <p className="text-xs text-[var(--text-tertiary)] select-none">v{version}</p>
+          </div>
         </div>
         <nav className="p-4">
           {TOOLS.map((tool) => (

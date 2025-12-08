@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import Select from '../../components/Select'
 
 function UuidTool({ onShowHelp }) {
   const [version, setVersion] = useState('v4')
@@ -245,18 +246,15 @@ function UuidTool({ onShowHelp }) {
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">Namespace</label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
-                    <select
+                    <Select
                       value={namespace}
-                      onChange={(e) => setNamespace(e.target.value)}
-                      className="flex-1 p-2 border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    >
-                      <option value="">选择预定义命名空间</option>
-                      {predefinedNamespaces.map((ns) => (
-                        <option key={ns.value} value={ns.value}>
-                          {ns.label}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={setNamespace}
+                      options={[
+                        { value: '', label: '选择预定义命名空间' },
+                        ...predefinedNamespaces,
+                      ]}
+                      className="flex-1"
+                    />
                   </div>
                   <input
                     type="text"

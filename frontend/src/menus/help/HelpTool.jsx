@@ -137,6 +137,60 @@ function HelpTool({ scrollToToolId }) {
 
       <div className="flex-1 overflow-y-auto">
         <div className="space-y-6">
+          {/* 工具搜索说明 */}
+          <div className="bg-secondary rounded-lg border border-border-primary p-6 shadow-sm">
+            <div className="flex items-start space-x-4">
+              <span className="text-4xl select-none">🔍</span>
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2 select-none">
+                  工具搜索
+                </h3>
+                <p className="text-[var(--text-secondary)] mb-4 select-none">
+                  快速搜索和切换工具，支持模糊匹配
+                </p>
+                <div className="bg-secondary rounded-lg p-4 border border-border-primary">
+                  <h4 className="text-sm font-medium text-[var(--text-primary)] mb-3 select-none">
+                    使用方法：
+                  </h4>
+                  <ul className="space-y-2 mb-4">
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none">
+                      <span className="text-link mr-2 mt-1">•</span>
+                      <span>双击 <kbd className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">Shift</kbd> 键打开搜索框</span>
+                    </li>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none">
+                      <span className="text-link mr-2 mt-1">•</span>
+                      <span>支持模糊匹配搜索，例如：</span>
+                    </li>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none ml-6">
+                      <span className="text-link mr-2 mt-1">-</span>
+                      <span>连续字符匹配：输入 <code className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">base</code> 可匹配 "Base64"</span>
+                    </li>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none ml-6">
+                      <span className="text-link mr-2 mt-1">-</span>
+                      <span>通配符匹配：输入 <code className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">b*4</code> 可匹配 "Base64"（b 和 4 按顺序出现）</span>
+                    </li>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none ml-6">
+                      <span className="text-link mr-2 mt-1">-</span>
+                      <span>输入 <code className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">b*s*4</code> 可匹配 "Base64"（b、s、4 按顺序出现）</span>
+                    </li>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none">
+                      <span className="text-link mr-2 mt-1">•</span>
+                      <span>使用 <kbd className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">↑</kbd> <kbd className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">↓</kbd> 键导航搜索结果</span>
+                    </li>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none">
+                      <span className="text-link mr-2 mt-1">•</span>
+                      <span>按 <kbd className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">Enter</kbd> 键选择工具</span>
+                    </li>
+                    <li className="text-sm text-[var(--text-secondary)] flex items-start select-none">
+                      <span className="text-link mr-2 mt-1">•</span>
+                      <span>按 <kbd className="bg-input-disabled px-2 py-1 rounded text-xs font-mono text-[var(--text-input)]">Esc</kbd> 键关闭搜索框</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Alfred 使用说明 */}
           <div className="bg-secondary rounded-lg border border-border-primary p-6 shadow-sm">
             <div className="flex items-start space-x-4">

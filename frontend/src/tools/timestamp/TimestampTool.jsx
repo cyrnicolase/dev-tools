@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import Select from '../../components/Select'
 
 function TimestampTool({ onShowHelp }) {
   const [timestamp, setTimestamp] = useState('')
@@ -197,17 +198,12 @@ function TimestampTool({ onShowHelp }) {
           <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">当前时间</h3>
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium text-[var(--text-primary)] select-none">时区：</label>
-            <select
+            <Select
               value={currentTimezone}
-              onChange={(e) => setCurrentTimezone(e.target.value)}
-              className="p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
-            >
-              {timezones.map((tz) => (
-                <option key={tz.value} value={tz.value}>
-                  {tz.label}
-                </option>
-              ))}
-            </select>
+              onChange={setCurrentTimezone}
+              options={timezones}
+              className="w-64"
+            />
           </div>
         </div>
         <div className="grid grid-cols-3 gap-4">
@@ -241,43 +237,34 @@ function TimestampTool({ onShowHelp }) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳类型</label>
-                <select
+                <Select
                   value={timestampType}
-                  onChange={(e) => setTimestampType(e.target.value)}
-                  className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
-                >
-                  <option value="second">秒级时间戳</option>
-                  <option value="milli">毫秒时间戳</option>
-                </select>
+                  onChange={setTimestampType}
+                  options={[
+                    { value: 'second', label: '秒级时间戳' },
+                    { value: 'milli', label: '毫秒时间戳' },
+                  ]}
+                  className="w-full"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">格式</label>
-                <select
+                <Select
                   value={format}
-                  onChange={(e) => setFormat(e.target.value)}
-                  className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
-                >
-                  {formats.map((f) => (
-                    <option key={f.value} value={f.value}>
-                      {f.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setFormat}
+                  options={formats}
+                  className="w-full"
+                />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时区</label>
-              <select
+              <Select
                 value={timestampToTimeTimezone}
-                onChange={(e) => setTimestampToTimeTimezone(e.target.value)}
-                className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
-              >
-                {timezones.map((tz) => (
-                  <option key={tz.value} value={tz.value}>
-                    {tz.label}
-                  </option>
-                ))}
-              </select>
+                onChange={setTimestampToTimeTimezone}
+                options={timezones}
+                className="w-full"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳</label>
@@ -332,43 +319,34 @@ function TimestampTool({ onShowHelp }) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳类型</label>
-                <select
+                <Select
                   value={timestampType}
-                  onChange={(e) => setTimestampType(e.target.value)}
-                  className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
-                >
-                  <option value="second">秒级时间戳</option>
-                  <option value="milli">毫秒时间戳</option>
-                </select>
+                  onChange={setTimestampType}
+                  options={[
+                    { value: 'second', label: '秒级时间戳' },
+                    { value: 'milli', label: '毫秒时间戳' },
+                  ]}
+                  className="w-full"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">格式</label>
-                <select
+                <Select
                   value={format}
-                  onChange={(e) => setFormat(e.target.value)}
-                  className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
-                >
-                  {formats.map((f) => (
-                    <option key={f.value} value={f.value}>
-                      {f.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setFormat}
+                  options={formats}
+                  className="w-full"
+                />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时区</label>
-              <select
+              <Select
                 value={timeToTimestampTimezone}
-                onChange={(e) => setTimeToTimestampTimezone(e.target.value)}
-                className="w-full p-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3E%3C/svg%27)] bg-[length:16px_16px] bg-[right_0.5rem_center] bg-no-repeat pr-8"
-              >
-                {timezones.map((tz) => (
-                  <option key={tz.value} value={tz.value}>
-                    {tz.label}
-                  </option>
-                ))}
-              </select>
+                onChange={setTimeToTimestampTimezone}
+                options={timezones}
+                className="w-full"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间字符串</label>

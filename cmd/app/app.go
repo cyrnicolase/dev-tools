@@ -5,8 +5,8 @@ import (
 )
 
 // Version 应用版本号
-// 可以通过构建时注入: go build -ldflags "-X github.com/cyrnicolase/dev-tools/cmd/app.Version=1.2.0"
-var Version = "1.2.0"
+// 可以通过构建时注入: go build -ldflags "-X github.com/cyrnicolase/dev-tools/cmd/app.Version=1.2.1"
+var Version = "1.2.1"
 
 // GetVersion 获取应用版本号（包级别函数）
 func GetVersion() string {

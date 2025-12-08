@@ -12,7 +12,7 @@ export function useToolNavigation() {
   const [activeTool, setActiveTool] = useState(DEFAULT_TOOL_ID)
   const [apiReady, setApiReady] = useState(false)
   const [initialToolHandled, setInitialToolHandled] = useState(false)
-  const [version, setVersion] = useState('1.2.0')
+  const [version, setVersion] = useState('1.2.1')
   const lastCheckedToolRef = useRef('')
 
   // 同步后端状态的函数
