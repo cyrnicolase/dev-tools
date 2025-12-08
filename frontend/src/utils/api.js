@@ -77,7 +77,6 @@ export function waitForWailsAPI(timeout = 5000) {
           SetTheme: appAPI.SetTheme?.bind(appAPI),
           NextTool: appAPI.NextTool?.bind(appAPI),
           PreviousTool: appAPI.PreviousTool?.bind(appAPI),
-          GetCurrentTool: appAPI.GetCurrentTool?.bind(appAPI),
           SetCurrentTool: appAPI.SetCurrentTool?.bind(appAPI),
         }
         
@@ -179,7 +178,6 @@ export function getWailsAPI() {
       SetTheme: appAPI.SetTheme?.bind(appAPI),
       NextTool: appAPI.NextTool?.bind(appAPI),
       PreviousTool: appAPI.PreviousTool?.bind(appAPI),
-      GetCurrentTool: appAPI.GetCurrentTool?.bind(appAPI),
       SetCurrentTool: appAPI.SetCurrentTool?.bind(appAPI),
     }
   }

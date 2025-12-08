@@ -1,70 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import ThemeToggle from './components/ThemeToggle'
-import { waitForWailsAPI, getWailsAPI } from './utils/api'
 import { useTheme } from './hooks/useTheme'
 import { useToolNavigation } from './hooks/useToolNavigation'
-import { TOOLS, VIEW_IDS } from './constants/tools'
-import { normalizeToolID, isValidToolID } from './utils/toolUtils'
+import { TOOLS } from './constants/tools'
 import { TOOL_COMPONENTS } from './config/toolComponents'
 
 function App() {
-  const [version, setVersion] = useState('1.1.0')
-  const [apiReady, setApiReady] = useState(false)
-  const [initialToolHandled, setInitialToolHandled] = useState(false)
   const [helpToolId, setHelpToolId] = useState(null)
   const { theme, toggleTheme } = useTheme()
   
-  // 使用工具导航 Hook
-  const { activeTool, switchToTool } = useToolNavigation(apiReady, initialToolHandled)
-
-  useEffect(() => {
-    // 等待 Wails API 初始化
-    waitForWailsAPI()
-      .then((api) => {
-        setApiReady(true)
-        // 获取版本号
-        if (api.GetVersion) {
-          api.GetVersion()
-            .then((v) => {
-              if (v) setVersion(v)
-            })
-            .catch((e) => {
-              console.error('获取版本号失败:', e)
-            })
-        }
-        
-        // 获取启动时指定的工具名称（只在启动时检查一次）
-        if (api.GetInitialTool && !initialToolHandled) {
-          api.GetInitialTool()
-            .then((toolName) => {
-              if (toolName) {
-                const normalized = normalizeToolID(toolName)
-                if (isValidToolID(normalized)) {
-                  switchToTool(normalized)
-                  setTimeout(() => {
-                    if (api.ClearInitialTool) {
-                      api.ClearInitialTool().catch(() => {})
-                    }
-                  }, 100)
-                } else if (api.ClearInitialTool) {
-                  api.ClearInitialTool().catch(() => {})
-                }
-              }
-              setInitialToolHandled(true)
-            })
-            .catch((e) => {
-              console.error('获取初始工具失败:', e)
-              setInitialToolHandled(true)
-            })
-        } else {
-          setInitialToolHandled(true)
-        }
-      })
-      .catch((err) => {
-        console.error('Wails API 初始化失败:', err)
-      })
-  }, [initialToolHandled])
-
+  // 使用工具导航 Hook（包含初始化逻辑）
+  const { activeTool, switchToTool, version } = useToolNavigation()
 
   // 处理跳转到帮助页面的特定工具介绍
   const handleShowHelp = (toolId) => {

@@ -26,25 +26,4 @@ export function isValidToolID(toolID) {
   return normalized !== '' && VIEW_IDS.includes(normalized)
 }
 
-/**
- * 切换工具并同步后端状态
- * @param {string} toolID - 工具ID
- * @param {Function} setActiveTool - 设置活动工具的函数
- * @param {Function} syncBackendState - 同步后端状态的函数
- * @param {boolean} apiReady - API是否就绪
- */
-export function switchTool(toolID, setActiveTool, syncBackendState, apiReady) {
-  const normalized = normalizeToolID(toolID)
-  if (!isValidToolID(normalized)) {
-    return false
-  }
-  
-  setActiveTool(normalized)
-  
-  if (apiReady && syncBackendState) {
-    syncBackendState(normalized)
-  }
-  
-  return true
-}
 

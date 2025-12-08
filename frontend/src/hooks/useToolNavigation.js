@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { getWailsAPI } from '../utils/api'
+import { getWailsAPI, waitForWailsAPI } from '../utils/api'
 import { EventsOn } from '../../wailsjs/runtime/runtime'
 import { normalizeToolID, isValidToolID } from '../utils/toolUtils'
 import { DEFAULT_TOOL_ID } from '../constants/tools'
 
 /**
  * 工具导航 Hook
- * 负责工具切换、状态同步和事件监听
+ * 负责工具切换、状态同步、事件监听和应用初始化
  */
-export function useToolNavigation(apiReady, initialToolHandled) {
+export function useToolNavigation() {
   const [activeTool, setActiveTool] = useState(DEFAULT_TOOL_ID)
+  const [apiReady, setApiReady] = useState(false)
+  const [initialToolHandled, setInitialToolHandled] = useState(false)
+  const [version, setVersion] = useState('1.2.0')
   const lastCheckedToolRef = useRef('')
 
   // 同步后端状态的函数
@@ -114,10 +117,58 @@ export function useToolNavigation(apiReady, initialToolHandled) {
     return true
   }, [apiReady, syncBackendState])
 
+  // 应用初始化逻辑
+  useEffect(() => {
+    waitForWailsAPI()
+      .then((api) => {
+        setApiReady(true)
+        
+        // 获取版本号
+        if (api.GetVersion) {
+          api.GetVersion()
+            .then((v) => {
+              if (v) setVersion(v)
+            })
+            .catch(() => {
+              // 静默失败
+            })
+        }
+        
+        // 获取启动时指定的工具名称（只在启动时检查一次）
+        if (api.GetInitialTool && !initialToolHandled) {
+          api.GetInitialTool()
+            .then((toolName) => {
+              if (toolName) {
+                const normalized = normalizeToolID(toolName)
+                if (isValidToolID(normalized)) {
+                  switchToTool(normalized)
+                  setTimeout(() => {
+                    if (api.ClearInitialTool) {
+                      api.ClearInitialTool().catch(() => {})
+                    }
+                  }, 100)
+                } else if (api.ClearInitialTool) {
+                  api.ClearInitialTool().catch(() => {})
+                }
+              }
+              setInitialToolHandled(true)
+            })
+            .catch(() => {
+              setInitialToolHandled(true)
+            })
+        } else {
+          setInitialToolHandled(true)
+        }
+      })
+      .catch(() => {
+        // 静默失败
+      })
+  }, [initialToolHandled, switchToTool])
+
   return {
     activeTool,
     switchToTool,
-    lastCheckedToolRef,
+    version,
   }
 }
 
