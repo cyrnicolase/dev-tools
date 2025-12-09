@@ -1,4 +1,4 @@
-.PHONY: help dev build build-mac build-all clean install frontend-install frontend-build frontend-dev lint test run
+.PHONY: help dev build build-mac build-all clean install frontend-install frontend-build frontend-dev lint test run generate-icons
 
 # 默认目标
 help:
@@ -16,10 +16,19 @@ help:
 	@echo "  make test             - 运行测试"
 	@echo "  make run              - 运行应用（需要先构建）"
 
+# 生成应用图标（根据平台）
+generate-icons:
+	@if [ ! -f "appicon.png" ]; then \
+		echo "警告: 未找到 appicon.png，将使用 Wails 默认图标"; \
+	else \
+		echo "生成应用图标..."; \
+		cp appicon.png build/appicon.png; \
+		./scripts/generate-icons.sh appicon.png build; \
+	fi
+
 # 开发模式
-dev:
+dev: generate-icons
 	@echo "启动 Wails 开发模式..."
-	$(MAKE) clean
 	@if [ ! -f "frontend/dist/index.html" ]; then \
 		echo "前端构建文件不存在，正在构建前端..."; \
 		$(MAKE) frontend-build; \
@@ -27,20 +36,41 @@ dev:
 	wails dev
 
 # 构建应用（当前平台）
-build:
+build: generate-icons
 	@echo "构建应用（当前平台）..."
 	wails build
+	@if [ -f "build/appicon.icns" ] && [ -d "build/bin/DevTools.app/Contents/Resources" ]; then \
+		cp build/appicon.icns build/bin/DevTools.app/Contents/Resources/iconfile.icns && \
+		touch build/bin/DevTools.app && \
+		echo "✓ 已更新 macOS 应用图标"; \
+	fi
 
 # 构建 macOS 应用
-build-mac:
+build-mac: generate-icons
 	@echo "构建 macOS 应用..."
 	wails build -platform darwin/amd64
+	@if [ -f "build/appicon.icns" ] && [ -d "build/bin/DevTools.app/Contents/Resources" ]; then \
+		cp build/appicon.icns build/bin/DevTools.app/Contents/Resources/iconfile.icns && \
+		touch build/bin/DevTools.app && \
+		echo "✓ 已更新 macOS 应用图标"; \
+	fi
 
 # 构建所有平台（示例，可根据需要调整）
 build-all:
 	@echo "构建所有平台..."
+	@echo "生成图标文件..."
+	@if [ -f "appicon.png" ]; then \
+		./scripts/generate-icons.sh appicon.png build darwin && \
+		./scripts/generate-icons.sh appicon.png build windows && \
+		./scripts/generate-icons.sh appicon.png build linux; \
+	fi
 	@echo "构建 macOS..."
 	wails build -platform darwin/amd64
+	@if [ -f "build/appicon.icns" ] && [ -d "build/bin/DevTools.app/Contents/Resources" ]; then \
+		cp build/appicon.icns build/bin/DevTools.app/Contents/Resources/iconfile.icns && \
+		touch build/bin/DevTools.app && \
+		echo "✓ 已更新 macOS 应用图标"; \
+	fi
 	@echo "构建 Windows..."
 	wails build -platform windows/amd64
 	@echo "构建 Linux..."
