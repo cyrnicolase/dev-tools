@@ -102,11 +102,19 @@ func createAppMenu(appInstance *app.App) *menu.Menu {
 
 // createAppConfig 创建 Wails 应用配置
 func createAppConfig(appInstance *app.App) *options.App {
+	// 创建 Logger
+	wailsLogger, err := app.CreateLogger()
+	if err != nil {
+		// 如果创建 Logger 失败，使用默认的 println（不影响应用启动）
+		fmt.Printf("警告: 创建 Logger 失败: %v\n", err)
+	}
+
 	return &options.App{
 		Title:  "Dev Tools",
 		Width:  1140,
 		Height: 940,
 		Menu:   createAppMenu(appInstance),
+		Logger: wailsLogger,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

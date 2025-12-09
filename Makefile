@@ -37,7 +37,7 @@ dev: generate-icons
 	wails dev
 
 # 构建应用（当前平台）
-build: generate-icons
+build: generate-icons frontend-build
 	@echo "构建应用（当前平台）..."
 	wails build
 	@if [ -f "build/appicon.icns" ] && [ -d "build/bin/DevTools.app/Contents/Resources" ]; then \
@@ -47,7 +47,7 @@ build: generate-icons
 	fi
 
 # 构建 macOS 应用
-build-mac: generate-icons
+build-mac: generate-icons frontend-build
 	@echo "构建 macOS 应用..."
 	wails build -platform darwin/amd64
 	@if [ -f "build/appicon.icns" ] && [ -d "build/bin/DevTools.app/Contents/Resources" ]; then \
