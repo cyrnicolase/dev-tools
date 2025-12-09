@@ -111,6 +111,11 @@ export function useToolNavigation() {
       lastCheckedToolRef.current = normalized
       if (apiReady) {
         syncBackendState(normalized)
+        // 清除 initialTool，防止轮询机制再次切换回来
+        const api = getWailsAPI()
+        if (api?.ClearInitialTool) {
+          api.ClearInitialTool().catch(() => {})
+        }
       }
       return normalized
     })
