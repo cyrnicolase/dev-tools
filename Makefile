@@ -22,6 +22,7 @@ generate-icons:
 		echo "警告: 未找到 appicon.png，将使用 Wails 默认图标"; \
 	else \
 		echo "生成应用图标..."; \
+		mkdir -p build; \
 		cp appicon.png build/appicon.png; \
 		./scripts/generate-icons.sh appicon.png build; \
 	fi
