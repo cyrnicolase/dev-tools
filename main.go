@@ -60,6 +60,15 @@ func getBackgroundColor(appInstance *app.App) *options.RGBA {
 	return &options.RGBA{R: 249, G: 250, B: 251, A: 1}
 }
 
+// getMacAppearance 根据当前主题获取 macOS 外观样式
+func getMacAppearance(appInstance *app.App) mac.AppearanceType {
+	currentTheme := appInstance.GetTheme()
+	if currentTheme == "dark" {
+		return mac.NSAppearanceNameDarkAqua
+	}
+	return mac.NSAppearanceNameAqua
+}
+
 // createAppMenu 创建应用菜单栏
 func createAppMenu(appInstance *app.App) *menu.Menu {
 	appMenu := menu.NewMenu()
@@ -104,6 +113,7 @@ func createAppConfig(appInstance *app.App) *options.App {
 		BackgroundColour: getBackgroundColor(appInstance),
 		OnStartup:        appInstance.Startup,
 		Mac: &mac.Options{
+			Appearance: getMacAppearance(appInstance),
 			OnUrlOpen: func(url string) {
 				toolName := parseURLScheme(url)
 				if toolName != "" {
