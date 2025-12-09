@@ -2,7 +2,7 @@
  * 主题管理工具
  */
 
-const DEFAULT_THEME = 'light'
+const DEFAULT_THEME = 'dark'
 const VALID_THEMES = ['light', 'dark']
 
 /**
