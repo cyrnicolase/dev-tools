@@ -89,7 +89,7 @@ function App() {
                   {toolID === 'help' ? (
                     <ToolComponent scrollToToolId={helpToolId} />
                   ) : (
-                    <ToolComponent onShowHelp={handleShowHelp} />
+                    <ToolComponent onShowHelp={handleShowHelp} isActive={isActive} />
                   )}
                 </div>
               )

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
@@ -13,7 +13,7 @@ const LANGUAGES = [
   { value: 'ko', label: '韩文' },
 ]
 
-function TranslateTool({ onShowHelp }) {
+function TranslateTool({ onShowHelp, isActive }) {
   const [input, setInput] = useState('')
   const [fromLang, setFromLang] = useState('zh')
   const [toLang, setToLang] = useState('en')
@@ -25,6 +25,7 @@ function TranslateTool({ onShowHelp }) {
   const [showConfig, setShowConfig] = useState(false)
   
   const { api, configChecked, checkConfig } = useTranslateConfig()
+  const textareaRef = useRef(null)
 
   const handleTranslate = async () => {
     try {
@@ -96,6 +97,74 @@ function TranslateTool({ onShowHelp }) {
     setShowConfig(false)
     checkConfig()
   }
+
+  // 当选中翻译工具时，自动聚焦到输入框
+  useEffect(() => {
+    if (isActive && !showConfig) {
+      // 使用多重延迟确保元素已完全可见并渲染
+      const focusInput = () => {
+        if (textareaRef.current) {
+          // 检查元素是否可见（不在 hidden 状态）
+          const rect = textareaRef.current.getBoundingClientRect()
+          const isVisible = rect.width > 0 && rect.height > 0
+          
+          if (isVisible) {
+            textareaRef.current.focus()
+            return true
+          }
+          return false
+        }
+        return false
+      }
+      
+      // 尝试多次聚焦，直到成功
+      let attempts = 0
+      const maxAttempts = 10
+      
+      const tryFocus = () => {
+        attempts++
+        if (focusInput() || attempts >= maxAttempts) {
+          return
+        }
+        // 如果还没成功，继续尝试
+        setTimeout(tryFocus, 50)
+      }
+      
+      // 先等待一帧，确保 DOM 更新
+      requestAnimationFrame(() => {
+        setTimeout(tryFocus, 100)
+      })
+    }
+  }, [isActive, showConfig])
+
+  // 使用 ref 存储 handleTranslate，避免闭包问题
+  const handleTranslateRef = useRef(handleTranslate)
+  useEffect(() => {
+    handleTranslateRef.current = handleTranslate
+  }, [handleTranslate])
+
+  // 快捷键支持：CmdOrCtrl + Enter 执行翻译
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // 检查是否是 CmdOrCtrl + Enter
+      const isCmdOrCtrl = e.metaKey || e.ctrlKey
+      const isEnter = e.key === 'Enter' || e.keyCode === 13
+
+      if (isCmdOrCtrl && isEnter && isActive && !showConfig) {
+        // 如果焦点在 textarea 中，执行翻译
+        if (document.activeElement === textareaRef.current) {
+          e.preventDefault()
+          e.stopPropagation()
+          handleTranslateRef.current()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isActive, showConfig])
 
   return (
     <div className="h-full flex flex-col">
@@ -199,11 +268,15 @@ function TranslateTool({ onShowHelp }) {
           {/* 输入区域 */}
           <div className="mb-4">
             <textarea
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="w-full p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               rows={6}
-              placeholder="请输入要翻译的文本..."
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
             />
           </div>
 
