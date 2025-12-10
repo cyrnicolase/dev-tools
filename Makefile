@@ -57,7 +57,7 @@ build-mac: generate-icons frontend-build
 	fi
 
 # 构建所有平台（示例，可根据需要调整）
-build-all:
+build-all: frontend-build
 	@echo "构建所有平台..."
 	@echo "生成图标文件..."
 	@if [ -f "appicon.png" ]; then \
