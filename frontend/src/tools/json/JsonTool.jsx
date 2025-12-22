@@ -199,10 +199,10 @@ function JsonTool({ onShowHelp, isActive }) {
           {tabs.map((tab) => (
             <div
               key={tab.id}
-              className={`flex items-center px-4 py-2 transition-all cursor-pointer select-none flex-shrink-0 whitespace-nowrap relative h-full ${
+              className={`group flex items-center px-4 py-2 transition-all cursor-pointer select-none flex-shrink-0 whitespace-nowrap relative h-full ${
                 activeTabId === tab.id
-                  ? 'text-active-text rounded-t-lg border-t border-l border-r border-border-primary shadow-sm z-10 mb-[-1px]'
-                  : 'text-[var(--text-primary)] rounded-t-lg border-t border-l border-r border-transparent hover:border-border-primary'
+                  ? 'text-active-text font-semibold bg-[var(--active-bg)] rounded-t-lg shadow-md z-10 mb-[-1px]'
+                  : 'text-[var(--text-primary)] rounded-t-lg hover:bg-[var(--hover-bg)]'
               }`}
               onClick={() => handleSwitchTab(tab.id)}
               onMouseDown={(e) => handleMouseDown(tab.id, e)}
@@ -230,14 +230,14 @@ function JsonTool({ onShowHelp, isActive }) {
             ) : (
               <>
                 <span
-                  className="text-sm mr-2"
+                  className="text-sm"
                   onDoubleClick={(e) => handleStartRename(tab.id, tab.name, e)}
                 >
                   {tab.name}
                 </span>
                 {tabs.length > 1 && (
                   <button
-                    className="ml-1 p-0.5 rounded hover:opacity-70 transition-opacity"
+                    className="absolute top-1 right-1 p-0.5 rounded bg-[var(--bg-secondary)] opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity shadow-sm border border-border-primary z-20"
                     onClick={(e) => handleCloseTab(tab.id, e)}
                     onMouseDown={(e) => e.stopPropagation()}
                   >
