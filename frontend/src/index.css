@@ -73,3 +73,60 @@ body {
   background: rgba(75, 85, 99, 0.7);
 }
 
+/* Tab 滚动容器样式 - Light 主题（默认） */
+.tab-scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.tab-scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tab-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.tab-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.tab-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+  background-clip: padding-box;
+}
+
+/* Tab 滚动容器样式 - Dark 主题 */
+[data-theme="dark"] .tab-scroll-container {
+  scrollbar-color: rgba(107, 114, 128, 0.6) transparent;
+}
+
+[data-theme="dark"] .tab-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.6);
+  background-clip: padding-box;
+}
+
+[data-theme="dark"] .tab-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.8);
+  background-clip: padding-box;
+}
+
+/* 明确设置 Light 主题样式（确保覆盖默认值） */
+[data-theme="light"] .tab-scroll-container {
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+[data-theme="light"] .tab-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  background-clip: padding-box;
+}
+
+[data-theme="light"] .tab-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+  background-clip: padding-box;
+}
+

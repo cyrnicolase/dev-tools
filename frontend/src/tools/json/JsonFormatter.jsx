@@ -7,7 +7,7 @@ import SearchBar from '../../components/SearchBar'
 import { searchJsonKeys } from '../../utils/jsonSearch'
 import { useTheme } from '../../hooks/useTheme'
 
-function JsonFormatter() {
+function JsonFormatter({ isActive = true }) {
   const [input, setInput] = useState('')
   const [error, setError] = useState('')
   const [api, setApi] = useState(null)
@@ -515,6 +515,11 @@ function JsonFormatter() {
   const isInputMaximized = inputMaximizeMode !== 'none'
   const isInputFullscreen = inputMaximizeMode === 'fullscreen'
   const isInputContentMaximized = inputMaximizeMode === 'content'
+
+  // 如果非激活状态，使用 display: none 隐藏（保持状态但不渲染）
+  if (!isActive) {
+    return <div className="hidden" />
+  }
 
   return (
     <div className={`h-full flex flex-col ${
