@@ -33,6 +33,8 @@ function JsonFormatter({ isActive = true }) {
   const editorRef = useRef(null)
   const monacoRef = useRef(null)
   const decorationsRef = useRef([])
+  const searchBarRef = useRef(null)
+  const savedPositionRef = useRef(null) // 保存关闭搜索框前的光标位置
   
   // 主题
   const { theme } = useTheme()
@@ -244,6 +246,44 @@ function JsonFormatter({ isActive = true }) {
     searchTermRef.current = searchTerm
   }, [searchTerm])
   
+  // 当 isActive 变为 true 时，自动聚焦编辑器
+  useEffect(() => {
+    if (isActive && !showSearch) {
+      const focusEditor = () => {
+        if (editorRef.current) {
+          try {
+            const container = editorRef.current.getContainerDomNode()
+            if (container) {
+              const rect = container.getBoundingClientRect()
+              const isVisible = rect.width > 0 && rect.height > 0
+              if (isVisible) {
+                editorRef.current.focus()
+                return true
+              }
+            }
+            return false
+          } catch (err) {
+            return false
+          }
+        }
+        return false
+      }
+      
+      let attempts = 0
+      const maxAttempts = 10
+      const tryFocus = () => {
+        attempts++
+        if (focusEditor() || attempts >= maxAttempts) {
+          return
+        }
+        setTimeout(tryFocus, 50)
+      }
+      requestAnimationFrame(() => {
+        setTimeout(tryFocus, 100)
+      })
+    }
+  }, [isActive, showSearch])
+  
   // Monaco Editor 初始化
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor
@@ -251,13 +291,37 @@ function JsonFormatter({ isActive = true }) {
     
     // 注册快捷键
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
-      setShowSearch(true)
+      if (showSearchRef.current) {
+        // 搜索框已显示，聚焦并选中搜索框内容
+        if (searchBarRef.current) {
+          searchBarRef.current.focusAndSelect()
+        }
+      } else {
+        // 搜索框未显示，保存当前光标位置并显示搜索框
+        if (editorRef.current) {
+          const position = editorRef.current.getPosition()
+          if (position) {
+            savedPositionRef.current = position
+          }
+        }
+        setShowSearch(true)
+      }
     })
     
     editor.addCommand(monaco.KeyCode.Escape, () => {
       if (showSearchRef.current) {
         setShowSearch(false)
         clearSearch()
+        // 恢复光标位置
+        if (editorRef.current && savedPositionRef.current) {
+          setTimeout(() => {
+            if (editorRef.current && savedPositionRef.current) {
+              editorRef.current.setPosition(savedPositionRef.current)
+              editorRef.current.focus()
+              savedPositionRef.current = null
+            }
+          }, 0)
+        }
       }
     })
     
@@ -510,6 +574,23 @@ function JsonFormatter({ isActive = true }) {
   const handleCloseSearch = useCallback(() => {
     setShowSearch(false)
     clearSearch()
+    // 恢复光标位置
+    if (editorRef.current && savedPositionRef.current) {
+      setTimeout(() => {
+        if (editorRef.current && savedPositionRef.current) {
+          editorRef.current.setPosition(savedPositionRef.current)
+          editorRef.current.focus()
+          savedPositionRef.current = null
+        }
+      }, 0)
+    } else if (editorRef.current) {
+      // 如果没有保存的位置，直接聚焦编辑器
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.focus()
+        }
+      }, 0)
+    }
   }, [clearSearch])
 
   const isInputMaximized = inputMaximizeMode !== 'none'
@@ -618,7 +699,18 @@ function JsonFormatter({ isActive = true }) {
             )}
             <Tooltip content="搜索 (Ctrl+F)" delay={200}>
               <button
-                onClick={() => setShowSearch(!showSearch)}
+                onClick={() => {
+                  if (!showSearch) {
+                    // 打开搜索框前，保存当前光标位置
+                    if (editorRef.current) {
+                      const position = editorRef.current.getPosition()
+                      if (position) {
+                        savedPositionRef.current = position
+                      }
+                    }
+                  }
+                  setShowSearch(!showSearch)
+                }}
                 className={`p-2 rounded-lg transition-colors select-none ${
                   showSearch
                     ? 'bg-blue-500 text-white'
@@ -644,6 +736,7 @@ function JsonFormatter({ isActive = true }) {
         </div>
         {showSearch && (
           <SearchBar
+            ref={searchBarRef}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             onPrevious={handlePreviousMatch}

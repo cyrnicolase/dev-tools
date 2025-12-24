@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useRef, useImperativeHandle, forwardRef } from 'react'
 
-function SearchBar({
+const SearchBar = forwardRef(({
   searchTerm,
   onSearchChange,
   onPrevious,
@@ -14,16 +14,36 @@ function SearchBar({
   onRegexChange,
   jsonMode,
   onJsonModeChange,
-}) {
+}, ref) => {
+  const inputRef = useRef(null)
+
+  // 暴露方法给父组件
+  useImperativeHandle(ref, () => ({
+    focusAndSelect: () => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+        inputRef.current.select()
+      }
+    },
+  }))
+
   return (
     <div className="bg-secondary border border-border-primary rounded-lg p-3 mb-2 shadow-sm">
       <div className="flex items-center space-x-2">
         {/* 搜索输入框 */}
         <div className="flex-1 relative">
           <input
+            ref={inputRef}
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                e.preventDefault()
+                e.stopPropagation()
+                onClose()
+              }
+            }}
             placeholder={jsonMode ? '搜索 JSON 键或值...' : '搜索...'}
             className="w-full px-3 py-1.5 border border-border-input rounded-lg text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
             autoFocus
@@ -105,7 +125,9 @@ function SearchBar({
       </div>
     </div>
   )
-}
+})
+
+SearchBar.displayName = 'SearchBar'
 
 export default SearchBar
 
