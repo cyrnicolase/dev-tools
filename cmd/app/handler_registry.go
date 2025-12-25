@@ -15,6 +15,7 @@ type HandlerRegistry struct {
 	QRCode    *handlers.QRCodeHandler
 	IPQuery   *handlers.IPQueryHandler
 	Translate *handlers.TranslateHandler
+	Hash      *handlers.HashHandler
 }
 
 // NewHandlerRegistry 创建新的处理器注册表
@@ -28,6 +29,7 @@ func NewHandlerRegistry() *HandlerRegistry {
 		QRCode:    handlers.NewQRCodeHandler(),
 		IPQuery:   handlers.NewIPQueryHandler(),
 		Translate: handlers.NewTranslateHandler(),
+		Hash:      handlers.NewHashHandler(),
 	}
 }
 

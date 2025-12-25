@@ -5,8 +5,8 @@ import (
 )
 
 // Version 应用版本号
-// 可以通过构建时注入: go build -ldflags "-X github.com/cyrnicolase/dev-tools/cmd/app.Version=1.2.3"
-var Version = "1.2.3"
+// 可以通过构建时注入: go build -ldflags "-X github.com/cyrnicolase/dev-tools/cmd/app.Version=1.3.0"
+var Version = "1.3.0"
 
 // GetVersion 获取应用版本号（包级别函数）
 func GetVersion() string {
@@ -46,6 +46,8 @@ func (a *App) LoadThemeForStartup() {
 func (a *App) Startup(ctx context.Context) {
 	// 设置工具管理器的上下文（用于事件发送）
 	a.ToolManager.SetContext(ctx)
+	// 设置HashHandler的上下文（用于文件对话框）
+	a.Handlers.Hash.SetContext(ctx)
 }
 
 // GetVersion 获取应用版本号（实例方法）

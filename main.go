@@ -139,6 +139,7 @@ func createAppConfig(appInstance *app.App) *options.App {
 			appInstance.Handlers.QRCode,    // 二维码工具处理器
 			appInstance.Handlers.IPQuery,   // IP查询工具处理器
 			appInstance.Handlers.Translate, // 翻译工具处理器
+			appInstance.Handlers.Hash,      // 散列值计算工具处理器
 			appInstance.Theme.GetHandler(), // 主题处理器
 		},
 	}

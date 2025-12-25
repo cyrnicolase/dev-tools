@@ -35,6 +35,7 @@ func NewToolManager() *ToolManager {
 			"qrcode",
 			"ipquery",
 			"translate",
+			"hash",
 		},
 		currentToolIndex: 0,
 	}

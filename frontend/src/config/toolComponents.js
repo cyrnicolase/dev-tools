@@ -9,6 +9,7 @@ import UrlTool from '../tools/url/UrlTool'
 import QrcodeTool from '../tools/qrcode/QrcodeTool'
 import IPQueryTool from '../tools/ipquery/IPQueryTool'
 import TranslateTool from '../tools/translate/TranslateTool'
+import HashTool from '../tools/hash/HashTool'
 import HelpTool from '../menus/help/HelpTool'
 
 /**
@@ -47,6 +48,10 @@ export const TOOL_COMPONENTS = {
   },
   translate: {
     component: TranslateTool,
+    className: 'flex-1 min-h-0 flex flex-col',
+  },
+  hash: {
+    component: HashTool,
     className: 'flex-1 min-h-0 flex flex-col',
   },
   help: {

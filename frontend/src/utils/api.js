@@ -17,6 +17,7 @@ export function waitForWailsAPI(timeout = 5000) {
       const qrcodeHandler = window.go?.handlers?.QRCodeHandler
       const ipqueryHandler = window.go?.handlers?.IPQueryHandler
       const translateHandler = window.go?.handlers?.TranslateHandler
+      const hashHandler = window.go?.handlers?.HashHandler
       
       if (appAPI) {
         const result = {
@@ -70,6 +71,11 @@ export function waitForWailsAPI(timeout = 5000) {
             GetProviderConfig: translateHandler.GetProviderConfig?.bind(translateHandler),
             SaveProviderConfig: translateHandler.SaveProviderConfig?.bind(translateHandler),
           } : null,
+          Hash: hashHandler ? {
+            HashText: hashHandler.HashText?.bind(hashHandler),
+            HashFile: hashHandler.HashFile?.bind(hashHandler),
+            OpenFileDialog: hashHandler.OpenFileDialog?.bind(hashHandler),
+          } : null,
           GetVersion: appAPI.GetVersion?.bind(appAPI),
           GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
           ClearInitialTool: appAPI.ClearInitialTool?.bind(appAPI),
@@ -81,7 +87,7 @@ export function waitForWailsAPI(timeout = 5000) {
         }
         
         // 检查至少有一个方法可用
-        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate || result.IPQuery?.Query || result.Translate?.Translate) {
+        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate || result.IPQuery?.Query || result.Translate?.Translate || result.Hash?.HashText) {
           resolve(result)
           return
         }
@@ -117,6 +123,7 @@ export function getWailsAPI() {
   const qrcodeHandler = window.go?.handlers?.QRCodeHandler
   const ipqueryHandler = window.go?.handlers?.IPQueryHandler
   const translateHandler = window.go?.handlers?.TranslateHandler
+  const hashHandler = window.go?.handlers?.HashHandler
   
   if (appAPI) {
     return {
@@ -170,6 +177,11 @@ export function getWailsAPI() {
         SetDefaultProvider: translateHandler.SetDefaultProvider?.bind(translateHandler),
         GetProviderConfig: translateHandler.GetProviderConfig?.bind(translateHandler),
         SaveProviderConfig: translateHandler.SaveProviderConfig?.bind(translateHandler),
+      } : null,
+      Hash: hashHandler ? {
+        HashText: hashHandler.HashText?.bind(hashHandler),
+        HashFile: hashHandler.HashFile?.bind(hashHandler),
+        OpenFileDialog: hashHandler.OpenFileDialog?.bind(hashHandler),
       } : null,
       GetVersion: appAPI.GetVersion?.bind(appAPI),
       GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
