@@ -220,12 +220,14 @@ function JsonFormatter({ isActive = true }) {
     setInputMaximizeMode('none')
   }
 
-  // 当用户编辑输入框时，如果已格式化，保持格式化状态但允许编辑
+  // 当用户编辑输入框时，标记为未格式化状态
   const handleInputChange = (value) => {
     setInput(value || '')
+    // 用户编辑内容后，标记为未格式化状态
+    setIsFormatted(false)
     // 如果用户编辑了内容，且当前不是压缩状态，更新 lastFormattedInput 以便重新格式化
     // 如果是压缩状态，不更新 lastFormattedInput，保持原始的格式化JSON用于后续格式化
-    if (isFormatted && !isMinified) {
+    if (!isMinified) {
       setLastFormattedInput(value || '')
     }
     // 如果正在搜索，更新搜索结果
@@ -288,6 +290,11 @@ function JsonFormatter({ isActive = true }) {
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor
     monacoRef.current = monaco
+    
+    // 禁用格式化快捷键（Shift+Alt+F / Shift+Option+F）
+    editor.addCommand(monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF, () => {
+      // 禁用自动格式化，不执行任何操作
+    })
     
     // 注册快捷键
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
@@ -770,6 +777,7 @@ function JsonFormatter({ isActive = true }) {
               tabSize: 2,
               formatOnPaste: false,
               formatOnType: false,
+              formatOnBlur: false,
               scrollbar: {
                 vertical: 'auto',
                 horizontal: 'auto',
