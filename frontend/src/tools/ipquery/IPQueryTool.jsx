@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import { useAutoFocus } from '../../hooks/useAutoFocus'
 
-function IPQueryTool({ onShowHelp }) {
+function IPQueryTool({ onShowHelp, isActive = true }) {
   const [input, setInput] = useState('')
   const [results, setResults] = useState([])
   const [api, setApi] = useState(null)
@@ -11,6 +12,7 @@ function IPQueryTool({ onShowHelp }) {
   const [loading, setLoading] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const inputRef = useRef(null)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -23,6 +25,9 @@ function IPQueryTool({ onShowHelp }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  // 当选中 IP 查询工具时，自动聚焦到输入框
+  useAutoFocus(inputRef, isActive)
 
   const handleQuery = async () => {
     try {
@@ -92,6 +97,7 @@ function IPQueryTool({ onShowHelp }) {
           </div>
         </div>
         <input
+          ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import { useAutoFocus } from '../../hooks/useAutoFocus'
 
-function Base64Tool({ onShowHelp }) {
+function Base64Tool({ onShowHelp, isActive = true }) {
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
   const [mode, setMode] = useState('encode') // encode, decode
@@ -11,6 +12,7 @@ function Base64Tool({ onShowHelp }) {
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const textareaRef = useRef(null)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -23,6 +25,9 @@ function Base64Tool({ onShowHelp }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  // 当选中 Base64 工具时，自动聚焦到输入框
+  useAutoFocus(textareaRef, isActive)
 
   const handleEncode = async () => {
     try {
@@ -167,6 +172,7 @@ function Base64Tool({ onShowHelp }) {
           </div>
         </div>
         <textarea
+          ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           className="w-full h-64 p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"

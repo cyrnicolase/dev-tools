@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import { useAutoFocus } from '../../hooks/useAutoFocus'
 
-function QrcodeTool({ onShowHelp }) {
+function QrcodeTool({ onShowHelp, isActive = true }) {
   const [input, setInput] = useState('')
   const [qrcodeImage, setQrcodeImage] = useState('')
   const [size, setSize] = useState('small') // small, medium, large
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const textareaRef = useRef(null)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -22,6 +24,9 @@ function QrcodeTool({ onShowHelp }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  // 当选中二维码工具时，自动聚焦到输入框
+  useAutoFocus(textareaRef, isActive)
 
   const handleGenerate = async () => {
     try {
@@ -136,6 +141,7 @@ function QrcodeTool({ onShowHelp }) {
           </div>
         </div>
         <textarea
+          ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           className="w-full h-32 p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"

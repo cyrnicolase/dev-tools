@@ -5,6 +5,7 @@ import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
 import TranslateConfig from './TranslateConfig'
 import { useTranslateConfig } from '../../hooks/useTranslateConfig'
+import { useAutoFocus } from '../../hooks/useAutoFocus'
 
 // 支持的语言列表
 const LANGUAGES = [
@@ -98,44 +99,8 @@ function TranslateTool({ onShowHelp, isActive }) {
     checkConfig()
   }
 
-  // 当选中翻译工具时，自动聚焦到输入框
-  useEffect(() => {
-    if (isActive && !showConfig) {
-      // 使用多重延迟确保元素已完全可见并渲染
-      const focusInput = () => {
-        if (textareaRef.current) {
-          // 检查元素是否可见（不在 hidden 状态）
-          const rect = textareaRef.current.getBoundingClientRect()
-          const isVisible = rect.width > 0 && rect.height > 0
-          
-          if (isVisible) {
-            textareaRef.current.focus()
-            return true
-          }
-          return false
-        }
-        return false
-      }
-      
-      // 尝试多次聚焦，直到成功
-      let attempts = 0
-      const maxAttempts = 10
-      
-      const tryFocus = () => {
-        attempts++
-        if (focusInput() || attempts >= maxAttempts) {
-          return
-        }
-        // 如果还没成功，继续尝试
-        setTimeout(tryFocus, 50)
-      }
-      
-      // 先等待一帧，确保 DOM 更新
-      requestAnimationFrame(() => {
-        setTimeout(tryFocus, 100)
-      })
-    }
-  }, [isActive, showConfig])
+  // 当选中翻译工具时，自动聚焦到输入框（仅在未显示配置时）
+  useAutoFocus(textareaRef, isActive, !showConfig)
 
   // 使用 ref 存储 handleTranslate，避免闭包问题
   const handleTranslateRef = useRef(handleTranslate)

@@ -3,6 +3,7 @@ import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
+import { useAutoFocus } from '../../hooks/useAutoFocus'
 
 function HashTool({ onShowHelp, isActive }) {
   const [input, setInput] = useState('')
@@ -36,40 +37,8 @@ function HashTool({ onShowHelp, isActive }) {
       })
   }, [])
 
-  // 当 isActive 变为 true 时，自动聚焦输入框
-  useEffect(() => {
-    if (isActive && inputMode === 'text') {
-      const focusInput = () => {
-        if (inputRef.current) {
-          const rect = inputRef.current.getBoundingClientRect()
-          const isVisible = rect.width > 0 && rect.height > 0
-          if (isVisible) {
-            try {
-              inputRef.current.focus()
-              return true
-            } catch (err) {
-              return false
-            }
-          }
-          return false
-        }
-        return false
-      }
-
-      let attempts = 0
-      const maxAttempts = 15
-      const tryFocus = () => {
-        attempts++
-        if (focusInput() || attempts >= maxAttempts) {
-          return
-        }
-        setTimeout(tryFocus, 50)
-      }
-      requestAnimationFrame(() => {
-        setTimeout(tryFocus, 100)
-      })
-    }
-  }, [isActive, inputMode])
+  // 当 isActive 变为 true 时，自动聚焦输入框（仅在文本模式下）
+  useAutoFocus(inputRef, isActive, inputMode === 'text', { maxAttempts: 15 })
 
   const handleSelectFile = async () => {
     try {
