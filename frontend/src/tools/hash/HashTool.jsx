@@ -265,6 +265,7 @@ function HashTool({ onShowHelp, isActive }) {
             className="w-full h-64 p-4 border border-border-input rounded-lg font-mono text-sm bg-input-disabled text-[var(--text-input)] focus:outline-none"
             placeholder="散列值结果将显示在这里..."
             autoComplete="off"
+            spellCheck="false"
           />
         </div>
         <Toast

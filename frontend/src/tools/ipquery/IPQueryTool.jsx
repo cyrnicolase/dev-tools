@@ -108,6 +108,7 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
           }}
           className="w-full p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="输入IP地址，例如: 8.8.8.8 或 2001:4860:4860::8888"
+          spellCheck="false"
         />
         {error && (
           <div className="mt-2 p-3 rounded-lg bg-error-bg text-error-text select-none">

@@ -7,7 +7,6 @@ import { useAutoFocus } from '../../hooks/useAutoFocus'
 function UrlTool({ onShowHelp, isActive = true }) {
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
-  const [mode, setMode] = useState('encode') // encode, decode
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
@@ -87,37 +86,19 @@ function UrlTool({ onShowHelp, isActive = true }) {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">输入</h3>
           <div className="flex items-center space-x-6">
-            {/* 左侧：模式选择 */}
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-[var(--text-primary)] select-none">模式：</span>
+            {/* 右侧：操作按钮 */}
+            <div className="flex items-center space-x-2 ml-auto">
               <button
-                onClick={() => setMode('encode')}
-                className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
-                  mode === 'encode'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
-                }`}
+                onClick={handleEncode}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm font-medium select-none"
               >
                 编码
               </button>
               <button
-                onClick={() => setMode('decode')}
-                className={`px-4 py-2 rounded-lg transition-colors text-sm select-none ${
-                  mode === 'decode'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
-                }`}
+                onClick={handleDecode}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm font-medium select-none"
               >
                 解码
-              </button>
-            </div>
-            {/* 右侧：操作按钮 */}
-            <div className="flex items-center space-x-2 border-l border-border-input pl-6">
-              <button
-                onClick={mode === 'encode' ? handleEncode : handleDecode}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium select-none"
-              >
-                {mode === 'encode' ? '编码' : '解码'}
               </button>
             </div>
           </div>
@@ -127,7 +108,8 @@ function UrlTool({ onShowHelp, isActive = true }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           className="w-full h-64 p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder={mode === 'encode' ? '输入要编码的文本...' : '输入要解码的 URL 编码字符串...'}
+          placeholder="输入文本或 URL 编码字符串..."
+          spellCheck="false"
         />
         {error && (
           <div className="mt-2 p-3 rounded-lg bg-error-bg text-error-text select-none">
@@ -154,6 +136,7 @@ function UrlTool({ onShowHelp, isActive = true }) {
           readOnly
           className="w-full h-64 p-4 border border-border-input rounded-lg font-mono text-sm bg-input-disabled text-[var(--text-input)] focus:outline-none"
           placeholder="输出结果将显示在这里..."
+          spellCheck="false"
         />
       </div>
       <Toast

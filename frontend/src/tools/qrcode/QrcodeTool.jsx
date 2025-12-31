@@ -146,6 +146,7 @@ function QrcodeTool({ onShowHelp, isActive = true }) {
           onChange={(e) => setInput(e.target.value)}
           className="w-full h-32 p-4 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="输入要生成二维码的文本..."
+          spellCheck="false"
         />
         {error && (
           <div className="mt-2 p-3 rounded-lg bg-error-bg text-error-text select-none">

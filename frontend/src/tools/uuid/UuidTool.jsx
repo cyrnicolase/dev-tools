@@ -185,6 +185,7 @@ function UuidTool({ onShowHelp }) {
               value={count}
               onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))}
               className="w-full p-3 border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              spellCheck="false"
             />
           </div>
 
@@ -262,6 +263,7 @@ function UuidTool({ onShowHelp }) {
                     onChange={(e) => setNamespace(e.target.value)}
                     placeholder="或输入自定义 UUID"
                     className="w-full p-3 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    spellCheck="false"
                   />
                 </div>
               </div>
@@ -273,6 +275,7 @@ function UuidTool({ onShowHelp }) {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="输入名称"
                   className="w-full p-3 border border-border-input rounded-lg font-mono text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  spellCheck="false"
                 />
               </div>
             </>

@@ -275,6 +275,7 @@ function TimestampTool({ onShowHelp }) {
                   onChange={(e) => setTimestamp(e.target.value)}
                   className="flex-1 p-3 text-sm border border-border-input rounded-lg font-mono text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder={`输入${timestampType === 'milli' ? '毫秒' : '秒级'}时间戳...`}
+                  spellCheck="false"
                 />
                 <button
                   onClick={handleGetCurrentTimestamp}
@@ -357,6 +358,7 @@ function TimestampTool({ onShowHelp }) {
                   onChange={(e) => setTimeString(e.target.value)}
                   className="flex-1 p-3 text-sm border border-border-input rounded-lg font-mono text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="输入时间字符串..."
+                  spellCheck="false"
                 />
                 <button
                   onClick={handleGetCurrentTime}

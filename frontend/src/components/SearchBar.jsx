@@ -47,6 +47,7 @@ const SearchBar = forwardRef(({
             placeholder={jsonMode ? '搜索 JSON 键或值...' : '搜索...'}
             className="w-full px-3 py-1.5 border border-border-input rounded-lg text-sm text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
             autoFocus
+            spellCheck="false"
           />
         </div>
 
