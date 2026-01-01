@@ -36,6 +36,7 @@ func NewToolManager() *ToolManager {
 			"ipquery",
 			"translate",
 			"hash",
+			"randomstring",
 		},
 		currentToolIndex: 0,
 	}

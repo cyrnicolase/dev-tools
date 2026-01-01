@@ -3,7 +3,7 @@
  */
 
 // 工具 ID 列表
-export const TOOL_IDS = ['json', 'base64', 'timestamp', 'uuid', 'url', 'qrcode', 'ipquery', 'translate', 'hash']
+export const TOOL_IDS = ['json', 'base64', 'timestamp', 'uuid', 'url', 'qrcode', 'ipquery', 'translate', 'hash', 'randomstring']
 
 // 视图列表（包括工具和菜单视图）
 export const VIEW_IDS = [...TOOL_IDS, 'help']
@@ -19,6 +19,7 @@ export const TOOLS = [
   { id: 'ipquery', name: 'IP查询', icon: '🌍' },
   { id: 'translate', name: '翻译', icon: '🌐' },
   { id: 'hash', name: '散列值', icon: '🔑' },
+  { id: 'randomstring', name: '随机字符串', icon: '🎲' },
 ]
 
 // 默认工具 ID

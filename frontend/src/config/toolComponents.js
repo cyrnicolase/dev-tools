@@ -10,6 +10,7 @@ import QrcodeTool from '../tools/qrcode/QrcodeTool'
 import IPQueryTool from '../tools/ipquery/IPQueryTool'
 import TranslateTool from '../tools/translate/TranslateTool'
 import HashTool from '../tools/hash/HashTool'
+import RandomStringTool from '../tools/randomstring/RandomStringTool'
 import HelpTool from '../menus/help/HelpTool'
 
 /**
@@ -52,6 +53,10 @@ export const TOOL_COMPONENTS = {
   },
   hash: {
     component: HashTool,
+    className: 'flex-1 min-h-0 flex flex-col',
+  },
+  randomstring: {
+    component: RandomStringTool,
     className: 'flex-1 min-h-0 flex flex-col',
   },
   help: {

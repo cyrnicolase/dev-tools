@@ -18,6 +18,7 @@ export function waitForWailsAPI(timeout = 5000) {
       const ipqueryHandler = window.go?.handlers?.IPQueryHandler
       const translateHandler = window.go?.handlers?.TranslateHandler
       const hashHandler = window.go?.handlers?.HashHandler
+      const randomStringHandler = window.go?.handlers?.RandomStringHandler
       
       if (appAPI) {
         const result = {
@@ -76,6 +77,10 @@ export function waitForWailsAPI(timeout = 5000) {
             HashFile: hashHandler.HashFile?.bind(hashHandler),
             OpenFileDialog: hashHandler.OpenFileDialog?.bind(hashHandler),
           } : null,
+          RandomString: randomStringHandler ? {
+            Generate: randomStringHandler.Generate?.bind(randomStringHandler),
+            GenerateBatch: randomStringHandler.GenerateBatch?.bind(randomStringHandler),
+          } : null,
           GetVersion: appAPI.GetVersion?.bind(appAPI),
           GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),
           ClearInitialTool: appAPI.ClearInitialTool?.bind(appAPI),
@@ -87,7 +92,7 @@ export function waitForWailsAPI(timeout = 5000) {
         }
         
         // 检查至少有一个方法可用
-        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate || result.IPQuery?.Query || result.Translate?.Translate || result.Hash?.HashText) {
+        if (result.GetVersion || result.JSON?.Format || result.Base64?.Encode || result.Timestamp?.FormatNow || result.UUID?.GenerateV4 || result.URL?.Encode || result.QRCode?.Generate || result.IPQuery?.Query || result.Translate?.Translate || result.Hash?.HashText || result.RandomString?.Generate) {
           resolve(result)
           return
         }
@@ -124,6 +129,7 @@ export function getWailsAPI() {
   const ipqueryHandler = window.go?.handlers?.IPQueryHandler
   const translateHandler = window.go?.handlers?.TranslateHandler
   const hashHandler = window.go?.handlers?.HashHandler
+  const randomStringHandler = window.go?.handlers?.RandomStringHandler
   
   if (appAPI) {
     return {
@@ -182,6 +188,10 @@ export function getWailsAPI() {
         HashText: hashHandler.HashText?.bind(hashHandler),
         HashFile: hashHandler.HashFile?.bind(hashHandler),
         OpenFileDialog: hashHandler.OpenFileDialog?.bind(hashHandler),
+      } : null,
+      RandomString: randomStringHandler ? {
+        Generate: randomStringHandler.Generate?.bind(randomStringHandler),
+        GenerateBatch: randomStringHandler.GenerateBatch?.bind(randomStringHandler),
       } : null,
       GetVersion: appAPI.GetVersion?.bind(appAPI),
       GetInitialTool: appAPI.GetInitialTool?.bind(appAPI),

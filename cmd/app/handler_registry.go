@@ -13,9 +13,10 @@ type HandlerRegistry struct {
 	UUID      *handlers.UUIDHandler
 	URL       *handlers.URLHandler
 	QRCode    *handlers.QRCodeHandler
-	IPQuery   *handlers.IPQueryHandler
-	Translate *handlers.TranslateHandler
-	Hash      *handlers.HashHandler
+	IPQuery      *handlers.IPQueryHandler
+	Translate    *handlers.TranslateHandler
+	Hash         *handlers.HashHandler
+	RandomString *handlers.RandomStringHandler
 }
 
 // NewHandlerRegistry 创建新的处理器注册表
@@ -27,9 +28,10 @@ func NewHandlerRegistry() *HandlerRegistry {
 		UUID:      handlers.NewUUIDHandler(),
 		URL:       handlers.NewURLHandler(),
 		QRCode:    handlers.NewQRCodeHandler(),
-		IPQuery:   handlers.NewIPQueryHandler(),
-		Translate: handlers.NewTranslateHandler(),
-		Hash:      handlers.NewHashHandler(),
+		IPQuery:      handlers.NewIPQueryHandler(),
+		Translate:    handlers.NewTranslateHandler(),
+		Hash:         handlers.NewHashHandler(),
+		RandomString: handlers.NewRandomStringHandler(),
 	}
 }
 

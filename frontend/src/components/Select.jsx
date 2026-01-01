@@ -87,7 +87,7 @@ function Select({ value, onChange, options, className = '', placeholder = '' }) 
       <button
         type="button"
         onClick={handleToggle}
-        className={`w-full px-4 py-2 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer flex items-center justify-between ${
+        className={`w-full px-4 py-3 text-sm border border-border-input rounded-lg text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer flex items-center justify-between ${
           isOpen ? 'ring-2 ring-blue-500 border-blue-500' : ''
         }`}
       >
