@@ -127,6 +127,11 @@ function UuidTool({ onShowHelp }) {
     }
   }
 
+  const handleClear = () => {
+    setResults([])
+    setError('')
+  }
+
   const predefinedNamespaces = [
     { label: 'DNS', value: '6ba7b810-9dad-11d1-80b4-00c04fd430c8' },
     { label: 'URL', value: '6ba7b811-9dad-11d1-80b4-00c04fd430c8' },
@@ -301,14 +306,25 @@ function UuidTool({ onShowHelp }) {
         <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-[var(--text-primary)] select-none">生成结果</h3>
-            {results.length > 1 && (
+            <div className="flex items-center space-x-2">
+              {results.length > 1 && (
+                <button
+                  onClick={handleCopyAll}
+                  className="px-3 py-1.5 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors text-sm select-none"
+                >
+                  复制全部
+                </button>
+              )}
               <button
-                onClick={handleCopyAll}
-                className="px-3 py-1.5 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors text-sm select-none"
+                onClick={handleClear}
+                className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
+                title="清空"
               >
-                复制全部
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
-            )}
+            </div>
           </div>
           <div className="space-y-2">
             {results.map((uuid, index) => (

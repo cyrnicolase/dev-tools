@@ -124,6 +124,11 @@ function HashTool({ onShowHelp, isActive }) {
     }
   }
 
+  const handleClear = () => {
+    setOutput('')
+    setError('')
+  }
+
   const handleInputModeChange = (mode) => {
     setInputMode(mode)
     setOutput('')
@@ -246,6 +251,16 @@ function HashTool({ onShowHelp, isActive }) {
                 }`}
               >
                 {loading ? '计算中...' : '计算'}
+              </button>
+              <button
+                onClick={handleClear}
+                disabled={!output}
+                className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none disabled:opacity-50 disabled:cursor-not-allowed"
+                title="清空"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
               <button
                 onClick={handleCopy}

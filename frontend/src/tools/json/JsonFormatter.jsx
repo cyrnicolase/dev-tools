@@ -213,6 +213,20 @@ function JsonFormatter({ isActive = true }) {
     }
   }
 
+  const handleClear = () => {
+    setInput('')
+    setError('')
+    setIsFormatted(false)
+    setLastFormattedInput('')
+    setOutputFormat('json')
+    setIsMinified(false)
+    // 清除搜索
+    if (showSearch) {
+      setShowSearch(false)
+      clearSearch()
+    }
+  }
+
   const handleInputMaximizeFullscreen = () => {
     setInputMaximizeMode('fullscreen')
   }
@@ -783,10 +797,22 @@ function JsonFormatter({ isActive = true }) {
                 </svg>
               </button>
             </Tooltip>
+            <Tooltip content="清空" delay={200}>
+              <button
+                onClick={handleClear}
+                disabled={!input}
+                className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </Tooltip>
             <Tooltip content="复制" delay={200}>
               <button
                 onClick={handleCopy}
-                className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none"
+                disabled={!input}
+                className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
