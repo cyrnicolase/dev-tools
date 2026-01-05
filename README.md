@@ -100,6 +100,7 @@
 - `Cmd/Ctrl+W`：关闭当前标签页
 - `Ctrl+Tab`：切换到下一个标签页
 - `Ctrl+Shift+Tab`：切换到上一个标签页
+- `Cmd/Ctrl+Enter`：格式化 JSON
 
 ## Alfred 快速启动
 
@@ -186,7 +187,7 @@ wails build -compress
 
 ## 版本
 
-当前版本：1.4.0
+当前版本：1.4.1
 
 ## 许可证
 

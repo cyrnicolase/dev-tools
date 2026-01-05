@@ -33,7 +33,7 @@ function HelpTool({ scrollToToolId }) {
         '',
         'JSON 处理功能：',
         '  - 在输入框中粘贴或输入 JSON 数据',
-        '  - 点击"格式化"按钮美化 JSON 格式',
+        '  - 点击"格式化"按钮或使用 Cmd/Ctrl+Enter 快捷键美化 JSON 格式',
         '  - 点击"压缩"按钮将 JSON 压缩为一行',
         '  - 切换"转换为 YAML"可以将 JSON 转换为 YAML 格式',
         '  - 使用"复制"按钮复制处理后的内容',

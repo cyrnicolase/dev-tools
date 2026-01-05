@@ -1,6 +1,6 @@
 {
   "name": "dev-tools-frontend",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Dev Tools Frontend",
   "scripts": {
     "dev": "vite",

@@ -35,6 +35,7 @@ function JsonFormatter({ isActive = true }) {
   const decorationsRef = useRef([])
   const searchBarRef = useRef(null)
   const savedPositionRef = useRef(null) // 保存关闭搜索框前的光标位置
+  const apiRef = useRef(null) // 存储 API 引用，供快捷键使用
   
   // 主题
   const { theme } = useTheme()
@@ -44,6 +45,7 @@ function JsonFormatter({ isActive = true }) {
       .then((wailsAPI) => {
         if (wailsAPI?.JSON) {
           setApi(wailsAPI)
+          apiRef.current = wailsAPI
         }
       })
       .catch(() => {
@@ -76,7 +78,7 @@ function JsonFormatter({ isActive = true }) {
     reFormat()
   }, [preserveEscape, isFormatted, lastFormattedInput, api])
 
-  const handleFormat = async () => {
+  const handleFormat = async (useRefValues = false) => {
     try {
       setError('')
       const wailsAPI = api || getWailsAPI()
@@ -84,8 +86,11 @@ function JsonFormatter({ isActive = true }) {
         setError('后端 API 未加载，请稍候重试')
         return
       }
+      // 如果 useRefValues 为 true，使用 ref 中的最新值（用于快捷键调用）
+      const currentInput = useRefValues ? inputRef.current : input
+      const currentPreserveEscape = useRefValues ? preserveEscapeRef.current : preserveEscape
       // 使用 FormatWithEscape 方法，传入 preserveEscape 参数
-      const result = await wailsAPI.JSON.FormatWithEscape(input, preserveEscape)
+      const result = await wailsAPI.JSON.FormatWithEscape(currentInput, currentPreserveEscape)
       if (result) {
         setInput(result)
         setLastFormattedInput(result) // 保存格式化后的输入（用于重新格式化）
@@ -239,6 +244,8 @@ function JsonFormatter({ isActive = true }) {
   // 使用 ref 存储最新状态，供快捷键使用
   const showSearchRef = useRef(showSearch)
   const searchTermRef = useRef(searchTerm)
+  const inputRef = useRef(input)
+  const preserveEscapeRef = useRef(preserveEscape)
   
   useEffect(() => {
     showSearchRef.current = showSearch
@@ -247,6 +254,14 @@ function JsonFormatter({ isActive = true }) {
   useEffect(() => {
     searchTermRef.current = searchTerm
   }, [searchTerm])
+  
+  useEffect(() => {
+    inputRef.current = input
+  }, [input])
+  
+  useEffect(() => {
+    preserveEscapeRef.current = preserveEscape
+  }, [preserveEscape])
   
   // 当 isActive 变为 true 时，自动聚焦编辑器
   useEffect(() => {
@@ -341,6 +356,43 @@ function JsonFormatter({ isActive = true }) {
     editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.F3, () => {
       if (showSearchRef.current && searchTermRef.current) {
         handlePreviousMatch()
+      }
+    })
+    
+    // 注册 Cmd+Enter 快捷键执行格式化操作
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      // 如果搜索框显示，不执行格式化
+      if (!showSearchRef.current) {
+        // 从编辑器的 model 中获取当前内容，确保获取最新值
+        const model = editor.getModel()
+        if (model) {
+          const currentInput = model.getValue()
+          // 使用 ref 中的最新 preserveEscape 值
+          const currentPreserveEscape = preserveEscapeRef.current
+          // 直接调用格式化逻辑
+          const formatAsync = async () => {
+            try {
+              setError('')
+              // 优先使用 ref 中的 API，如果没有则尝试获取
+              const wailsAPI = apiRef.current || getWailsAPI()
+              if (!wailsAPI?.JSON) {
+                setError('后端 API 未加载，请稍候重试')
+                return
+              }
+              const result = await wailsAPI.JSON.FormatWithEscape(currentInput, currentPreserveEscape)
+              if (result) {
+                setInput(result)
+                setLastFormattedInput(result)
+                setOutputFormat('json')
+                setIsMinified(false)
+                setIsFormatted(true)
+              }
+            } catch (err) {
+              setError(err.message || '格式化失败')
+            }
+          }
+          formatAsync()
+        }
       }
     })
   }

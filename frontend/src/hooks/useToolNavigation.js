@@ -12,7 +12,7 @@ export function useToolNavigation() {
   const [activeTool, setActiveTool] = useState(DEFAULT_TOOL_ID)
   const [apiReady, setApiReady] = useState(false)
   const [initialToolHandled, setInitialToolHandled] = useState(false)
-  const [version, setVersion] = useState('1.3.1')
+  const [version, setVersion] = useState('1.4.1')
   const lastCheckedToolRef = useRef('')
   const processingToolRef = useRef(false) // 防止并发处理同一个工具切换
   const initializationStartedRef = useRef(false) // 跟踪初始化是否已开始
