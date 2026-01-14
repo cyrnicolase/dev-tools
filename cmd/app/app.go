@@ -48,6 +48,8 @@ func (a *App) Startup(ctx context.Context) {
 	a.ToolManager.SetContext(ctx)
 	// 设置HashHandler的上下文（用于文件对话框）
 	a.Handlers.Hash.SetContext(ctx)
+	// 设置JSONHandler的上下文（用于文件对话框）
+	a.Handlers.JSON.SetContext(ctx)
 }
 
 // GetVersion 获取应用版本号（实例方法）

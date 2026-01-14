@@ -18,6 +18,7 @@ function JsonFormatter({ isActive = true }) {
   const [isMinified, setIsMinified] = useState(false) // 当前输出是否是压缩格式
   const [isFormatted, setIsFormatted] = useState(false) // 是否已格式化
   const [showToast, setShowToast] = useState(false) // 是否显示 Toast 提示
+  const [toastMessage, setToastMessage] = useState('已复制到剪贴板') // Toast 消息内容
   
   // 搜索相关状态
   const [showSearch, setShowSearch] = useState(false)
@@ -207,10 +208,49 @@ function JsonFormatter({ isActive = true }) {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(input)
+      setToastMessage('已复制到剪贴板')
       setShowToast(true)
     } catch (err) {
       setError('复制失败')
     }
+  }
+
+  // 通用的保存函数，可以被按钮和快捷键调用
+  const performSave = useCallback(async (content) => {
+    try {
+      setError('')
+      if (!content || !content.trim()) {
+        setError('输入框为空，无法保存')
+        return
+      }
+      // 优先使用 ref 中的 API（用于快捷键调用），否则使用 state 中的 API
+      const wailsAPI = apiRef.current || api || getWailsAPI()
+      if (!wailsAPI?.JSON) {
+        setError('后端 API 未加载，请稍候重试')
+        return
+      }
+      if (!wailsAPI.JSON.SaveFileDialog) {
+        setError('保存功能不可用，请重新编译应用')
+        return
+      }
+      await wailsAPI.JSON.SaveFileDialog(content)
+      setToastMessage('文件已保存')
+      setShowToast(true)
+      setTimeout(() => {
+        setShowToast(false)
+      }, 2000)
+    } catch (err) {
+      // 如果用户取消保存，不显示错误
+      if (err.message && !err.message.includes('取消') && !err.message.includes('cancelled')) {
+        setError(err.message || '保存失败')
+      }
+    }
+  }, [])
+
+  const handleSave = async () => {
+    // 获取当前编辑器内容（确保是最新的）
+    const currentContent = editorRef.current?.getModel()?.getValue() || input
+    await performSave(currentContent)
   }
 
   const handleClear = () => {
@@ -407,6 +447,15 @@ function JsonFormatter({ isActive = true }) {
           }
           formatAsync()
         }
+      }
+    })
+
+    // 注册 Cmd+S 快捷键执行保存操作
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      // 如果搜索框显示，不执行保存
+      if (!showSearchRef.current) {
+        const currentContent = editor.getModel()?.getValue() || inputRef.current
+        performSave(currentContent)
       }
     })
   }
@@ -808,6 +857,18 @@ function JsonFormatter({ isActive = true }) {
                 </svg>
               </button>
             </Tooltip>
+            <Tooltip content="保存 (Cmd+S)" delay={200}>
+              <button
+                onClick={handleSave}
+                disabled={!input || !input.trim()}
+                className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors select-none disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 21v-8H7v8M7 3v5h8" />
+                </svg>
+              </button>
+            </Tooltip>
             <Tooltip content="复制" delay={200}>
               <button
                 onClick={handleCopy}
@@ -872,7 +933,7 @@ function JsonFormatter({ isActive = true }) {
         )}
       </div>
       <Toast
-        message="已复制到剪贴板"
+        message={toastMessage}
         show={showToast}
         onClose={() => setShowToast(false)}
       />

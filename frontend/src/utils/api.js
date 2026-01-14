@@ -28,6 +28,7 @@ export function waitForWailsAPI(timeout = 5000) {
             Minify: jsonHandler.Minify?.bind(jsonHandler),
             ToYAML: jsonHandler.ToYAML?.bind(jsonHandler),
             FromYAML: jsonHandler.FromYAML?.bind(jsonHandler),
+            SaveFileDialog: jsonHandler.SaveFileDialog?.bind(jsonHandler),
           } : null,
           Base64: base64Handler ? {
             Encode: base64Handler.Encode?.bind(base64Handler),
@@ -140,6 +141,7 @@ export function getWailsAPI() {
         Validate: jsonHandler.Validate?.bind(jsonHandler),
         ToYAML: jsonHandler.ToYAML?.bind(jsonHandler),
         FromYAML: jsonHandler.FromYAML?.bind(jsonHandler),
+        SaveFileDialog: jsonHandler.SaveFileDialog?.bind(jsonHandler),
       } : null,
       Base64: base64Handler ? {
         Encode: base64Handler.Encode?.bind(base64Handler),

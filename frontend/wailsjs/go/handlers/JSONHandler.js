@@ -18,6 +18,14 @@ export function Minify(arg1) {
   return window['go']['handlers']['JSONHandler']['Minify'](arg1);
 }
 
+export function SaveFileDialog(arg1) {
+  return window['go']['handlers']['JSONHandler']['SaveFileDialog'](arg1);
+}
+
+export function SetContext(arg1) {
+  return window['go']['handlers']['JSONHandler']['SetContext'](arg1);
+}
+
 export function ToYAML(arg1) {
   return window['go']['handlers']['JSONHandler']['ToYAML'](arg1);
 }
