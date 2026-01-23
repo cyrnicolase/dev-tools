@@ -4,74 +4,18 @@ import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
 
-// localStorage 键名
-const STORAGE_KEY_BATCH_INPUT = 'ipquery_batch_input'
-const STORAGE_KEY_BATCH_RESULTS = 'ipquery_batch_results'
-const STORAGE_KEY_QUERY_MODE = 'ipquery_query_mode'
-const STORAGE_KEY_CURRENT_PAGE = 'ipquery_current_page'
-
 function IPQueryTool({ onShowHelp, isActive = true }) {
-  // 从 localStorage 恢复批量查询数据
-  const loadBatchDataFromStorage = () => {
-    try {
-      const savedInput = localStorage.getItem(STORAGE_KEY_BATCH_INPUT)
-      const savedResults = localStorage.getItem(STORAGE_KEY_BATCH_RESULTS)
-      const savedMode = localStorage.getItem(STORAGE_KEY_QUERY_MODE)
-      const savedPage = localStorage.getItem(STORAGE_KEY_CURRENT_PAGE)
-      
-      return {
-        batchInput: savedInput || '',
-        batchResults: savedResults ? JSON.parse(savedResults) : [],
-        queryMode: savedMode || 'single',
-        currentPage: savedPage ? parseInt(savedPage, 10) : 1,
-      }
-    } catch (err) {
-      console.error('Failed to load batch data from storage:', err)
-      return {
-        batchInput: '',
-        batchResults: [],
-        queryMode: 'single',
-        currentPage: 1,
-      }
-    }
-  }
-
-  // 保存批量查询数据到 localStorage
-  const saveBatchDataToStorage = (batchInput, batchResults, queryMode, currentPage) => {
-    try {
-      if (batchInput) {
-        localStorage.setItem(STORAGE_KEY_BATCH_INPUT, batchInput)
-      } else {
-        localStorage.removeItem(STORAGE_KEY_BATCH_INPUT)
-      }
-      
-      if (batchResults && batchResults.length > 0) {
-        localStorage.setItem(STORAGE_KEY_BATCH_RESULTS, JSON.stringify(batchResults))
-      } else {
-        localStorage.removeItem(STORAGE_KEY_BATCH_RESULTS)
-      }
-      
-      localStorage.setItem(STORAGE_KEY_QUERY_MODE, queryMode)
-      localStorage.setItem(STORAGE_KEY_CURRENT_PAGE, currentPage.toString())
-    } catch (err) {
-      console.error('Failed to save batch data to storage:', err)
-    }
-  }
-
-  // 初始化状态（从 localStorage 恢复）
-  const initialData = loadBatchDataFromStorage()
-  
   // 查询模式：'single' | 'batch'
-  const [queryMode, setQueryMode] = useState(initialData.queryMode)
+  const [queryMode, setQueryMode] = useState('single')
   
   // 单个查询相关状态
   const [input, setInput] = useState('')
   const [results, setResults] = useState([])
   
-  // 批量查询相关状态（从 localStorage 恢复）
-  const [batchInput, setBatchInput] = useState(initialData.batchInput)
-  const [batchResults, setBatchResults] = useState(initialData.batchResults)
-  const [currentPage, setCurrentPage] = useState(initialData.currentPage)
+  // 批量查询相关状态（仅在内存中保存）
+  const [batchInput, setBatchInput] = useState('')
+  const [batchResults, setBatchResults] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(20)
   
   // 通用状态
@@ -95,14 +39,24 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
       })
   }, [])
 
-  // 当批量查询输入或结果变化时，保存到 localStorage
-  useEffect(() => {
-    saveBatchDataToStorage(batchInput, batchResults, queryMode, currentPage)
-  }, [batchInput, batchResults, queryMode, currentPage])
-
   // 当选中 IP 查询工具时，自动聚焦到输入框
   useAutoFocus(inputRef, isActive && queryMode === 'single')
   useAutoFocus(batchInputRef, isActive && queryMode === 'batch')
+
+  // 获取Wails API实例
+  const getWailsAPIInstance = () => {
+    return api || getWailsAPI()
+  }
+
+  // 验证API是否可用
+  const validateAPI = () => {
+    const wailsAPI = getWailsAPIInstance()
+    if (!wailsAPI?.IPQuery) {
+      setError('后端 API 未加载，请稍候重试')
+      return null
+    }
+    return wailsAPI
+  }
 
   // 验证IP地址格式
   const isValidIP = (ip) => {
@@ -137,20 +91,18 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
       setResults([])
       setLoading(true)
 
-      if (!input.trim()) {
+      const trimmedInput = input.trim()
+      if (!trimmedInput) {
         setError('请输入IP地址')
-        setLoading(false)
         return
       }
 
-      const wailsAPI = api || getWailsAPI()
-      if (!wailsAPI?.IPQuery) {
-        setError('后端 API 未加载，请稍候重试')
-        setLoading(false)
+      const wailsAPI = validateAPI()
+      if (!wailsAPI) {
         return
       }
 
-      const resultJson = await wailsAPI.IPQuery.Query(input.trim())
+      const resultJson = await wailsAPI.IPQuery.Query(trimmedInput)
       if (resultJson) {
         const parsedResults = JSON.parse(resultJson)
         setResults(parsedResults)
@@ -172,21 +124,17 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
 
       if (!batchInput.trim()) {
         setError('请输入IP地址')
-        setLoading(false)
         return
       }
 
       const ips = parseIPs(batchInput)
       if (ips.length === 0) {
         setError('未找到有效的IP地址，请检查输入格式（每行一个IP）')
-        setLoading(false)
         return
       }
 
-      const wailsAPI = api || getWailsAPI()
-      if (!wailsAPI?.IPQuery) {
-        setError('后端 API 未加载，请稍候重试')
-        setLoading(false)
+      const wailsAPI = validateAPI()
+      if (!wailsAPI) {
         return
       }
 
@@ -194,7 +142,6 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
       if (resultJson) {
         const parsedResults = JSON.parse(resultJson)
         setBatchResults(parsedResults)
-        // 保存到 localStorage 的逻辑在 useEffect 中处理
       }
     } catch (err) {
       setError(err.message || '批量查询失败')

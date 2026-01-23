@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -14,8 +15,8 @@ import (
 
 // QueryResult IP查询结果
 type QueryResult struct {
-	Source string `json:"source"`
-	Status string `json:"status"` // "success" or "error"
+	Source  string `json:"source"`
+	Status  string `json:"status"` // "success" or "error"
 	Country string `json:"country,omitempty"`
 	Region  string `json:"region,omitempty"`
 	City    string `json:"city,omitempty"`
@@ -35,11 +36,11 @@ type BatchQueryResult struct {
 
 // IPAPIResponse ip-api.com的响应结构
 type IPAPIResponse struct {
-	Status    string `json:"status"`
-	Message   string `json:"message,omitempty"`
-	Country   string `json:"country,omitempty"`
+	Status     string `json:"status"`
+	Message    string `json:"message,omitempty"`
+	Country    string `json:"country,omitempty"`
 	RegionName string `json:"regionName,omitempty"`
-	City      string `json:"city,omitempty"`
+	City       string `json:"city,omitempty"`
 }
 
 // IPInfoResponse ipinfo.io的响应结构
@@ -177,7 +178,7 @@ func (q *Queryer) QueryBatch(ips []string) []BatchQueryResult {
 	ipMap := make(map[string]bool)
 	uniqueIPs := make([]string, 0)
 	for _, ip := range ips {
-		ip = trimSpace(ip)
+		ip = strings.TrimSpace(ip)
 		if ip == "" {
 			continue
 		}
@@ -218,32 +219,27 @@ func (q *Queryer) QueryBatch(ips []string) []BatchQueryResult {
 			}
 
 			// 确定整体状态：如果至少有一个成功，则状态为success
-			hasSuccess := false
-			var successResult QueryResult
-			for _, r := range batchResult.Results {
-				if r.Status == "success" {
-					hasSuccess = true
-					successResult = r
+			var successResult *QueryResult
+			for i := range batchResult.Results {
+				if batchResult.Results[i].Status == "success" {
+					successResult = &batchResult.Results[i]
 					break
 				}
 			}
 
-			if hasSuccess {
+			if successResult != nil {
 				batchResult.Status = "success"
 				batchResult.Country = successResult.Country
 				batchResult.Region = successResult.Region
 				batchResult.City = successResult.City
 			} else {
 				batchResult.Status = "error"
-				// 合并错误信息
-				errors := make([]string, 0)
+				// 收集错误信息，只显示第一个错误
 				for _, r := range batchResult.Results {
 					if r.Error != "" {
-						errors = append(errors, fmt.Sprintf("%s: %s", r.Source, r.Error))
+						batchResult.Error = fmt.Sprintf("%s: %s", r.Source, r.Error)
+						break
 					}
-				}
-				if len(errors) > 0 {
-					batchResult.Error = errors[0] // 只显示第一个错误
 				}
 			}
 
@@ -256,17 +252,3 @@ func (q *Queryer) QueryBatch(ips []string) []BatchQueryResult {
 	wg.Wait()
 	return results
 }
-
-// trimSpace 去除字符串首尾空白字符
-func trimSpace(s string) string {
-	start := 0
-	end := len(s)
-	for start < end && (s[start] == ' ' || s[start] == '\t' || s[start] == '\n' || s[start] == '\r') {
-		start++
-	}
-	for end > start && (s[end-1] == ' ' || s[end-1] == '\t' || s[end-1] == '\n' || s[end-1] == '\r') {
-		end--
-	}
-	return s[start:end]
-}
-
