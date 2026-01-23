@@ -5,3 +5,7 @@
 export function Query(arg1) {
   return window['go']['handlers']['IPQueryHandler']['Query'](arg1);
 }
+
+export function QueryBatch(arg1) {
+  return window['go']['handlers']['IPQueryHandler']['QueryBatch'](arg1);
+}

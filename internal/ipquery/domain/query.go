@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -19,6 +20,17 @@ type QueryResult struct {
 	Region  string `json:"region,omitempty"`
 	City    string `json:"city,omitempty"`
 	Error   string `json:"error,omitempty"`
+}
+
+// BatchQueryResult 批量查询结果
+type BatchQueryResult struct {
+	IP      string        `json:"ip"`
+	Results []QueryResult `json:"results"` // 两个数据源的结果
+	Status  string        `json:"status"`  // "success" 或 "error"
+	Country string        `json:"country,omitempty"`
+	Region  string        `json:"region,omitempty"`
+	City    string        `json:"city,omitempty"`
+	Error   string        `json:"error,omitempty"`
 }
 
 // IPAPIResponse ip-api.com的响应结构
@@ -156,5 +168,105 @@ func (q *Queryer) doHTTPRequest(url string) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+// QueryBatch 批量查询IP地址
+// 对每个IP并发查询两个数据源，返回批量查询结果
+func (q *Queryer) QueryBatch(ips []string) []BatchQueryResult {
+	// 去重IP地址
+	ipMap := make(map[string]bool)
+	uniqueIPs := make([]string, 0)
+	for _, ip := range ips {
+		ip = trimSpace(ip)
+		if ip == "" {
+			continue
+		}
+		// 验证IP格式
+		if err := q.ValidateIP(ip); err != nil {
+			continue
+		}
+		if !ipMap[ip] {
+			ipMap[ip] = true
+			uniqueIPs = append(uniqueIPs, ip)
+		}
+	}
+
+	// 并发查询每个IP
+	results := make([]BatchQueryResult, 0, len(uniqueIPs))
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
+	// 控制并发数，避免过多请求
+	maxConcurrency := 20
+	semaphore := make(chan struct{}, maxConcurrency)
+
+	for _, ip := range uniqueIPs {
+		wg.Add(1)
+		semaphore <- struct{}{} // 获取信号量
+
+		go func(ipAddr string) {
+			defer wg.Done()
+			defer func() { <-semaphore }() // 释放信号量
+
+			// 查询两个数据源
+			result1 := q.QueryIPAPI(ipAddr)
+			result2 := q.QueryIPInfo(ipAddr)
+
+			batchResult := BatchQueryResult{
+				IP:      ipAddr,
+				Results: []QueryResult{result1, result2},
+			}
+
+			// 确定整体状态：如果至少有一个成功，则状态为success
+			hasSuccess := false
+			var successResult QueryResult
+			for _, r := range batchResult.Results {
+				if r.Status == "success" {
+					hasSuccess = true
+					successResult = r
+					break
+				}
+			}
+
+			if hasSuccess {
+				batchResult.Status = "success"
+				batchResult.Country = successResult.Country
+				batchResult.Region = successResult.Region
+				batchResult.City = successResult.City
+			} else {
+				batchResult.Status = "error"
+				// 合并错误信息
+				errors := make([]string, 0)
+				for _, r := range batchResult.Results {
+					if r.Error != "" {
+						errors = append(errors, fmt.Sprintf("%s: %s", r.Source, r.Error))
+					}
+				}
+				if len(errors) > 0 {
+					batchResult.Error = errors[0] // 只显示第一个错误
+				}
+			}
+
+			mu.Lock()
+			results = append(results, batchResult)
+			mu.Unlock()
+		}(ip)
+	}
+
+	wg.Wait()
+	return results
+}
+
+// trimSpace 去除字符串首尾空白字符
+func trimSpace(s string) string {
+	start := 0
+	end := len(s)
+	for start < end && (s[start] == ' ' || s[start] == '\t' || s[start] == '\n' || s[start] == '\r') {
+		start++
+	}
+	for end > start && (s[end-1] == ' ' || s[end-1] == '\t' || s[end-1] == '\n' || s[end-1] == '\r') {
+		end--
+	}
+	return s[start:end]
 }
 

@@ -53,3 +53,14 @@ func (s *Service) QueryIP(ip string) ([]domain.QueryResult, error) {
 	return results, nil
 }
 
+// QueryBatch 批量查询IP地址
+func (s *Service) QueryBatch(ips []string) ([]domain.BatchQueryResult, error) {
+	if len(ips) == 0 {
+		return nil, nil
+	}
+
+	// 调用domain层的批量查询方法
+	results := s.queryer.QueryBatch(ips)
+	return results, nil
+}
+

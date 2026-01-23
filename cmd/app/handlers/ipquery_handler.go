@@ -20,3 +20,8 @@ func NewIPQueryHandler() *IPQueryHandler {
 func (h *IPQueryHandler) Query(ip string) (string, error) {
 	return h.api.Query(ip)
 }
+
+// QueryBatch 批量查询IP地址
+func (h *IPQueryHandler) QueryBatch(ips []string) (string, error) {
+	return h.api.QueryBatch(ips)
+}

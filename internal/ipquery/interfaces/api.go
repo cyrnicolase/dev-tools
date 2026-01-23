@@ -47,3 +47,18 @@ func (a *API) Query(ip string) (string, error) {
 	return string(jsonData), nil
 }
 
+// QueryBatch 批量查询IP地址，返回JSON格式的结果数组
+func (a *API) QueryBatch(ips []string) (string, error) {
+	results, err := a.service.QueryBatch(ips)
+	if err != nil {
+		return "", err
+	}
+
+	jsonData, err := json.Marshal(results)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonData), nil
+}
+

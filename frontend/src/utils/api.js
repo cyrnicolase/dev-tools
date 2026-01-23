@@ -64,6 +64,7 @@ export function waitForWailsAPI(timeout = 5000) {
           } : null,
           IPQuery: ipqueryHandler ? {
             Query: ipqueryHandler.Query?.bind(ipqueryHandler),
+            QueryBatch: ipqueryHandler.QueryBatch?.bind(ipqueryHandler),
           } : null,
           Translate: translateHandler ? {
             Translate: translateHandler.Translate?.bind(translateHandler),
@@ -177,6 +178,7 @@ export function getWailsAPI() {
       } : null,
       IPQuery: ipqueryHandler ? {
         Query: ipqueryHandler.Query?.bind(ipqueryHandler),
+        QueryBatch: ipqueryHandler.QueryBatch?.bind(ipqueryHandler),
       } : null,
       Translate: translateHandler ? {
         Translate: translateHandler.Translate?.bind(translateHandler),
