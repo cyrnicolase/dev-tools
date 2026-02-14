@@ -15,7 +15,8 @@ function TimestampTool({ onShowHelp }) {
   const [currentTime, setCurrentTime] = useState('')
   const [currentTimestamp, setCurrentTimestamp] = useState(0)
   const [currentTimestampMilli, setCurrentTimestampMilli] = useState(0)
-  const [resultTimestamp, setResultTimestamp] = useState('')
+  const [resultTimestampSecond, setResultTimestampSecond] = useState('')
+  const [resultTimestampMilli, setResultTimestampMilli] = useState('')
   const [resultTimeString, setResultTimeString] = useState('')
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
@@ -100,12 +101,22 @@ function TimestampTool({ onShowHelp }) {
         setError('后端 API 未加载，请稍候重试')
         return
       }
-      const ts = parseInt(timestamp, 10)
+      const ts = parseInt(String(timestamp).trim(), 10)
       if (isNaN(ts)) {
         setError('无效的时间戳')
         return
       }
-      const result = timestampType === 'milli'
+      if (ts < 0) {
+        setError('时间戳格式错误，仅支持 10 位（秒）或 13 位（毫秒）')
+        return
+      }
+      const isMilli = ts >= 1e12 && ts < 1e13
+      const isSecond = ts < 1e10
+      if (!isSecond && !isMilli) {
+        setError('时间戳格式错误，仅支持 10 位（秒）或 13 位（毫秒）')
+        return
+      }
+      const result = isMilli
         ? await wailsAPI.Timestamp.TimestampToTimeStringMilli(ts, format, timestampToTimeTimezone)
         : await wailsAPI.Timestamp.TimestampToTimeString(ts, format, timestampToTimeTimezone)
       if (result) {
@@ -119,19 +130,21 @@ function TimestampTool({ onShowHelp }) {
   const handleTimeToTimestamp = async () => {
     try {
       setError('')
+      setResultTimestampSecond('')
+      setResultTimestampMilli('')
       const wailsAPI = api || getWailsAPI()
       if (!wailsAPI?.Timestamp) {
         setError('后端 API 未加载，请稍候重试')
         return
       }
-      const result = timestampType === 'milli'
-        ? await wailsAPI.Timestamp.TimeStringToTimestampMilli(timeString, format, timeToTimestampTimezone)
-        : await wailsAPI.Timestamp.TimeStringToTimestamp(timeString, format, timeToTimestampTimezone)
-      if (result) {
-        setResultTimestamp(result.toString())
-      }
+      const tsSec = await wailsAPI.Timestamp.TimeStringToTimestamp(timeString, format, timeToTimestampTimezone)
+      const tsMilli = await wailsAPI.Timestamp.TimeStringToTimestampMilli(timeString, format, timeToTimestampTimezone)
+      setResultTimestampSecond(tsSec.toString())
+      setResultTimestampMilli(tsMilli.toString())
     } catch (err) {
       setError(err.message || '转换失败')
+      setResultTimestampSecond('')
+      setResultTimestampMilli('')
     }
   }
 
@@ -235,51 +248,48 @@ function TimestampTool({ onShowHelp }) {
           <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 select-none">时间戳 → 时间</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳类型</label>
-                <Select
-                  value={timestampType}
-                  onChange={setTimestampType}
-                  options={[
-                    { value: 'second', label: '秒级时间戳' },
-                    { value: 'milli', label: '毫秒时间戳' },
-                  ]}
-                  className="w-full"
-                />
-              </div>
-              <div>
+              <div className="min-w-0">
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">格式</label>
                 <Select
                   value={format}
                   onChange={setFormat}
                   options={formats}
-                  className="w-full"
+                  className="w-full h-[2.5rem]"
+                />
+              </div>
+              <div className="min-w-0">
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时区</label>
+                <Select
+                  value={timestampToTimeTimezone}
+                  onChange={setTimestampToTimeTimezone}
+                  options={timezones}
+                  className="w-full h-[2.5rem]"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时区</label>
-              <Select
-                value={timestampToTimeTimezone}
-                onChange={setTimestampToTimeTimezone}
-                options={timezones}
-                className="w-full"
-              />
-            </div>
-            <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳</label>
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 items-center">
                 <input
                   type="text"
                   value={timestamp}
                   onChange={(e) => setTimestamp(e.target.value)}
                   className="flex-1 p-3 text-sm border border-border-input rounded-lg font-mono text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder={`输入${timestampType === 'milli' ? '毫秒' : '秒级'}时间戳...`}
+                  placeholder="输入时间戳（自动识别秒/毫秒）"
                   spellCheck="false"
+                />
+                <Select
+                  value={timestampType}
+                  onChange={setTimestampType}
+                  options={[
+                    { value: 'second', label: '秒' },
+                    { value: 'milli', label: '毫秒' },
+                  ]}
+                  className="w-20 shrink-0"
                 />
                 <button
                   onClick={handleGetCurrentTimestamp}
-                  className="px-4 py-2 text-sm bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
+                  className="px-4 py-2 text-sm bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none shrink-0"
                 >
                   当前
                 </button>
@@ -318,36 +328,24 @@ function TimestampTool({ onShowHelp }) {
           <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 select-none">时间 → 时间戳</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间戳类型</label>
-                <Select
-                  value={timestampType}
-                  onChange={setTimestampType}
-                  options={[
-                    { value: 'second', label: '秒级时间戳' },
-                    { value: 'milli', label: '毫秒时间戳' },
-                  ]}
-                  className="w-full"
-                />
-              </div>
-              <div>
+              <div className="min-w-0">
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">格式</label>
                 <Select
                   value={format}
                   onChange={setFormat}
                   options={formats}
-                  className="w-full"
+                  className="w-full h-[2.5rem]"
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时区</label>
-              <Select
-                value={timeToTimestampTimezone}
-                onChange={setTimeToTimestampTimezone}
-                options={timezones}
-                className="w-full"
-              />
+              <div className="min-w-0">
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时区</label>
+                <Select
+                  value={timeToTimestampTimezone}
+                  onChange={setTimeToTimestampTimezone}
+                  options={timezones}
+                  className="w-full h-[2.5rem]"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">时间字符串</label>
@@ -374,22 +372,41 @@ function TimestampTool({ onShowHelp }) {
             >
               转换
             </button>
-            {resultTimestamp && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-[var(--text-primary)] select-none">结果</label>
-                  <button
-                    onClick={() => handleCopy(resultTimestamp)}
-                    className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
-                    title="复制"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </button>
+            {(resultTimestampSecond !== '' || resultTimestampMilli !== '') && (
+              <div className="space-y-3">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-[var(--text-primary)] select-none">秒级时间戳</label>
+                    <button
+                      onClick={() => handleCopy(resultTimestampSecond)}
+                      className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
+                      title="复制"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="p-3 bg-input-disabled border border-border-input rounded-lg font-mono text-sm break-all text-[var(--text-input)]">
+                    {resultTimestampSecond || '—'}
+                  </div>
                 </div>
-                <div className="p-3 bg-input-disabled border border-border-input rounded-lg font-mono text-sm break-all text-[var(--text-input)]">
-                  {resultTimestamp}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-[var(--text-primary)] select-none">毫秒级时间戳</label>
+                    <button
+                      onClick={() => handleCopy(resultTimestampMilli)}
+                      className="p-2 bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
+                      title="复制"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="p-3 bg-input-disabled border border-border-input rounded-lg font-mono text-sm break-all text-[var(--text-input)]">
+                    {resultTimestampMilli || '—'}
+                  </div>
                 </div>
               </div>
             )}
