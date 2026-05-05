@@ -73,7 +73,7 @@ function HelpTool({ scrollToToolId }) {
       description: '生成 UUID（通用唯一标识符）',
       alfred: 'uuid',
       usage: [
-        '选择 UUID 版本（v1、v3、v4、v5）',
+        '选择 UUID 版本（v1、v3、v4、v5、v7）',
         '设置生成数量（1-1000）',
         '配置格式选项：',
         '  - 大小写：小写（默认）或大写',

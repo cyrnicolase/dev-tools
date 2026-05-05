@@ -31,6 +31,11 @@ func (h *UUIDHandler) GenerateV4() string {
 	return h.api.GenerateV4()
 }
 
+// GenerateV7 生成 UUID v7
+func (h *UUIDHandler) GenerateV7() (string, error) {
+	return h.api.GenerateV7()
+}
+
 // GenerateV5 生成 UUID v5
 func (h *UUIDHandler) GenerateV5(namespace, name string) (string, error) {
 	return h.api.GenerateV5(namespace, name)

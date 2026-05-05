@@ -35,6 +35,15 @@ func (g *Generator) GenerateV4() string {
 	return id.String()
 }
 
+// GenerateV7 生成 UUID v7（Unix 毫秒时间序 + 随机，适合数据库索引友好的排序 ID）
+func (g *Generator) GenerateV7() (string, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	return id.String(), nil
+}
+
 // GenerateV5 生成 UUID v5（基于命名空间和名称的 SHA-1）
 func (g *Generator) GenerateV5(namespace, name string) (string, error) {
 	nsUUID, err := uuid.Parse(namespace)
@@ -75,6 +84,14 @@ func (g *Generator) GenerateBatch(version string, count int, namespace, name str
 	case "v4":
 		for i := 0; i < count; i++ {
 			results = append(results, g.GenerateV4())
+		}
+	case "v7":
+		for i := 0; i < count; i++ {
+			id, err := g.GenerateV7()
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, id)
 		}
 	case "v5":
 		if namespace == "" || name == "" {

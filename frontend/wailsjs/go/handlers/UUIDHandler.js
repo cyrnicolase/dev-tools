@@ -21,3 +21,7 @@ export function GenerateV4() {
 export function GenerateV5(arg1, arg2) {
   return window['go']['handlers']['UUIDHandler']['GenerateV5'](arg1, arg2);
 }
+
+export function GenerateV7() {
+  return window['go']['handlers']['UUIDHandler']['GenerateV7']();
+}

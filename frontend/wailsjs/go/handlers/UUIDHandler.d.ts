@@ -10,3 +10,5 @@ export function GenerateV3(arg1:string,arg2:string):Promise<string>;
 export function GenerateV4():Promise<string>;
 
 export function GenerateV5(arg1:string,arg2:string):Promise<string>;
+
+export function GenerateV7():Promise<string>;

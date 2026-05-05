@@ -31,6 +31,11 @@ func (a *API) GenerateV4() string {
 	return a.service.GenerateV4()
 }
 
+// GenerateV7 生成 UUID v7
+func (a *API) GenerateV7() (string, error) {
+	return a.service.GenerateV7()
+}
+
 // GenerateV5 生成 UUID v5
 func (a *API) GenerateV5(namespace, name string) (string, error) {
 	return a.service.GenerateV5(namespace, name)

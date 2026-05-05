@@ -52,6 +52,7 @@ export function waitForWailsAPI(timeout = 5000) {
             GenerateV3: uuidHandler.GenerateV3?.bind(uuidHandler),
             GenerateV4: uuidHandler.GenerateV4?.bind(uuidHandler),
             GenerateV5: uuidHandler.GenerateV5?.bind(uuidHandler),
+            GenerateV7: uuidHandler.GenerateV7?.bind(uuidHandler),
             GenerateBatch: uuidHandler.GenerateBatch?.bind(uuidHandler),
           } : null,
           URL: urlHandler ? {
@@ -166,6 +167,7 @@ export function getWailsAPI() {
         GenerateV3: uuidHandler.GenerateV3?.bind(uuidHandler),
         GenerateV4: uuidHandler.GenerateV4?.bind(uuidHandler),
         GenerateV5: uuidHandler.GenerateV5?.bind(uuidHandler),
+        GenerateV7: uuidHandler.GenerateV7?.bind(uuidHandler),
         GenerateBatch: uuidHandler.GenerateBatch?.bind(uuidHandler),
       } : null,
       URL: urlHandler ? {

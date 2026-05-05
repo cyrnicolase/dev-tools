@@ -63,6 +63,9 @@ function UuidTool({ onShowHelp }) {
           case 'v4':
             result = await wailsAPI.UUID.GenerateV4()
             break
+          case 'v7':
+            result = await wailsAPI.UUID.GenerateV7()
+            break
           case 'v5':
             result = await wailsAPI.UUID.GenerateV5(namespace, name)
             break
@@ -158,7 +161,7 @@ function UuidTool({ onShowHelp }) {
           <div>
             <label className="block text-sm font-medium text-[var(--text-primary)] mb-2 select-none">UUID 版本</label>
             <div className="flex flex-wrap gap-2">
-              {['v1', 'v3', 'v4', 'v5'].map((v) => (
+              {['v1', 'v3', 'v4', 'v5', 'v7'].map((v) => (
                 <button
                   key={v}
                   onClick={() => setVersion(v)}
@@ -177,6 +180,7 @@ function UuidTool({ onShowHelp }) {
               {version === 'v3' && '基于命名空间和名称的 MD5（确定性：相同输入生成相同 UUID）'}
               {version === 'v4' && '随机生成（推荐）'}
               {version === 'v5' && '基于命名空间和名称的 SHA-1（确定性：相同输入生成相同 UUID）'}
+              {version === 'v7' && 'Unix 毫秒时间序 + 随机（大致按生成时间排序，适合作为主键）'}
             </p>
           </div>
 
