@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-function Toast({ message, show, onClose, duration = 2000 }) {
+function Toast({ message, show, onClose, duration = 2000, className = '' }) {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
@@ -13,7 +13,7 @@ function Toast({ message, show, onClose, duration = 2000 }) {
   if (!show) return null
 
   return (
-    <div className="fixed top-4 right-4 z-50 animate-fade-in">
+    <div className={`fixed top-4 right-4 z-50 animate-fade-in ${className}`}>
       <div className="bg-secondary border border-border-primary text-[var(--text-primary)] px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 select-none">
         <svg
           xmlns="http://www.w3.org/2000/svg"

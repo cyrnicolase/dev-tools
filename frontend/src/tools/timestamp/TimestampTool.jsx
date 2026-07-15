@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
+import {
+  addTimestampHistoryItem,
+  clearTimestampHistory,
+  loadTimestampHistory,
+  MAX_TIMESTAMP_HISTORY_ITEMS,
+} from './timestampHistoryStorage'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
@@ -7,7 +13,7 @@ import Select from '../../components/Select'
 function TimestampTool({ onShowHelp }) {
   const [timestamp, setTimestamp] = useState('')
   const [timeString, setTimeString] = useState('')
-  const [format, setFormat] = useState('RFC3339')
+  const [format, setFormat] = useState('DateTime')
   const [timestampType, setTimestampType] = useState('second') // 'second' or 'milli'
   const [currentTimezone, setCurrentTimezone] = useState('Asia/Shanghai') // 当前时间区域时区，默认 UTC+8
   const [timestampToTimeTimezone, setTimestampToTimeTimezone] = useState('Asia/Shanghai') // 时间戳转时间工具时区，默认 UTC+8
@@ -19,8 +25,12 @@ function TimestampTool({ onShowHelp }) {
   const [resultTimestampMilli, setResultTimestampMilli] = useState('')
   const [resultTimeString, setResultTimeString] = useState('')
   const [api, setApi] = useState(null)
+  const [historyRecords, setHistoryRecords] = useState([])
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const historyPanelRef = useRef(null)
+  const historyToggleButtonRef = useRef(null)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -33,6 +43,31 @@ function TimestampTool({ onShowHelp }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  useEffect(() => {
+    setHistoryRecords(loadTimestampHistory())
+  }, [])
+
+  useEffect(() => {
+    if (!isHistoryPanelOpen) {
+      return undefined
+    }
+
+    const handleOutsideClick = (event) => {
+      const panelNode = historyPanelRef.current
+      const toggleButtonNode = historyToggleButtonRef.current
+      const target = event.target
+      if (panelNode?.contains(target) || toggleButtonNode?.contains(target)) {
+        return
+      }
+      setIsHistoryPanelOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isHistoryPanelOpen])
 
   const formats = [
     { value: 'RFC3339', label: 'RFC3339' },
@@ -93,6 +128,69 @@ function TimestampTool({ onShowHelp }) {
     }
   }
 
+  const createHistoryId = () => `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+
+  const handleClearHistory = () => {
+    if (!clearTimestampHistory()) {
+      setError('一键重置失败，请稍后重试')
+      return
+    }
+    setHistoryRecords([])
+    setTimestamp('')
+    setTimeString('')
+    setResultTimeString('')
+    setResultTimestampSecond('')
+    setResultTimestampMilli('')
+    setFormat('DateTime')
+    setTimestampType('second')
+    setTimestampToTimeTimezone('Asia/Shanghai')
+    setTimeToTimestampTimezone('Asia/Shanghai')
+    setError('')
+  }
+
+  const handleApplyHistory = (record) => {
+    if (record.type !== 'timestamp_to_time' && record.type !== 'time_to_timestamp') {
+      return
+    }
+
+    setError('')
+    setFormat(record.format || 'DateTime')
+    if (record.type === 'timestamp_to_time') {
+      setTimestamp(record.input?.timestamp || '')
+      setTimestampToTimeTimezone(record.timezone || 'Asia/Shanghai')
+      setResultTimeString(record.output?.timeString || '')
+      setTimeString('')
+      setResultTimestampSecond('')
+      setResultTimestampMilli('')
+      return
+    }
+
+    setTimeString(record.input?.timeString || '')
+    setTimeToTimestampTimezone(record.timezone || 'Asia/Shanghai')
+    setResultTimestampSecond(record.output?.second || '')
+    setResultTimestampMilli(record.output?.milli || '')
+    setTimestamp('')
+    setResultTimeString('')
+  }
+
+  const handleCopyHistoryOutput = async (record) => {
+    let outputText = ''
+    if (record.type === 'timestamp_to_time') {
+      outputText = record.output?.timeString || ''
+    } else if (record.type === 'time_to_timestamp') {
+      const second = record.output?.second || '—'
+      const milli = record.output?.milli || '—'
+      outputText = `秒级：${second}\n毫秒级：${milli}`
+    }
+
+    if (!outputText) {
+      setError('暂无可复制内容')
+      return
+    }
+
+    await handleCopy(outputText)
+  }
+
   const handleTimestampToTime = async () => {
     try {
       setError('')
@@ -121,6 +219,25 @@ function TimestampTool({ onShowHelp }) {
         : await wailsAPI.Timestamp.TimestampToTimeString(ts, format, timestampToTimeTimezone)
       if (result) {
         setResultTimeString(result)
+        const { success, items } = addTimestampHistoryItem({
+          id: createHistoryId(),
+          type: 'timestamp_to_time',
+          format,
+          timezone: timestampToTimeTimezone,
+          createdAt: Date.now(),
+          input: {
+            timestamp: String(timestamp).trim(),
+            unit: isMilli ? 'milli' : 'second',
+          },
+          output: {
+            timeString: result,
+          },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        } else {
+          setError('历史记录保存失败，请稍后重试')
+        }
       }
     } catch (err) {
       setError(err.message || '转换失败')
@@ -141,6 +258,25 @@ function TimestampTool({ onShowHelp }) {
       const tsMilli = await wailsAPI.Timestamp.TimeStringToTimestampMilli(timeString, format, timeToTimestampTimezone)
       setResultTimestampSecond(tsSec.toString())
       setResultTimestampMilli(tsMilli.toString())
+      const { success, items } = addTimestampHistoryItem({
+        id: createHistoryId(),
+        type: 'time_to_timestamp',
+        format,
+        timezone: timeToTimestampTimezone,
+        createdAt: Date.now(),
+        input: {
+          timeString,
+        },
+        output: {
+          second: tsSec.toString(),
+          milli: tsMilli.toString(),
+        },
+      })
+      if (success) {
+        setHistoryRecords(items)
+      } else {
+        setError('历史记录保存失败，请稍后重试')
+      }
     } catch (err) {
       setError(err.message || '转换失败')
       setResultTimestampSecond('')
@@ -194,14 +330,25 @@ function TimestampTool({ onShowHelp }) {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div>
+    <div className="h-full flex flex-col relative overflow-hidden">
+      <div className="relative">
         <ToolHeader
           title="时间戳工具"
           description="时间戳和时间格式转换"
           toolId="timestamp"
           onShowHelp={onShowHelp}
         />
+        <button
+          ref={historyToggleButtonRef}
+          onClick={() => setIsHistoryPanelOpen((prev) => !prev)}
+          className={`absolute top-1 right-0 px-3 py-2 text-sm rounded-lg transition-colors select-none ${
+            isHistoryPanelOpen
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
+          }`}
+        >
+          历史记录
+        </button>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto space-y-6">
 
@@ -423,7 +570,97 @@ function TimestampTool({ onShowHelp }) {
         message="已复制到剪贴板"
         show={showToast}
         onClose={() => setShowToast(false)}
+        duration={1000}
+        className={isHistoryPanelOpen ? 'right-[440px]' : ''}
       />
+      </div>
+
+      <div
+        ref={historyPanelRef}
+        className={`absolute inset-y-0 right-0 z-20 w-[420px] max-w-full border-l border-border-primary bg-secondary shadow-xl transform transition-transform duration-200 ${
+          isHistoryPanelOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="h-full flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-primary">
+            <h3 className="text-base font-semibold text-[var(--text-primary)] select-none">
+              转换历史（最近 {MAX_TIMESTAMP_HISTORY_ITEMS} 条）
+            </h3>
+            <button
+              onClick={() => setIsHistoryPanelOpen(false)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
+              title="关闭历史面板"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="px-4 py-3 border-b border-border-primary">
+            <button
+              onClick={handleClearHistory}
+              className="w-full px-3 py-2 text-sm bg-button-secondary text-button-secondary-text rounded-lg hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
+            >
+              一键重置
+            </button>
+          </div>
+
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
+            {historyRecords.length === 0 ? (
+              <div className="p-3 bg-input-disabled border border-border-input rounded-lg text-sm text-[var(--text-secondary)] select-none">
+                暂无历史记录，成功转换后会展示在这里
+              </div>
+            ) : (
+              historyRecords.map((record) => {
+                const isTsToTime = record.type === 'timestamp_to_time'
+                const createdAt = new Date(record.createdAt || Date.now()).toLocaleString()
+                return (
+                  <div
+                    key={record.id}
+                    className="p-3 bg-secondary border border-border-primary rounded-lg"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-[var(--text-primary)] select-none">
+                        {isTsToTime ? '时间戳 → 时间' : '时间 → 时间戳'}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleCopyHistoryOutput(record)}
+                          className="px-2 py-1 text-xs bg-button-secondary text-button-secondary-text rounded hover:bg-[var(--button-secondary-hover)] transition-colors select-none"
+                        >
+                          复制输出
+                        </button>
+                        <span className="text-xs text-[var(--text-secondary)] select-none">{createdAt}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyHistory(record)}
+                      className="w-full text-left rounded-md hover:bg-[var(--button-secondary-hover)] p-1 -m-1 transition-colors"
+                      title="点击回填到转换区域"
+                    >
+                      <div className="text-xs text-[var(--text-secondary)] select-none mb-1">
+                        格式：{record.format} ｜ 时区：{record.timezone}
+                      </div>
+                      {isTsToTime ? (
+                        <div className="font-mono text-xs text-[var(--text-primary)] break-all">
+                          输入：{record.input?.timestamp || '—'}（{record.input?.unit === 'milli' ? '毫秒' : '秒'}）<br />
+                          输出：{record.output?.timeString || '—'}
+                        </div>
+                      ) : (
+                        <div className="font-mono text-xs text-[var(--text-primary)] break-all">
+                          输入：{record.input?.timeString || '—'}<br />
+                          输出：秒级 {record.output?.second || '—'} ｜ 毫秒级 {record.output?.milli || '—'}
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
