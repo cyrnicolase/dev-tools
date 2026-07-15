@@ -11,8 +11,7 @@ import { DEFAULT_TOOL_ID } from '../constants/tools'
 export function useToolNavigation() {
   const [activeTool, setActiveTool] = useState(DEFAULT_TOOL_ID)
   const [apiReady, setApiReady] = useState(false)
-  const [initialToolHandled, setInitialToolHandled] = useState(false)
-  const [version, setVersion] = useState('1.6.0')
+  const [version, setVersion] = useState('1.7.1')
   const lastCheckedToolRef = useRef('')
   const processingToolRef = useRef(false) // 防止并发处理同一个工具切换
   const initializationStartedRef = useRef(false) // 跟踪初始化是否已开始
@@ -92,40 +91,6 @@ export function useToolNavigation() {
     }
   }, [apiReady, handleToolSwitch])
 
-  // 轮询机制作为备用（用于处理外部调用，如 Alfred）
-  // 缩短轮询间隔到 500ms，提高响应速度
-  // 注意：不依赖 activeTool，避免频繁重新创建轮询
-  useEffect(() => {
-    if (!apiReady || !initialToolHandled) return
-
-    const checkToolChange = async () => {
-      const api = getWailsAPI()
-      if (api?.GetInitialTool) {
-        try {
-          const toolName = await api.GetInitialTool()
-          if (toolName && toolName.trim() !== '') {
-            const normalized = normalizeToolID(toolName)
-            // 检查是否已经处理过，避免重复处理
-            if (
-              isValidToolID(normalized) &&
-              normalized !== lastCheckedToolRef.current &&
-              normalized !== processingToolRef.current
-            ) {
-              // 传递 true 表示需要清除 initialTool
-              handleToolSwitch(normalized, true)
-            }
-          }
-        } catch (e) {
-          // 静默失败，不影响用户体验
-        }
-      }
-    }
-
-    // 缩短轮询间隔到 500ms，提高响应速度（主要用于事件机制失效时的备用方案）
-    const interval = setInterval(checkToolChange, 500)
-    return () => clearInterval(interval)
-  }, [apiReady, initialToolHandled, handleToolSwitch])
-
   // 手动切换工具的函数（用户主动切换）
   const switchToTool = useCallback((toolID) => {
     const normalized = normalizeToolID(toolID)
@@ -180,22 +145,13 @@ export function useToolNavigation() {
                   }
                 }
               }
-              setInitialToolHandled(true)
             })
-            .catch(() => {
-              if (!cancelled) {
-                setInitialToolHandled(true)
-              }
-            })
+            .catch(() => {})
         } else {
-          setInitialToolHandled(true)
+          // 无 GetInitialTool 时，事件机制仍可处理后续外部切换
         }
       })
-      .catch(() => {
-        if (!cancelled) {
-          setInitialToolHandled(true)
-        }
-      })
+      .catch(() => {})
     
     return () => {
       cancelled = true
