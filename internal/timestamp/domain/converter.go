@@ -202,9 +202,16 @@ func (c *Converter) getActualFormat(format string) string {
 
 // TimestampToTimeStringMilli 将毫秒时间戳转换为时间字符串
 func (c *Converter) TimestampToTimeStringMilli(timestampMilli int64, format string, timezone string) (string, error) {
-	// 毫秒时间戳转换为秒级时间戳
-	timestamp := timestampMilli / 1000
-	t := c.TimestampToTime(timestamp)
+	// 毫秒时间戳转换为 time.Time，并保留毫秒精度
+	seconds := timestampMilli / 1000
+	milliRemainder := timestampMilli % 1000
+	t := time.Unix(seconds, milliRemainder*int64(time.Millisecond))
+
+	// DateTime 默认输出到秒，这里在毫秒时间戳场景下补齐毫秒位
+	if format == "DateTime" {
+		format = "2006-01-02 15:04:05.000"
+	}
+
 	return c.formatter.FormatTime(t, format, timezone)
 }
 

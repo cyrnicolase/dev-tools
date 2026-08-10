@@ -28,3 +28,34 @@ func TestConverter_TimeToTimestamp(t *testing.T) {
 		t.Errorf("TimeToTimestamp() = %v, want %v", result, expected)
 	}
 }
+
+func TestConverter_TimestampToTimeString_WithSecondTimestamp(t *testing.T) {
+	converter := NewConverter()
+	timestamp := int64(1723293026)
+
+	result, err := converter.TimestampToTimeString(timestamp, "DateTime", "UTC")
+	if err != nil {
+		t.Fatalf("TimestampToTimeString() error = %v", err)
+	}
+
+	expected := time.Unix(timestamp, 0).UTC().Format("2006-01-02 15:04:05")
+	if result != expected {
+		t.Errorf("TimestampToTimeString() = %q, want %q", result, expected)
+	}
+}
+
+func TestConverter_TimestampToTimeStringMilli_WithMilliTimestamp(t *testing.T) {
+	converter := NewConverter()
+	timestampMilli := int64(1723293026123)
+
+	result, err := converter.TimestampToTimeStringMilli(timestampMilli, "DateTime", "UTC")
+	if err != nil {
+		t.Fatalf("TimestampToTimeStringMilli() error = %v", err)
+	}
+
+	expectedTime := time.Unix(timestampMilli/1000, (timestampMilli%1000)*int64(time.Millisecond)).UTC()
+	expected := expectedTime.Format("2006-01-02 15:04:05.000")
+	if result != expected {
+		t.Errorf("TimestampToTimeStringMilli() = %q, want %q", result, expected)
+	}
+}
