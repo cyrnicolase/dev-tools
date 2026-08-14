@@ -14,7 +14,6 @@ function TimestampTool({ onShowHelp }) {
   const [timestamp, setTimestamp] = useState('')
   const [timeString, setTimeString] = useState('')
   const [format, setFormat] = useState('DateTime')
-  const [timestampType, setTimestampType] = useState('second') // 'second' or 'milli'
   const [currentTimezone, setCurrentTimezone] = useState('Asia/Shanghai') // 当前时间区域时区，默认 UTC+8
   const [timestampToTimeTimezone, setTimestampToTimeTimezone] = useState('Asia/Shanghai') // 时间戳转时间工具时区，默认 UTC+8
   const [timeToTimestampTimezone, setTimeToTimestampTimezone] = useState('Asia/Shanghai') // 时间转时间戳工具时区，默认 UTC+8
@@ -142,7 +141,6 @@ function TimestampTool({ onShowHelp }) {
     setResultTimestampSecond('')
     setResultTimestampMilli('')
     setFormat('DateTime')
-    setTimestampType('second')
     setTimestampToTimeTimezone('Asia/Shanghai')
     setTimeToTimestampTimezone('Asia/Shanghai')
     setError('')
@@ -292,9 +290,7 @@ function TimestampTool({ onShowHelp }) {
         setError('后端 API 未加载，请稍候重试')
         return
       }
-      const result = timestampType === 'milli'
-        ? await wailsAPI.Timestamp.GetCurrentTimestampMilli()
-        : await wailsAPI.Timestamp.GetCurrentTimestamp()
+      const result = await wailsAPI.Timestamp.GetCurrentTimestamp()
       if (result) {
         setTimestamp(result.toString())
       }
@@ -424,15 +420,6 @@ function TimestampTool({ onShowHelp }) {
                   className="flex-1 p-3 text-sm border border-border-input rounded-lg font-mono text-[var(--text-input)] bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="输入时间戳（自动识别秒/毫秒）"
                   spellCheck="false"
-                />
-                <Select
-                  value={timestampType}
-                  onChange={setTimestampType}
-                  options={[
-                    { value: 'second', label: '秒' },
-                    { value: 'milli', label: '毫秒' },
-                  ]}
-                  className="w-20 shrink-0"
                 />
                 <button
                   onClick={handleGetCurrentTimestamp}
