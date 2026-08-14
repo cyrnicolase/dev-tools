@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	timestampdomain "github.com/cyrnicolase/dev-tools/internal/timestamp/domain"
 	timestampapi "github.com/cyrnicolase/dev-tools/internal/timestamp/interfaces"
 )
 
@@ -51,3 +52,17 @@ func (h *TimestampHandler) GetCurrentTimestampMilli() int64 {
 	return h.api.GetCurrentTimestampMilli()
 }
 
+// ListTimestampHistory 获取历史记录
+func (h *TimestampHandler) ListTimestampHistory() ([]timestampdomain.HistoryRecord, error) {
+	return h.api.ListTimestampHistory()
+}
+
+// AddTimestampHistory 添加历史记录
+func (h *TimestampHandler) AddTimestampHistory(record timestampdomain.HistoryRecord) ([]timestampdomain.HistoryRecord, error) {
+	return h.api.AddTimestampHistory(record)
+}
+
+// ClearTimestampHistory 清空历史记录
+func (h *TimestampHandler) ClearTimestampHistory() error {
+	return h.api.ClearTimestampHistory()
+}

@@ -2,19 +2,25 @@ package application
 
 import (
 	"github.com/cyrnicolase/dev-tools/internal/timestamp/domain"
+	"github.com/pkg/errors"
 )
 
 // Service 时间戳工具应用服务
 type Service struct {
-	converter *domain.Converter
-	formatter *domain.Formatter
+	converter      *domain.Converter
+	formatter      *domain.Formatter
+	historyStore   *domain.HistoryStore
+	historyInitErr error
 }
 
 // NewService 创建新的 Service 实例
 func NewService() *Service {
+	historyStore, historyErr := domain.NewHistoryStore()
 	return &Service{
-		converter: domain.NewConverter(),
-		formatter: domain.NewFormatter(),
+		converter:      domain.NewConverter(),
+		formatter:      domain.NewFormatter(),
+		historyStore:   historyStore,
+		historyInitErr: historyErr,
 	}
 }
 
@@ -51,4 +57,35 @@ func (s *Service) TimeStringToTimestampMilli(timeStr string, format string, time
 // GetCurrentTimestampMilli 获取当前毫秒时间戳
 func (s *Service) GetCurrentTimestampMilli() int64 {
 	return s.formatter.GetCurrentTimestampMilli()
+}
+
+// ListTimestampHistory 获取历史记录
+func (s *Service) ListTimestampHistory() ([]domain.HistoryRecord, error) {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return nil, s.historyUnavailableError()
+	}
+	return s.historyStore.List()
+}
+
+// AddTimestampHistory 添加历史记录
+func (s *Service) AddTimestampHistory(record domain.HistoryRecord) ([]domain.HistoryRecord, error) {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return nil, s.historyUnavailableError()
+	}
+	return s.historyStore.Add(record)
+}
+
+// ClearTimestampHistory 清空历史记录
+func (s *Service) ClearTimestampHistory() error {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return s.historyUnavailableError()
+	}
+	return s.historyStore.Clear()
+}
+
+func (s *Service) historyUnavailableError() error {
+	if s.historyInitErr != nil {
+		return s.historyInitErr
+	}
+	return errors.WithStack(domain.ErrHistoryStoreUnavailable)
 }

@@ -46,6 +46,9 @@ export function waitForWailsAPI(timeout = 5000) {
             FormatNow: timestampHandler.FormatNow?.bind(timestampHandler),
             GetCurrentTimestamp: timestampHandler.GetCurrentTimestamp?.bind(timestampHandler),
             GetCurrentTimestampMilli: timestampHandler.GetCurrentTimestampMilli?.bind(timestampHandler),
+            ListTimestampHistory: timestampHandler.ListTimestampHistory?.bind(timestampHandler),
+            AddTimestampHistory: timestampHandler.AddTimestampHistory?.bind(timestampHandler),
+            ClearTimestampHistory: timestampHandler.ClearTimestampHistory?.bind(timestampHandler),
           } : null,
           UUID: uuidHandler ? {
             GenerateV1: uuidHandler.GenerateV1?.bind(uuidHandler),
@@ -161,6 +164,9 @@ export function getWailsAPI() {
         FormatNow: timestampHandler.FormatNow?.bind(timestampHandler),
         GetCurrentTimestamp: timestampHandler.GetCurrentTimestamp?.bind(timestampHandler),
         GetCurrentTimestampMilli: timestampHandler.GetCurrentTimestampMilli?.bind(timestampHandler),
+        ListTimestampHistory: timestampHandler.ListTimestampHistory?.bind(timestampHandler),
+        AddTimestampHistory: timestampHandler.AddTimestampHistory?.bind(timestampHandler),
+        ClearTimestampHistory: timestampHandler.ClearTimestampHistory?.bind(timestampHandler),
       } : null,
       UUID: uuidHandler ? {
         GenerateV1: uuidHandler.GenerateV1?.bind(uuidHandler),

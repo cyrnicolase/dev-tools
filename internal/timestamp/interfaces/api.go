@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"github.com/cyrnicolase/dev-tools/internal/timestamp/application"
+	"github.com/cyrnicolase/dev-tools/internal/timestamp/domain"
 )
 
 // API 时间戳工具 API
@@ -49,4 +50,19 @@ func (a *API) TimeStringToTimestampMilli(timeStr string, format string, timezone
 // GetCurrentTimestampMilli 获取当前毫秒时间戳
 func (a *API) GetCurrentTimestampMilli() int64 {
 	return a.service.GetCurrentTimestampMilli()
+}
+
+// ListTimestampHistory 获取历史记录
+func (a *API) ListTimestampHistory() ([]domain.HistoryRecord, error) {
+	return a.service.ListTimestampHistory()
+}
+
+// AddTimestampHistory 添加历史记录
+func (a *API) AddTimestampHistory(record domain.HistoryRecord) ([]domain.HistoryRecord, error) {
+	return a.service.AddTimestampHistory(record)
+}
+
+// ClearTimestampHistory 清空历史记录
+func (a *API) ClearTimestampHistory() error {
+	return a.service.ClearTimestampHistory()
 }

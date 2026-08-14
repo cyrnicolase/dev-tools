@@ -44,7 +44,20 @@ function TimestampTool({ onShowHelp }) {
   }, [])
 
   useEffect(() => {
-    setHistoryRecords(loadTimestampHistory())
+    let cancelled = false
+
+    const fetchHistory = async () => {
+      const records = await loadTimestampHistory()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+
+    fetchHistory()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
@@ -129,8 +142,8 @@ function TimestampTool({ onShowHelp }) {
 
   const createHistoryId = () => `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
-  const handleClearHistory = () => {
-    if (!clearTimestampHistory()) {
+  const handleClearHistory = async () => {
+    if (!(await clearTimestampHistory())) {
       setError('一键重置失败，请稍后重试')
       return
     }
@@ -217,7 +230,7 @@ function TimestampTool({ onShowHelp }) {
         : await wailsAPI.Timestamp.TimestampToTimeString(ts, format, timestampToTimeTimezone)
       if (result) {
         setResultTimeString(result)
-        const { success, items } = addTimestampHistoryItem({
+        const { success, items } = await addTimestampHistoryItem({
           id: createHistoryId(),
           type: 'timestamp_to_time',
           format,
@@ -256,7 +269,7 @@ function TimestampTool({ onShowHelp }) {
       const tsMilli = await wailsAPI.Timestamp.TimeStringToTimestampMilli(timeString, format, timeToTimestampTimezone)
       setResultTimestampSecond(tsSec.toString())
       setResultTimestampMilli(tsMilli.toString())
-      const { success, items } = addTimestampHistoryItem({
+      const { success, items } = await addTimestampHistoryItem({
         id: createHistoryId(),
         type: 'time_to_timestamp',
         format,

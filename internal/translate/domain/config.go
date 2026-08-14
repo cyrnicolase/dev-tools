@@ -6,24 +6,19 @@ import (
 	"path/filepath"
 	"sync"
 
+	appconfig "github.com/cyrnicolase/dev-tools/internal/config"
 	"github.com/pkg/errors"
 )
 
 const (
-	// ConfigDir 配置目录名称
-	ConfigDir = ".dev-tools"
 	// TranslateConfigFile 翻译工具配置文件名称
 	TranslateConfigFile = "translate.json"
 	// DefaultProvider 默认翻译提供商
 	DefaultProvider = ProviderYoudao
-	// ConfigFileMode 配置文件权限
-	ConfigFileMode = 0644
-	// ConfigDirMode 配置目录权限
-	ConfigDirMode = 0755
 )
 
 const (
-	configDir       = ConfigDir
+	configDir       = appconfig.AppConfigDirName
 	configFile      = TranslateConfigFile
 	defaultProvider = DefaultProvider
 )
@@ -123,7 +118,7 @@ func (cm *ConfigManager) Save() error {
 
 	configDirPath := filepath.Dir(configFilePath)
 	// 确保配置目录存在
-	if err := os.MkdirAll(configDirPath, ConfigDirMode); err != nil {
+	if err := os.MkdirAll(configDirPath, appconfig.AppConfigDirMode); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -134,7 +129,7 @@ func (cm *ConfigManager) Save() error {
 	}
 
 	// 写入文件
-	if err := os.WriteFile(configFilePath, data, ConfigFileMode); err != nil {
+	if err := os.WriteFile(configFilePath, data, appconfig.AppConfigFileMode); err != nil {
 		return errors.WithStack(err)
 	}
 

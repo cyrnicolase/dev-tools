@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	appconfig "github.com/cyrnicolase/dev-tools/internal/config"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 )
 
@@ -59,8 +60,8 @@ func CreateLogger() (logger.Logger, error) {
 	}
 
 	// 创建日志目录
-	logDir := filepath.Join(homeDir, ".dev-tools", "logs")
-	if err := os.MkdirAll(logDir, 0755); err != nil {
+	logDir := filepath.Join(homeDir, appconfig.AppConfigDirName, "logs")
+	if err := os.MkdirAll(logDir, appconfig.AppConfigDirMode); err != nil {
 		return nil, fmt.Errorf("创建日志目录失败: %w", err)
 	}
 
@@ -68,7 +69,7 @@ func CreateLogger() (logger.Logger, error) {
 	logFile := filepath.Join(logDir, "app.log")
 
 	// 打开日志文件（追加模式）
-	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, appconfig.AppConfigFileMode)
 	if err != nil {
 		return nil, fmt.Errorf("打开日志文件失败: %w", err)
 	}
