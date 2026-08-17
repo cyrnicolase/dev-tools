@@ -719,14 +719,11 @@ function JsonFormatter({ isActive = true }) {
   const isInputFullscreen = inputMaximizeMode === 'fullscreen'
   const isInputContentMaximized = inputMaximizeMode === 'content'
 
-  // 如果非激活状态，使用 display: none 隐藏（保持状态但不渲染）
-  if (!isActive) {
-    return <div className="hidden" />
-  }
-
   return (
     <div className={`h-full flex flex-col ${
-      isInputFullscreen
+      !isActive
+        ? 'hidden'
+        : isInputFullscreen
         ? 'fixed inset-0 z-50 bg-secondary p-0 overflow-auto' 
         : isInputContentMaximized
         ? 'fixed right-0 top-0 bottom-0 left-64 z-40 bg-secondary p-0 overflow-auto' 
