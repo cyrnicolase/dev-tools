@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	uuidapi "github.com/cyrnicolase/dev-tools/internal/uuid/interfaces"
 )
 
@@ -44,4 +45,19 @@ func (h *UUIDHandler) GenerateV5(namespace, name string) (string, error) {
 // GenerateBatch 批量生成 UUID
 func (h *UUIDHandler) GenerateBatch(version string, count int, namespace, name string) ([]string, error) {
 	return h.api.GenerateBatch(version, count, namespace, name)
+}
+
+// ListHistory 获取历史记录
+func (h *UUIDHandler) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (h *UUIDHandler) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (h *UUIDHandler) ClearHistory() error {
+	return h.api.ClearHistory()
 }

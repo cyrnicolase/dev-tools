@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import ToolHistoryView from '../../components/ToolHistoryView'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
+import { addURLHistoryItem, loadURLHistory, MAX_URL_HISTORY_ITEMS } from './urlHistoryStorage'
+import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
 function UrlTool({ onShowHelp, isActive = true }) {
   const [input, setInput] = useState('')
@@ -10,6 +13,7 @@ function UrlTool({ onShowHelp, isActive = true }) {
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const [historyRecords, setHistoryRecords] = useState([])
   const textareaRef = useRef(null)
 
   useEffect(() => {
@@ -22,6 +26,20 @@ function UrlTool({ onShowHelp, isActive = true }) {
       .catch(() => {
         setError('后端 API 初始化失败')
       })
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchHistory = async () => {
+      const records = await loadURLHistory()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+    fetchHistory()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // 当选中 URL 工具时，自动聚焦到输入框
@@ -38,6 +56,16 @@ function UrlTool({ onShowHelp, isActive = true }) {
       const result = await wailsAPI.URL.Encode(input)
       if (result !== undefined) {
         setOutput(result)
+        const { success, items } = await addURLHistoryItem({
+          id: createHistoryId(),
+          action: 'URL编码',
+          createdAt: Date.now(),
+          input: { text: truncateText(input) },
+          output: { result: truncateText(result) },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '编码失败')
@@ -55,6 +83,16 @@ function UrlTool({ onShowHelp, isActive = true }) {
       const result = await wailsAPI.URL.Decode(input)
       if (result !== undefined) {
         setOutput(result)
+        const { success, items } = await addURLHistoryItem({
+          id: createHistoryId(),
+          action: 'URL解码',
+          createdAt: Date.now(),
+          input: { text: truncateText(input) },
+          output: { result: truncateText(result) },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '解码失败: ' + err.message)
@@ -161,6 +199,11 @@ function UrlTool({ onShowHelp, isActive = true }) {
         message="已复制到剪贴板"
         show={showToast}
         onClose={() => setShowToast(false)}
+      />
+      <ToolHistoryView
+        title="历史记录"
+        records={historyRecords}
+        maxItems={MAX_URL_HISTORY_ITEMS}
       />
       </div>
     </div>

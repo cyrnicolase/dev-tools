@@ -3,9 +3,12 @@ import { getWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
+import ToolHistoryView from '../../components/ToolHistoryView'
 import TranslateConfig from './TranslateConfig'
 import { useTranslateConfig } from '../../hooks/useTranslateConfig'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
+import { addTranslateHistoryItem, loadTranslateHistory, MAX_TRANSLATE_HISTORY_ITEMS } from './translateHistoryStorage'
+import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
 // 支持的语言列表
 const LANGUAGES = [
@@ -24,9 +27,24 @@ function TranslateTool({ onShowHelp, isActive }) {
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [showConfig, setShowConfig] = useState(false)
+  const [historyRecords, setHistoryRecords] = useState([])
   
   const { api, configChecked, checkConfig } = useTranslateConfig()
   const textareaRef = useRef(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchHistory = async () => {
+      const records = await loadTranslateHistory()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+    fetchHistory()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleTranslate = async () => {
     try {
@@ -60,6 +78,22 @@ function TranslateTool({ onShowHelp, isActive }) {
       const translated = await wailsAPI.Translate.Translate(input.trim(), fromLang, toLang)
       if (translated) {
         setResult(translated)
+        const { success, items } = await addTranslateHistoryItem({
+          id: createHistoryId(),
+          action: '文本翻译',
+          createdAt: Date.now(),
+          input: {
+            fromLang,
+            toLang,
+            text: truncateText(input.trim()),
+          },
+          output: {
+            result: truncateText(translated),
+          },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '翻译失败')
@@ -291,6 +325,11 @@ function TranslateTool({ onShowHelp, isActive }) {
           message={toastMessage}
           show={showToast}
           onClose={() => setShowToast(false)}
+        />
+        <ToolHistoryView
+          title="历史记录"
+          records={historyRecords}
+          maxItems={MAX_TRANSLATE_HISTORY_ITEMS}
         />
       </div>
     </div>

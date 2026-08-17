@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import ToolHistoryView from '../../components/ToolHistoryView'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
+import { addBase64HistoryItem, loadBase64History, MAX_BASE64_HISTORY_ITEMS } from './base64HistoryStorage'
+import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
 function Base64Tool({ onShowHelp, isActive = true }) {
   const [input, setInput] = useState('')
@@ -11,6 +14,7 @@ function Base64Tool({ onShowHelp, isActive = true }) {
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const [historyRecords, setHistoryRecords] = useState([])
   const textareaRef = useRef(null)
 
   useEffect(() => {
@@ -23,6 +27,20 @@ function Base64Tool({ onShowHelp, isActive = true }) {
       .catch(() => {
         setError('后端 API 初始化失败')
       })
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchHistory = async () => {
+      const records = await loadBase64History()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+    fetchHistory()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // 当选中 Base64 工具时，自动聚焦到输入框
@@ -44,6 +62,20 @@ function Base64Tool({ onShowHelp, isActive = true }) {
       }
       if (result) {
         setOutput(result)
+        const { success, items } = await addBase64HistoryItem({
+          id: createHistoryId(),
+          action: urlSafe ? 'URL安全编码' : '标准编码',
+          createdAt: Date.now(),
+          input: {
+            text: truncateText(input),
+          },
+          output: {
+            result: truncateText(result),
+          },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '编码失败')
@@ -66,6 +98,20 @@ function Base64Tool({ onShowHelp, isActive = true }) {
       }
       if (result) {
         setOutput(result)
+        const { success, items } = await addBase64HistoryItem({
+          id: createHistoryId(),
+          action: urlSafe ? 'URL安全解码' : '标准解码',
+          createdAt: Date.now(),
+          input: {
+            text: truncateText(input),
+          },
+          output: {
+            result: truncateText(result),
+          },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '解码失败: ' + err.message)
@@ -211,6 +257,11 @@ function Base64Tool({ onShowHelp, isActive = true }) {
         message="已复制到剪贴板"
         show={showToast}
         onClose={() => setShowToast(false)}
+      />
+      <ToolHistoryView
+        title="历史记录"
+        records={historyRecords}
+        maxItems={MAX_BASE64_HISTORY_ITEMS}
       />
       </div>
     </div>

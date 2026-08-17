@@ -3,7 +3,10 @@ import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
+import ToolHistoryView from '../../components/ToolHistoryView'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
+import { addHashHistoryItem, loadHashHistory, MAX_HASH_HISTORY_ITEMS } from './hashHistoryStorage'
+import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
 function HashTool({ onShowHelp, isActive }) {
   const [input, setInput] = useState('')
@@ -16,6 +19,7 @@ function HashTool({ onShowHelp, isActive }) {
   const [showToast, setShowToast] = useState(false)
   const [loading, setLoading] = useState(false)
   const [buttonDisabledFeedback, setButtonDisabledFeedback] = useState(false)
+  const [historyRecords, setHistoryRecords] = useState([])
   const inputRef = useRef(null)
 
   const algorithms = [
@@ -35,6 +39,20 @@ function HashTool({ onShowHelp, isActive }) {
       .catch(() => {
         setError('后端 API 初始化失败')
       })
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchHistory = async () => {
+      const records = await loadHashHistory()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+    fetchHistory()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // 当 isActive 变为 true 时，自动聚焦输入框（仅在文本模式下）
@@ -107,6 +125,22 @@ function HashTool({ onShowHelp, isActive }) {
 
       if (result) {
         setOutput(result)
+        const { success, items } = await addHashHistoryItem({
+          id: createHistoryId(),
+          action: inputMode === 'text' ? '文本散列计算' : '文件散列计算',
+          createdAt: Date.now(),
+          input: {
+            algorithm,
+            inputMode,
+            source: inputMode === 'text' ? truncateText(input) : truncateText(filePath),
+          },
+          output: {
+            hash: result,
+          },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '计算失败')
@@ -287,6 +321,11 @@ function HashTool({ onShowHelp, isActive }) {
           message="已复制到剪贴板"
           show={showToast}
           onClose={() => setShowToast(false)}
+        />
+        <ToolHistoryView
+          title="历史记录"
+          records={historyRecords}
+          maxItems={MAX_HASH_HISTORY_ITEMS}
         />
       </div>
     </div>

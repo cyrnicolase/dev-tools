@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	"github.com/cyrnicolase/dev-tools/internal/qrcode/interfaces"
 )
 
@@ -26,3 +27,17 @@ func (h *QRCodeHandler) GenerateImage(text string, size string) ([]byte, error) 
 	return h.api.GenerateImage(text, size)
 }
 
+// ListHistory 获取历史记录
+func (h *QRCodeHandler) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (h *QRCodeHandler) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (h *QRCodeHandler) ClearHistory() error {
+	return h.api.ClearHistory()
+}

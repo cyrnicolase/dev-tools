@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import ToolHistoryView from '../../components/ToolHistoryView'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
+import { addQRCodeHistoryItem, loadQRCodeHistory, MAX_QRCODE_HISTORY_ITEMS } from './qrcodeHistoryStorage'
+import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
 function QrcodeTool({ onShowHelp, isActive = true }) {
   const [input, setInput] = useState('')
@@ -11,6 +14,7 @@ function QrcodeTool({ onShowHelp, isActive = true }) {
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const [historyRecords, setHistoryRecords] = useState([])
   const textareaRef = useRef(null)
 
   useEffect(() => {
@@ -23,6 +27,20 @@ function QrcodeTool({ onShowHelp, isActive = true }) {
       .catch(() => {
         setError('后端 API 初始化失败')
       })
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchHistory = async () => {
+      const records = await loadQRCodeHistory()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+    fetchHistory()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // 当选中二维码工具时，自动聚焦到输入框
@@ -43,6 +61,21 @@ function QrcodeTool({ onShowHelp, isActive = true }) {
       const result = await wailsAPI.QRCode.Generate(input, size)
       if (result) {
         setQrcodeImage(`data:image/png;base64,${result}`)
+        const { success, items } = await addQRCodeHistoryItem({
+          id: createHistoryId(),
+          action: '生成二维码',
+          createdAt: Date.now(),
+          input: {
+            text: truncateText(input),
+            size,
+          },
+          output: {
+            image: `base64:${truncateText(result, 80)}`,
+          },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '生成二维码失败')
@@ -198,6 +231,11 @@ function QrcodeTool({ onShowHelp, isActive = true }) {
         message="已下载到本地"
         show={showToast}
         onClose={() => setShowToast(false)}
+      />
+      <ToolHistoryView
+        title="历史记录"
+        records={historyRecords}
+        maxItems={MAX_QRCODE_HISTORY_ITEMS}
       />
       </div>
     </div>

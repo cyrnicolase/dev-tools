@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
+import ToolHistoryView from '../../components/ToolHistoryView'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
+import { addIPQueryHistoryItem, loadIPQueryHistory, MAX_IPQUERY_HISTORY_ITEMS } from './ipQueryHistoryStorage'
+import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
 function IPQueryTool({ onShowHelp, isActive = true }) {
   // 查询模式：'single' | 'batch'
@@ -24,6 +27,7 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
   const [loading, setLoading] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const [historyRecords, setHistoryRecords] = useState([])
   const inputRef = useRef(null)
   const batchInputRef = useRef(null)
 
@@ -37,6 +41,20 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
       .catch(() => {
         setError('后端 API 初始化失败')
       })
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchHistory = async () => {
+      const records = await loadIPQueryHistory()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+    fetchHistory()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // 当选中 IP 查询工具时，自动聚焦到输入框
@@ -106,6 +124,22 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
       if (resultJson) {
         const parsedResults = JSON.parse(resultJson)
         setResults(parsedResults)
+        const successCount = parsedResults.filter((item) => item.status === 'success').length
+        const { success, items } = await addIPQueryHistoryItem({
+          id: createHistoryId(),
+          action: '单个IP查询',
+          createdAt: Date.now(),
+          input: {
+            ip: trimmedInput,
+          },
+          output: {
+            total: String(parsedResults.length),
+            success: String(successCount),
+          },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '查询失败')
@@ -142,6 +176,23 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
       if (resultJson) {
         const parsedResults = JSON.parse(resultJson)
         setBatchResults(parsedResults)
+        const successCount = parsedResults.filter((item) => item.status === 'success').length
+        const { success, items } = await addIPQueryHistoryItem({
+          id: createHistoryId(),
+          action: '批量IP查询',
+          createdAt: Date.now(),
+          input: {
+            count: String(ips.length),
+            preview: truncateText(ips.slice(0, 5).join(', ')),
+          },
+          output: {
+            total: String(parsedResults.length),
+            success: String(successCount),
+          },
+        })
+        if (success) {
+          setHistoryRecords(items)
+        }
       }
     } catch (err) {
       setError(err.message || '批量查询失败')
@@ -487,6 +538,11 @@ function IPQueryTool({ onShowHelp, isActive = true }) {
           message={toastMessage}
           show={showToast}
           onClose={() => setShowToast(false)}
+        />
+        <ToolHistoryView
+          title="历史记录"
+          records={historyRecords}
+          maxItems={MAX_IPQUERY_HISTORY_ITEMS}
         />
       </div>
     </div>

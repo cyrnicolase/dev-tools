@@ -2,21 +2,30 @@ package application
 
 import (
 	"github.com/cyrnicolase/dev-tools/internal/base64/domain"
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
+	"github.com/pkg/errors"
 )
 
 // Service Base64 工具应用服务
 type Service struct {
-	encoder   *domain.Encoder
-	decoder   *domain.Decoder
-	validator *domain.Validator
+	encoder        *domain.Encoder
+	decoder        *domain.Decoder
+	validator      *domain.Validator
+	historyStore   *historydomain.ToolHistoryStore
+	historyInitErr error
 }
+
+const base64ToolID = "base64"
 
 // NewService 创建新的 Service 实例
 func NewService() *Service {
+	historyStore, historyErr := historydomain.NewToolHistoryStore()
 	return &Service{
-		encoder:   domain.NewEncoder(),
-		decoder:   domain.NewDecoder(),
-		validator: domain.NewValidator(),
+		encoder:        domain.NewEncoder(),
+		decoder:        domain.NewDecoder(),
+		validator:      domain.NewValidator(),
+		historyStore:   historyStore,
+		historyInitErr: historyErr,
 	}
 }
 
@@ -48,4 +57,36 @@ func (s *Service) Validate(input string) bool {
 // ValidateURLSafe 验证 URL 安全的 Base64
 func (s *Service) ValidateURLSafe(input string) bool {
 	return s.validator.ValidateURLSafe(input)
+}
+
+// ListHistory 获取历史记录
+func (s *Service) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return nil, s.historyUnavailableError()
+	}
+	return s.historyStore.List(base64ToolID)
+}
+
+// AddHistory 添加历史记录
+func (s *Service) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return nil, s.historyUnavailableError()
+	}
+	record.ToolID = base64ToolID
+	return s.historyStore.Add(record)
+}
+
+// ClearHistory 清空历史记录
+func (s *Service) ClearHistory() error {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return s.historyUnavailableError()
+	}
+	return s.historyStore.Clear(base64ToolID)
+}
+
+func (s *Service) historyUnavailableError() error {
+	if s.historyInitErr != nil {
+		return s.historyInitErr
+	}
+	return errors.WithStack(historydomain.ErrHistoryStoreUnavailable)
 }

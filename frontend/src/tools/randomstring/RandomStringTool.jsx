@@ -3,7 +3,10 @@ import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
+import ToolHistoryView from '../../components/ToolHistoryView'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
+import { addRandomStringHistoryItem, loadRandomStringHistory, MAX_RANDOMSTRING_HISTORY_ITEMS } from './randomStringHistoryStorage'
+import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
 // 预设长度选项
 const PRESET_LENGTHS = [
@@ -25,6 +28,7 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const [historyRecords, setHistoryRecords] = useState([])
   const lengthInputRef = useRef(null)
 
   useEffect(() => {
@@ -37,6 +41,20 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
       .catch(() => {
         setError('后端 API 初始化失败')
       })
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchHistory = async () => {
+      const records = await loadRandomStringHistory()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+    fetchHistory()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // 当选中随机字符串工具时，自动聚焦到长度输入框
@@ -95,6 +113,26 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
       }
 
       setResults(generatedResults)
+      const { success, items } = await addRandomStringHistoryItem({
+        id: createHistoryId(),
+        action: countNum > 1 ? '批量生成随机字符串' : '生成随机字符串',
+        createdAt: Date.now(),
+        input: {
+          length: String(lengthNum),
+          count: String(countNum),
+          includeNumbers: String(includeNumbers),
+          includeLowercase: String(includeLowercase),
+          includeUppercase: String(includeUppercase),
+          includeSpecial: String(includeSpecial),
+        },
+        output: {
+          total: String(generatedResults.length),
+          preview: truncateText(generatedResults.slice(0, 3).join(' | ')),
+        },
+      })
+      if (success) {
+        setHistoryRecords(items)
+      }
     } catch (err) {
       setError(err.message || '生成失败')
     }
@@ -310,6 +348,11 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
           message="已复制到剪贴板"
           show={showToast}
           onClose={() => setShowToast(false)}
+        />
+        <ToolHistoryView
+          title="历史记录"
+          records={historyRecords}
+          maxItems={MAX_RANDOMSTRING_HISTORY_ITEMS}
         />
       </div>
     </div>

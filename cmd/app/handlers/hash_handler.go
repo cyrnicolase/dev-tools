@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	hashapi "github.com/cyrnicolase/dev-tools/internal/hash/interfaces"
@@ -77,7 +78,7 @@ func (h *HashHandler) OpenFileDialog() (string, error) {
 	if h.ctx == nil {
 		return "", fmt.Errorf("上下文未初始化")
 	}
-	
+
 	filePath, err := runtime.OpenFileDialog(h.ctx, runtime.OpenDialogOptions{
 		Title: "选择文件",
 	})
@@ -91,3 +92,17 @@ func (h *HashHandler) OpenFileDialog() (string, error) {
 	return filePath, nil
 }
 
+// ListHistory 获取历史记录
+func (h *HashHandler) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (h *HashHandler) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (h *HashHandler) ClearHistory() error {
+	return h.api.ClearHistory()
+}

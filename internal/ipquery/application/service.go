@@ -3,18 +3,27 @@ package application
 import (
 	"sync"
 
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	"github.com/cyrnicolase/dev-tools/internal/ipquery/domain"
+	"github.com/pkg/errors"
 )
 
 // Service IP查询服务
 type Service struct {
-	queryer *domain.Queryer
+	queryer        *domain.Queryer
+	historyStore   *historydomain.ToolHistoryStore
+	historyInitErr error
 }
+
+const ipQueryToolID = "ipquery"
 
 // NewService 创建新的服务实例
 func NewService() *Service {
+	historyStore, historyErr := historydomain.NewToolHistoryStore()
 	return &Service{
-		queryer: domain.NewQueryer(),
+		queryer:        domain.NewQueryer(),
+		historyStore:   historyStore,
+		historyInitErr: historyErr,
 	}
 }
 
@@ -64,3 +73,34 @@ func (s *Service) QueryBatch(ips []string) ([]domain.BatchQueryResult, error) {
 	return results, nil
 }
 
+// ListHistory 获取历史记录
+func (s *Service) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return nil, s.historyUnavailableError()
+	}
+	return s.historyStore.List(ipQueryToolID)
+}
+
+// AddHistory 添加历史记录
+func (s *Service) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return nil, s.historyUnavailableError()
+	}
+	record.ToolID = ipQueryToolID
+	return s.historyStore.Add(record)
+}
+
+// ClearHistory 清空历史记录
+func (s *Service) ClearHistory() error {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return s.historyUnavailableError()
+	}
+	return s.historyStore.Clear(ipQueryToolID)
+}
+
+func (s *Service) historyUnavailableError() error {
+	if s.historyInitErr != nil {
+		return s.historyInitErr
+	}
+	return errors.WithStack(historydomain.ErrHistoryStoreUnavailable)
+}

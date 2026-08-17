@@ -1,18 +1,27 @@
 package application
 
 import (
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	"github.com/cyrnicolase/dev-tools/internal/uuid/domain"
+	"github.com/pkg/errors"
 )
 
 // Service UUID 工具应用服务
 type Service struct {
-	generator *domain.Generator
+	generator      *domain.Generator
+	historyStore   *historydomain.ToolHistoryStore
+	historyInitErr error
 }
+
+const uuidToolID = "uuid"
 
 // NewService 创建新的 Service 实例
 func NewService() *Service {
+	historyStore, historyErr := historydomain.NewToolHistoryStore()
 	return &Service{
-		generator: domain.NewGenerator(),
+		generator:      domain.NewGenerator(),
+		historyStore:   historyStore,
+		historyInitErr: historyErr,
 	}
 }
 
@@ -46,3 +55,34 @@ func (s *Service) GenerateBatch(version string, count int, namespace, name strin
 	return s.generator.GenerateBatch(version, count, namespace, name)
 }
 
+// ListHistory 获取历史记录
+func (s *Service) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return nil, s.historyUnavailableError()
+	}
+	return s.historyStore.List(uuidToolID)
+}
+
+// AddHistory 添加历史记录
+func (s *Service) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return nil, s.historyUnavailableError()
+	}
+	record.ToolID = uuidToolID
+	return s.historyStore.Add(record)
+}
+
+// ClearHistory 清空历史记录
+func (s *Service) ClearHistory() error {
+	if s.historyInitErr != nil || s.historyStore == nil {
+		return s.historyUnavailableError()
+	}
+	return s.historyStore.Clear(uuidToolID)
+}
+
+func (s *Service) historyUnavailableError() error {
+	if s.historyInitErr != nil {
+		return s.historyInitErr
+	}
+	return errors.WithStack(historydomain.ErrHistoryStoreUnavailable)
+}

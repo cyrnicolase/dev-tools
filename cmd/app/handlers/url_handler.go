@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	"github.com/cyrnicolase/dev-tools/internal/url/interfaces"
 )
 
@@ -26,3 +27,17 @@ func (h *URLHandler) Decode(input string) (string, error) {
 	return h.api.Decode(input)
 }
 
+// ListHistory 获取历史记录
+func (h *URLHandler) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (h *URLHandler) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (h *URLHandler) ClearHistory() error {
+	return h.api.ClearHistory()
+}

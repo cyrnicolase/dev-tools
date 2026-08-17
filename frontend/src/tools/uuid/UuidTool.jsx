@@ -3,6 +3,9 @@ import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
+import ToolHistoryView from '../../components/ToolHistoryView'
+import { addUUIDHistoryItem, loadUUIDHistory, MAX_UUID_HISTORY_ITEMS } from './uuidHistoryStorage'
+import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
 function UuidTool({ onShowHelp }) {
   const [version, setVersion] = useState('v4')
@@ -15,6 +18,7 @@ function UuidTool({ onShowHelp }) {
   const [api, setApi] = useState(null)
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const [historyRecords, setHistoryRecords] = useState([])
 
   useEffect(() => {
     waitForWailsAPI()
@@ -26,6 +30,20 @@ function UuidTool({ onShowHelp }) {
       .catch(() => {
         setError('后端 API 初始化失败')
       })
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchHistory = async () => {
+      const records = await loadUUIDHistory()
+      if (!cancelled) {
+        setHistoryRecords(records)
+      }
+    }
+    fetchHistory()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const handleGenerate = async () => {
@@ -82,6 +100,26 @@ function UuidTool({ onShowHelp }) {
       // 应用格式化
       const formattedResults = generatedResults.map(uuid => formatUUID(uuid, formatCase, formatHyphens))
       setResults(formattedResults)
+      const { success, items } = await addUUIDHistoryItem({
+        id: createHistoryId(),
+        action: `生成${version.toUpperCase()}（${count}条）`,
+        createdAt: Date.now(),
+        input: {
+          version,
+          count: String(count),
+          namespace: truncateText(namespace),
+          name: truncateText(name),
+          case: formatCase,
+          hyphens: formatHyphens ? 'with' : 'without',
+        },
+        output: {
+          preview: truncateText(formattedResults.slice(0, 3).join(' | ')),
+          total: String(formattedResults.length),
+        },
+      })
+      if (success) {
+        setHistoryRecords(items)
+      }
     } catch (err) {
       setError(err.message || '生成失败')
     }
@@ -355,6 +393,11 @@ function UuidTool({ onShowHelp }) {
         message="已复制到剪贴板"
         show={showToast}
         onClose={() => setShowToast(false)}
+      />
+      <ToolHistoryView
+        title="历史记录"
+        records={historyRecords}
+        maxItems={MAX_UUID_HISTORY_ITEMS}
       />
       </div>
     </div>

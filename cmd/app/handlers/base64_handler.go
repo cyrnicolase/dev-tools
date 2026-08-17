@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/cyrnicolase/dev-tools/internal/base64/interfaces"
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 )
 
 // Base64Handler Base64 工具处理器
@@ -44,4 +45,19 @@ func (h *Base64Handler) Validate(input string) bool {
 // ValidateURLSafe 验证 URL 安全的 Base64
 func (h *Base64Handler) ValidateURLSafe(input string) bool {
 	return h.api.ValidateURLSafe(input)
+}
+
+// ListHistory 获取历史记录
+func (h *Base64Handler) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (h *Base64Handler) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (h *Base64Handler) ClearHistory() error {
+	return h.api.ClearHistory()
 }

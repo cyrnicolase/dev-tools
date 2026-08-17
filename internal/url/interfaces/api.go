@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	"github.com/cyrnicolase/dev-tools/internal/url/application"
 )
 
@@ -26,3 +27,17 @@ func (a *API) Decode(input string) (string, error) {
 	return a.service.Decode(input)
 }
 
+// ListHistory 获取历史记录
+func (a *API) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return a.service.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (a *API) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return a.service.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (a *API) ClearHistory() error {
+	return a.service.ClearHistory()
+}

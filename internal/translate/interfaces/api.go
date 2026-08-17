@@ -3,6 +3,7 @@ package interfaces
 import (
 	"encoding/json"
 
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	"github.com/cyrnicolase/dev-tools/internal/translate/application"
 	"github.com/cyrnicolase/dev-tools/internal/translate/domain"
 	"github.com/pkg/errors"
@@ -66,4 +67,19 @@ func (a *API) SaveProviderConfig(provider, configJSON string) error {
 		return errors.WithStack(err)
 	}
 	return a.service.SaveProviderConfig(provider, config)
+}
+
+// ListHistory 获取历史记录
+func (a *API) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return a.service.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (a *API) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return a.service.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (a *API) ClearHistory() error {
+	return a.service.ClearHistory()
 }

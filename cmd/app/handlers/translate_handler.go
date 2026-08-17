@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	"github.com/cyrnicolase/dev-tools/internal/translate/interfaces"
 )
 
@@ -44,4 +45,19 @@ func (h *TranslateHandler) GetProviderConfig(provider string) (string, error) {
 // SaveProviderConfig 保存提供商配置
 func (h *TranslateHandler) SaveProviderConfig(provider, configJSON string) error {
 	return h.api.SaveProviderConfig(provider, configJSON)
+}
+
+// ListHistory 获取历史记录
+func (h *TranslateHandler) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (h *TranslateHandler) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (h *TranslateHandler) ClearHistory() error {
+	return h.api.ClearHistory()
 }

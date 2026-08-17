@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"github.com/cyrnicolase/dev-tools/internal/base64/application"
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 )
 
 // API Base64 工具 API
@@ -44,4 +45,19 @@ func (a *API) Validate(input string) bool {
 // ValidateURLSafe 验证 URL 安全的 Base64
 func (a *API) ValidateURLSafe(input string) bool {
 	return a.service.ValidateURLSafe(input)
+}
+
+// ListHistory 获取历史记录
+func (a *API) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return a.service.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (a *API) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return a.service.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (a *API) ClearHistory() error {
+	return a.service.ClearHistory()
 }

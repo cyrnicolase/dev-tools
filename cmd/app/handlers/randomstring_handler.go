@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	historydomain "github.com/cyrnicolase/dev-tools/internal/history/domain"
 	randomstringapi "github.com/cyrnicolase/dev-tools/internal/randomstring/interfaces"
 )
 
@@ -26,3 +27,17 @@ func (h *RandomStringHandler) GenerateBatch(length int, includeNumbers, includeL
 	return h.api.GenerateBatch(length, includeNumbers, includeLowercase, includeUppercase, includeSpecial, count)
 }
 
+// ListHistory 获取历史记录
+func (h *RandomStringHandler) ListHistory() ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.ListHistory()
+}
+
+// AddHistory 添加历史记录
+func (h *RandomStringHandler) AddHistory(record historydomain.ToolHistoryRecord) ([]historydomain.ToolHistoryRecord, error) {
+	return h.api.AddHistory(record)
+}
+
+// ClearHistory 清空历史记录
+func (h *RandomStringHandler) ClearHistory() error {
+	return h.api.ClearHistory()
+}
