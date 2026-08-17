@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
-import ToolHistoryView from '../../components/ToolHistoryView'
+import ToolHistoryDrawer from '../../components/ToolHistoryDrawer'
 import { addUUIDHistoryItem, loadUUIDHistory, MAX_UUID_HISTORY_ITEMS } from './uuidHistoryStorage'
 import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
 
@@ -19,6 +19,9 @@ function UuidTool({ onShowHelp }) {
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [historyRecords, setHistoryRecords] = useState([])
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false)
+  const historyPanelRef = useRef(null)
+  const historyToggleButtonRef = useRef(null)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -31,6 +34,27 @@ function UuidTool({ onShowHelp }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  useEffect(() => {
+    if (!isHistoryPanelOpen) {
+      return undefined
+    }
+
+    const handleOutsideClick = (event) => {
+      const panelNode = historyPanelRef.current
+      const toggleButtonNode = historyToggleButtonRef.current
+      const target = event.target
+      if (panelNode?.contains(target) || toggleButtonNode?.contains(target)) {
+        return
+      }
+      setIsHistoryPanelOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isHistoryPanelOpen])
 
   useEffect(() => {
     let cancelled = false
@@ -100,6 +124,10 @@ function UuidTool({ onShowHelp }) {
       // 应用格式化
       const formattedResults = generatedResults.map(uuid => formatUUID(uuid, formatCase, formatHyphens))
       setResults(formattedResults)
+      const outputMap = {}
+      formattedResults.forEach((uuid, index) => {
+        outputMap[`uuid_${index + 1}`] = uuid
+      })
       const { success, items } = await addUUIDHistoryItem({
         id: createHistoryId(),
         action: `生成${version.toUpperCase()}（${count}条）`,
@@ -112,10 +140,7 @@ function UuidTool({ onShowHelp }) {
           case: formatCase,
           hyphens: formatHyphens ? 'with' : 'without',
         },
-        output: {
-          preview: truncateText(formattedResults.slice(0, 3).join(' | ')),
-          total: String(formattedResults.length),
-        },
+        output: outputMap,
       })
       if (success) {
         setHistoryRecords(items)
@@ -181,14 +206,25 @@ function UuidTool({ onShowHelp }) {
   ]
 
   return (
-    <div className="h-full flex flex-col">
-      <div>
+    <div className="h-full flex flex-col relative overflow-hidden">
+      <div className="relative">
         <ToolHeader
           title="UUID 工具"
           description="生成各种版本的 UUID"
           toolId="uuid"
           onShowHelp={onShowHelp}
         />
+        <button
+          ref={historyToggleButtonRef}
+          onClick={() => setIsHistoryPanelOpen((prev) => !prev)}
+          className={`absolute top-1 right-0 px-3 py-2 text-sm rounded-lg transition-colors select-none ${
+            isHistoryPanelOpen
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
+          }`}
+        >
+          历史记录
+        </button>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
 
@@ -394,12 +430,15 @@ function UuidTool({ onShowHelp }) {
         show={showToast}
         onClose={() => setShowToast(false)}
       />
-      <ToolHistoryView
+      </div>
+      <ToolHistoryDrawer
         title="历史记录"
         records={historyRecords}
         maxItems={MAX_UUID_HISTORY_ITEMS}
+        isOpen={isHistoryPanelOpen}
+        onClose={() => setIsHistoryPanelOpen(false)}
+        panelRef={historyPanelRef}
       />
-      </div>
     </div>
   )
 }

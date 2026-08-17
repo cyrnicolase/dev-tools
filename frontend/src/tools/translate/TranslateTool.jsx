@@ -3,7 +3,7 @@ import { getWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
-import ToolHistoryView from '../../components/ToolHistoryView'
+import ToolHistoryDrawer from '../../components/ToolHistoryDrawer'
 import TranslateConfig from './TranslateConfig'
 import { useTranslateConfig } from '../../hooks/useTranslateConfig'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
@@ -28,9 +28,12 @@ function TranslateTool({ onShowHelp, isActive }) {
   const [toastMessage, setToastMessage] = useState('')
   const [showConfig, setShowConfig] = useState(false)
   const [historyRecords, setHistoryRecords] = useState([])
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false)
   
   const { api, configChecked, checkConfig } = useTranslateConfig()
   const textareaRef = useRef(null)
+  const historyPanelRef = useRef(null)
+  const historyToggleButtonRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -45,6 +48,26 @@ function TranslateTool({ onShowHelp, isActive }) {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    if (!isHistoryPanelOpen) {
+      return undefined
+    }
+    const handleOutsideClick = (event) => {
+      const panelNode = historyPanelRef.current
+      const toggleButtonNode = historyToggleButtonRef.current
+      const target = event.target
+      if (panelNode?.contains(target) || toggleButtonNode?.contains(target)) {
+        return
+      }
+      setIsHistoryPanelOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isHistoryPanelOpen])
 
   const handleTranslate = async () => {
     try {
@@ -88,7 +111,7 @@ function TranslateTool({ onShowHelp, isActive }) {
             text: truncateText(input.trim()),
           },
           output: {
-            result: truncateText(translated),
+            value: truncateText(translated),
           },
         })
         if (success) {
@@ -166,8 +189,8 @@ function TranslateTool({ onShowHelp, isActive }) {
   }, [isActive, showConfig])
 
   return (
-    <div className="h-full flex flex-col">
-      <div>
+    <div className="h-full flex flex-col relative overflow-hidden">
+      <div className="relative">
         <div className="flex items-start justify-between mb-4">
           <ToolHeader
             title="翻译工具"
@@ -202,6 +225,17 @@ function TranslateTool({ onShowHelp, isActive }) {
             </svg>
           </button>
         </div>
+        <button
+          ref={historyToggleButtonRef}
+          onClick={() => setIsHistoryPanelOpen((prev) => !prev)}
+          className={`absolute top-1 right-12 px-3 py-2 text-sm rounded-lg transition-colors select-none ${
+            isHistoryPanelOpen
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
+          }`}
+        >
+          历史记录
+        </button>
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
@@ -326,12 +360,15 @@ function TranslateTool({ onShowHelp, isActive }) {
           show={showToast}
           onClose={() => setShowToast(false)}
         />
-        <ToolHistoryView
-          title="历史记录"
-          records={historyRecords}
-          maxItems={MAX_TRANSLATE_HISTORY_ITEMS}
-        />
       </div>
+      <ToolHistoryDrawer
+        title="历史记录"
+        records={historyRecords}
+        maxItems={MAX_TRANSLATE_HISTORY_ITEMS}
+        isOpen={isHistoryPanelOpen}
+        onClose={() => setIsHistoryPanelOpen(false)}
+        panelRef={historyPanelRef}
+      />
     </div>
   )
 }

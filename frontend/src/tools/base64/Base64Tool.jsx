@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
-import ToolHistoryView from '../../components/ToolHistoryView'
+import ToolHistoryDrawer from '../../components/ToolHistoryDrawer'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
 import { addBase64HistoryItem, loadBase64History, MAX_BASE64_HISTORY_ITEMS } from './base64HistoryStorage'
 import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
@@ -15,7 +15,10 @@ function Base64Tool({ onShowHelp, isActive = true }) {
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [historyRecords, setHistoryRecords] = useState([])
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false)
   const textareaRef = useRef(null)
+  const historyPanelRef = useRef(null)
+  const historyToggleButtonRef = useRef(null)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -28,6 +31,27 @@ function Base64Tool({ onShowHelp, isActive = true }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  useEffect(() => {
+    if (!isHistoryPanelOpen) {
+      return undefined
+    }
+
+    const handleOutsideClick = (event) => {
+      const panelNode = historyPanelRef.current
+      const toggleButtonNode = historyToggleButtonRef.current
+      const target = event.target
+      if (panelNode?.contains(target) || toggleButtonNode?.contains(target)) {
+        return
+      }
+      setIsHistoryPanelOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isHistoryPanelOpen])
 
   useEffect(() => {
     let cancelled = false
@@ -156,13 +180,26 @@ function Base64Tool({ onShowHelp, isActive = true }) {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <ToolHeader
-        title="Base64 工具"
-        description="Base64 编码和解码"
-        toolId="base64"
-        onShowHelp={onShowHelp}
-      />
+    <div className="h-full flex flex-col relative overflow-hidden">
+      <div className="relative">
+        <ToolHeader
+          title="Base64 工具"
+          description="Base64 编码和解码"
+          toolId="base64"
+          onShowHelp={onShowHelp}
+        />
+        <button
+          ref={historyToggleButtonRef}
+          onClick={() => setIsHistoryPanelOpen((prev) => !prev)}
+          className={`absolute top-1 right-0 px-3 py-2 text-sm rounded-lg transition-colors select-none ${
+            isHistoryPanelOpen
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
+          }`}
+        >
+          历史记录
+        </button>
+      </div>
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
 
       <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
@@ -258,12 +295,15 @@ function Base64Tool({ onShowHelp, isActive = true }) {
         show={showToast}
         onClose={() => setShowToast(false)}
       />
-      <ToolHistoryView
+      </div>
+      <ToolHistoryDrawer
         title="历史记录"
         records={historyRecords}
         maxItems={MAX_BASE64_HISTORY_ITEMS}
+        isOpen={isHistoryPanelOpen}
+        onClose={() => setIsHistoryPanelOpen(false)}
+        panelRef={historyPanelRef}
       />
-      </div>
     </div>
   )
 }

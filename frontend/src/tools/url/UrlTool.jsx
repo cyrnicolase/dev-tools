@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
-import ToolHistoryView from '../../components/ToolHistoryView'
+import ToolHistoryDrawer from '../../components/ToolHistoryDrawer'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
 import { addURLHistoryItem, loadURLHistory, MAX_URL_HISTORY_ITEMS } from './urlHistoryStorage'
 import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
@@ -14,7 +14,10 @@ function UrlTool({ onShowHelp, isActive = true }) {
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [historyRecords, setHistoryRecords] = useState([])
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false)
   const textareaRef = useRef(null)
+  const historyPanelRef = useRef(null)
+  const historyToggleButtonRef = useRef(null)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -27,6 +30,26 @@ function UrlTool({ onShowHelp, isActive = true }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  useEffect(() => {
+    if (!isHistoryPanelOpen) {
+      return undefined
+    }
+    const handleOutsideClick = (event) => {
+      const panelNode = historyPanelRef.current
+      const toggleButtonNode = historyToggleButtonRef.current
+      const target = event.target
+      if (panelNode?.contains(target) || toggleButtonNode?.contains(target)) {
+        return
+      }
+      setIsHistoryPanelOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isHistoryPanelOpen])
 
   useEffect(() => {
     let cancelled = false
@@ -60,8 +83,8 @@ function UrlTool({ onShowHelp, isActive = true }) {
           id: createHistoryId(),
           action: 'URL编码',
           createdAt: Date.now(),
-          input: { text: truncateText(input) },
-          output: { result: truncateText(result) },
+          input: { value: truncateText(input) },
+          output: { value: truncateText(result) },
         })
         if (success) {
           setHistoryRecords(items)
@@ -87,8 +110,8 @@ function UrlTool({ onShowHelp, isActive = true }) {
           id: createHistoryId(),
           action: 'URL解码',
           createdAt: Date.now(),
-          input: { text: truncateText(input) },
-          output: { result: truncateText(result) },
+          input: { value: truncateText(input) },
+          output: { value: truncateText(result) },
         })
         if (success) {
           setHistoryRecords(items)
@@ -114,14 +137,25 @@ function UrlTool({ onShowHelp, isActive = true }) {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div>
+    <div className="h-full flex flex-col relative overflow-hidden">
+      <div className="relative">
         <ToolHeader
           title="URL 工具"
           description="URL 编码和解码"
           toolId="url"
           onShowHelp={onShowHelp}
         />
+        <button
+          ref={historyToggleButtonRef}
+          onClick={() => setIsHistoryPanelOpen((prev) => !prev)}
+          className={`absolute top-1 right-0 px-3 py-2 text-sm rounded-lg transition-colors select-none ${
+            isHistoryPanelOpen
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
+          }`}
+        >
+          历史记录
+        </button>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
 
@@ -200,12 +234,15 @@ function UrlTool({ onShowHelp, isActive = true }) {
         show={showToast}
         onClose={() => setShowToast(false)}
       />
-      <ToolHistoryView
+      </div>
+      <ToolHistoryDrawer
         title="历史记录"
         records={historyRecords}
         maxItems={MAX_URL_HISTORY_ITEMS}
+        isOpen={isHistoryPanelOpen}
+        onClose={() => setIsHistoryPanelOpen(false)}
+        panelRef={historyPanelRef}
       />
-      </div>
     </div>
   )
 }

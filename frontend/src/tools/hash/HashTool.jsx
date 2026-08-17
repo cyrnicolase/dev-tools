@@ -3,7 +3,7 @@ import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
-import ToolHistoryView from '../../components/ToolHistoryView'
+import ToolHistoryDrawer from '../../components/ToolHistoryDrawer'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
 import { addHashHistoryItem, loadHashHistory, MAX_HASH_HISTORY_ITEMS } from './hashHistoryStorage'
 import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
@@ -20,7 +20,10 @@ function HashTool({ onShowHelp, isActive }) {
   const [loading, setLoading] = useState(false)
   const [buttonDisabledFeedback, setButtonDisabledFeedback] = useState(false)
   const [historyRecords, setHistoryRecords] = useState([])
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false)
   const inputRef = useRef(null)
+  const historyPanelRef = useRef(null)
+  const historyToggleButtonRef = useRef(null)
 
   const algorithms = [
     { value: 'md5', label: 'MD5' },
@@ -40,6 +43,26 @@ function HashTool({ onShowHelp, isActive }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  useEffect(() => {
+    if (!isHistoryPanelOpen) {
+      return undefined
+    }
+    const handleOutsideClick = (event) => {
+      const panelNode = historyPanelRef.current
+      const toggleButtonNode = historyToggleButtonRef.current
+      const target = event.target
+      if (panelNode?.contains(target) || toggleButtonNode?.contains(target)) {
+        return
+      }
+      setIsHistoryPanelOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isHistoryPanelOpen])
 
   useEffect(() => {
     let cancelled = false
@@ -135,7 +158,7 @@ function HashTool({ onShowHelp, isActive }) {
             source: inputMode === 'text' ? truncateText(input) : truncateText(filePath),
           },
           output: {
-            hash: result,
+            value: result,
           },
         })
         if (success) {
@@ -175,13 +198,26 @@ function HashTool({ onShowHelp, isActive }) {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <ToolHeader
-        title="散列值计算工具"
-        description="计算文本和文件的散列值（MD5、SHA1、SHA256、SHA512）"
-        toolId="hash"
-        onShowHelp={onShowHelp}
-      />
+    <div className="h-full flex flex-col relative overflow-hidden">
+      <div className="relative">
+        <ToolHeader
+          title="散列值计算工具"
+          description="计算文本和文件的散列值（MD5、SHA1、SHA256、SHA512）"
+          toolId="hash"
+          onShowHelp={onShowHelp}
+        />
+        <button
+          ref={historyToggleButtonRef}
+          onClick={() => setIsHistoryPanelOpen((prev) => !prev)}
+          className={`absolute top-1 right-0 px-3 py-2 text-sm rounded-lg transition-colors select-none ${
+            isHistoryPanelOpen
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
+          }`}
+        >
+          历史记录
+        </button>
+      </div>
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
         <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
           <div className="flex items-center justify-between mb-4">
@@ -322,12 +358,15 @@ function HashTool({ onShowHelp, isActive }) {
           show={showToast}
           onClose={() => setShowToast(false)}
         />
-        <ToolHistoryView
-          title="历史记录"
-          records={historyRecords}
-          maxItems={MAX_HASH_HISTORY_ITEMS}
-        />
       </div>
+      <ToolHistoryDrawer
+        title="历史记录"
+        records={historyRecords}
+        maxItems={MAX_HASH_HISTORY_ITEMS}
+        isOpen={isHistoryPanelOpen}
+        onClose={() => setIsHistoryPanelOpen(false)}
+        panelRef={historyPanelRef}
+      />
     </div>
   )
 }

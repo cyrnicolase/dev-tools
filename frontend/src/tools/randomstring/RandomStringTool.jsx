@@ -3,7 +3,7 @@ import { getWailsAPI, waitForWailsAPI } from '../../utils/api'
 import Toast from '../../components/Toast'
 import ToolHeader from '../../components/ToolHeader'
 import Select from '../../components/Select'
-import ToolHistoryView from '../../components/ToolHistoryView'
+import ToolHistoryDrawer from '../../components/ToolHistoryDrawer'
 import { useAutoFocus } from '../../hooks/useAutoFocus'
 import { addRandomStringHistoryItem, loadRandomStringHistory, MAX_RANDOMSTRING_HISTORY_ITEMS } from './randomStringHistoryStorage'
 import { createHistoryId, truncateText } from '../../utils/toolHistoryStorage'
@@ -29,7 +29,10 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
   const [error, setError] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [historyRecords, setHistoryRecords] = useState([])
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false)
   const lengthInputRef = useRef(null)
+  const historyPanelRef = useRef(null)
+  const historyToggleButtonRef = useRef(null)
 
   useEffect(() => {
     waitForWailsAPI()
@@ -42,6 +45,26 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
         setError('后端 API 初始化失败')
       })
   }, [])
+
+  useEffect(() => {
+    if (!isHistoryPanelOpen) {
+      return undefined
+    }
+    const handleOutsideClick = (event) => {
+      const panelNode = historyPanelRef.current
+      const toggleButtonNode = historyToggleButtonRef.current
+      const target = event.target
+      if (panelNode?.contains(target) || toggleButtonNode?.contains(target)) {
+        return
+      }
+      setIsHistoryPanelOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isHistoryPanelOpen])
 
   useEffect(() => {
     let cancelled = false
@@ -113,6 +136,10 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
       }
 
       setResults(generatedResults)
+      const outputMap = {}
+      generatedResults.forEach((value, index) => {
+        outputMap[`value_${index + 1}`] = value
+      })
       const { success, items } = await addRandomStringHistoryItem({
         id: createHistoryId(),
         action: countNum > 1 ? '批量生成随机字符串' : '生成随机字符串',
@@ -125,10 +152,7 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
           includeUppercase: String(includeUppercase),
           includeSpecial: String(includeSpecial),
         },
-        output: {
-          total: String(generatedResults.length),
-          preview: truncateText(generatedResults.slice(0, 3).join(' | ')),
-        },
+        output: outputMap,
       })
       if (success) {
         setHistoryRecords(items)
@@ -183,14 +207,25 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div>
+    <div className="h-full flex flex-col relative overflow-hidden">
+      <div className="relative">
         <ToolHeader
           title="随机字符串工具"
           description="生成随机字符串"
           toolId="randomstring"
           onShowHelp={onShowHelp}
         />
+        <button
+          ref={historyToggleButtonRef}
+          onClick={() => setIsHistoryPanelOpen((prev) => !prev)}
+          className={`absolute top-1 right-0 px-3 py-2 text-sm rounded-lg transition-colors select-none ${
+            isHistoryPanelOpen
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-button-secondary text-button-secondary-text hover:bg-[var(--button-secondary-hover)]'
+          }`}
+        >
+          历史记录
+        </button>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
         <div className="bg-secondary rounded-lg shadow-sm border border-border-primary p-6">
@@ -349,12 +384,15 @@ function RandomStringTool({ onShowHelp, isActive = true }) {
           show={showToast}
           onClose={() => setShowToast(false)}
         />
-        <ToolHistoryView
-          title="历史记录"
-          records={historyRecords}
-          maxItems={MAX_RANDOMSTRING_HISTORY_ITEMS}
-        />
       </div>
+      <ToolHistoryDrawer
+        title="历史记录"
+        records={historyRecords}
+        maxItems={MAX_RANDOMSTRING_HISTORY_ITEMS}
+        isOpen={isHistoryPanelOpen}
+        onClose={() => setIsHistoryPanelOpen(false)}
+        panelRef={historyPanelRef}
+      />
     </div>
   )
 }
